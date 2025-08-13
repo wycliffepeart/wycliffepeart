@@ -1,6 +1,6 @@
 # Hi there, I'm Wycliffe 👋
 
-💻 **Full-Stack & Backend Software Engineer** | 🚀 **Cloud & Distributed Systems Specialist** | 🔒 **AI & Cybersecurity Enthusiast**
+💻 **Full-Stack & Backend Software Engineer** | 🤖 **AI Developer** |  **☁️ Cloud Developer** 
 
 ---
 
