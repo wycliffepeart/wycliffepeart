@@ -11,8 +11,6 @@ I specialize in **Node.js**, **TypeScript**, and **microservices**, with deep ex
 With **5+ years** of microservices architecture, **7 years** in SPA development (React, Vue), and **enterprise-grade API design**, I focus on **scalability, performance, and security**.  
 I also have strong experience in **serverless**, **AWS**, **DevOps**, and **data engineering**.
 
----
-
 ## 🛠️ Tech Stack
 
 ### **Core Skills**
@@ -29,8 +27,6 @@ I also have strong experience in **serverless**, **AWS**, **DevOps**, and **data
 - **Performance Optimization** & **Scalability Planning**
 - **Idempotency & Consistency** in distributed systems
 
----
-
 ## 🚀 Recent Highlights
 - **Kafka-based monitoring system** for real-time telemetry aggregation.
 - **Microservices trading platform** with AWS SQS/SNS and polyglot persistence.
@@ -38,15 +34,11 @@ I also have strong experience in **serverless**, **AWS**, **DevOps**, and **data
 - **Security-enhanced API Gateway** with VPC-private endpoints and IAM policies.
 - **AI-powered threat detection prototypes** for cybersecurity research.
 
----
-
 ## 📚 Current Interests
 - Leveraging **AI for automated threat detection** and incident response.
 - Advanced **Node.js event loop** & performance tuning.
 - **Public speaking** and sharing technical knowledge.
 - Building **developer-friendly tooling** for cloud and distributed apps.
-
----
 
 ## 📫 Connect With Me
 - **GitHub:** [github.com/wycliffepeart](https://github.com/wycliffepeart)
