@@ -5,11 +5,9 @@
 ---
 
 ## 🌟 About Me
-I’m a software engineer with **10+ years** of experience designing, building, and scaling applications across **backend, frontend, cloud, and distributed architectures**.  
-I specialize in **Node.js**, **TypeScript**, and **microservices**, with deep expertise in **API development**, **event-driven systems**, and **cloud-native deployments**.
+I’m a software engineer with **10+ years** of experience designing, building, and scaling applications across **backend, frontend, cloud, and distributed architectures**. I specialize in **Node.js**, **TypeScript**, and **microservices**, with deep expertise in **API development**, **event-driven systems**, and **cloud-native deployments**.
 
-With **5+ years** of microservices architecture, **7 years** in SPA development (React, Vue), and **enterprise-grade API design**, I focus on **scalability, performance, and security**.  
-I also have strong experience in **serverless**, **AWS**, **DevOps**, and **data engineering**.
+With **5+ years** of microservices architecture, **7 years** in SPA development (React, Vue), and **enterprise-grade API design**, I focus on **scalability, performance, and security**. I also have strong experience in **serverless**, **AWS**, **DevOps**, and **data engineering**.
 
 ## 🛠️ Tech Stack
 
