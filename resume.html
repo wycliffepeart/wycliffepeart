@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Wycliffe Otaniel Peart | Senior Full-Stack Software Engineer | AI Application Development</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --heading: #111827;
+      --accent: #1f4e79;
+      --border: #d8dee6;
+      --background: #f3f5f7;
+      --paper: #ffffff;
+      --table-header: #eef3f8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 16px;
+      background: var(--background);
+      color: var(--text);
+      font-family:
+          "IBM Plex Sans",
+          Arial,
+          Helvetica,
+          sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .resume {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 48px 54px;
+      background: var(--paper);
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .resume-header {
+      padding-bottom: 24px;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .name {
+      margin: 0;
+      color: var(--heading);
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+    }
+
+    .professional-title {
+      margin: 8px 0 16px;
+      color: var(--accent);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .contact-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .contact-details a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .contact-details a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .contact-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section-title {
+      margin: 0 0 15px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 19px;
+      line-height: 1.25;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .section p {
+      margin: 0 0 12px;
+    }
+
+    .section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .competency-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .competency-table th,
+    .competency-table td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .competency-table th {
+      background: var(--table-header);
+      color: var(--heading);
+      font-size: 13px;
+    }
+
+    .competency-table th:first-child,
+    .competency-table td:first-child {
+      width: 24%;
+      font-weight: 700;
+    }
+
+    .experience-item {
+      margin-bottom: 30px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .experience-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .experience-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 3px;
+    }
+
+    .company-name {
+      margin: 0;
+      color: var(--heading);
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .experience-dates {
+      flex-shrink: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .role-title {
+      margin: 2px 0 8px;
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .technology-line {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .technology-label {
+      color: var(--heading);
+      font-weight: 700;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 21px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    .education-item {
+      margin-bottom: 18px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .education-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .education-item h3 {
+      margin: 0 0 4px;
+      color: var(--heading);
+      font-size: 16px;
+    }
+
+    .education-item p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .print-button {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      padding: 11px 18px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 5px 18px rgba(15, 23, 42, 0.2);
+    }
+
+    .print-button:hover {
+      opacity: 0.9;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 0;
+        background: var(--paper);
+      }
+
+      .resume {
+        padding: 28px 22px;
+        box-shadow: none;
+      }
+
+      .name {
+        font-size: 28px;
+      }
+
+      .professional-title {
+        font-size: 18px;
+      }
+
+      .experience-header {
+        display: block;
+      }
+
+      .experience-dates {
+        display: block;
+        margin-top: 4px;
+        white-space: normal;
+      }
+
+      .competency-table {
+        table-layout: auto;
+      }
+
+      .competency-table th:first-child,
+      .competency-table td:first-child {
+        width: 32%;
+      }
+
+      .print-button {
+        right: 14px;
+        bottom: 14px;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      body {
+        padding: 0;
+        background: #ffffff;
+        color: #000000;
+        font-size: 10.5pt;
+      }
+
+      .resume {
+        max-width: none;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .name {
+        font-size: 25pt;
+      }
+
+      .professional-title {
+        font-size: 15pt;
+      }
+
+      .section {
+        margin-top: 20px;
+      }
+
+      .section-title {
+        font-size: 13.5pt;
+      }
+
+      .company-name {
+        font-size: 12.5pt;
+      }
+
+      .role-title {
+        font-size: 11pt;
+      }
+
+      .contact-details,
+      .technology-line,
+      .experience-dates {
+        font-size: 9.5pt;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .print-button {
+        display: none;
+      }
+
+      .experience-item,
+      .education-item,
+      .competency-table tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<main class="resume">
+  <header class="resume-header">
+    <h1 class="name">Wycliffe Otaniel Peart</h1>
+
+    <p class="professional-title">
+      Senior Full-Stack Software Engineer | AI Application Development
+    </p>
+
+    <div class="contact-details">
+        <span class="contact-item">
+          <strong>Email:</strong>
+          <a href="mailto:wycliffepeart@gmail.com">
+            wycliffepeart@gmail.com
+          </a>
+        </span>
+
+      <span class="contact-item">
+          <strong>Phone:</strong>
+          <a href="tel:+18763755597">
+            +1 (876) 375-5597
+          </a>
+        </span>
+
+      <span class="contact-item">
+          <strong>Location:</strong>
+          Jamaica
+        </span>
+
+      <span class="contact-item">
+          <strong>GitHub:</strong>
+          <a
+            href="https://github.com/wycliffepeart"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            github.com/wycliffepeart
+          </a>
+        </span>
+
+      <span class="contact-item">
+          <strong>LinkedIn:</strong>
+          <a
+            href="https://www.linkedin.com/in/wycliffepeart/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            linkedin.com/in/wycliffepeart
+          </a>
+        </span>
+    </div>
+  </header>
+
+  <section class="section">
+    <h2 class="section-title">Professional Summary</h2>
+
+    <p>
+      Senior Full-Stack Software Engineer with AI engineering experience and
+      10+ years of experience designing, developing, and delivering enterprise
+      software solutions across banking, fintech, telecommunications,
+      consulting, and digital media.
+    </p>
+
+    <p>
+      Strong background in backend engineering, cloud-native architecture,
+      microservices, distributed systems, enterprise integrations, and modern
+      web application development. Experienced in building scalable REST APIs,
+      event-driven systems, CI/CD pipelines, and production-grade applications
+      using Node.js, Java, Spring Boot, React, Next.js, AWS, and Kubernetes.
+    </p>
+
+    <p>
+      Applies AI-assisted engineering practices across the software
+      development lifecycle, including LLM integration, prompt engineering,
+      intelligent automation, code review, security analysis, documentation,
+      automated testing, and CI/CD optimization. Combines full-stack
+      engineering, software architecture, cloud infrastructure, and AI-enabled
+      workflows to deliver secure, maintainable systems that support
+      real-world business operations.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Core Competencies</h2>
+
+    <table class="competency-table">
+      <thead>
+      <tr>
+        <th>Category</th>
+        <th>Technologies</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr>
+        <td>AI Development</td>
+        <td>
+          Prompt Engineering, AI Application Development, LLM Provider API
+          Integration, AI APIs, AI Agents, Retrieval-Augmented Generation,
+          Model Context Protocol, Function Calling, Structured Outputs
+        </td>
+      </tr>
+
+      <tr>
+        <td>AI Engineering Tools</td>
+        <td>
+          Cursor, GitHub Copilot, Claude Code, ChatGPT, Gemini Code Assist,
+          Codex, AI-Assisted Code Review, Security Analysis, Test Generation,
+          Documentation, CI/CD Optimization
+        </td>
+      </tr>
+
+      <tr>
+        <td>Backend Engineering</td>
+        <td>
+          Node.js, TypeScript, Java, Spring Boot, NestJS, Express.js,
+          Fastify
+        </td>
+      </tr>
+
+      <tr>
+        <td>Frontend Engineering</td>
+        <td>
+          React, Next.js, Angular, TypeScript, JavaScript, HTML5, CSS3,
+          Tailwind CSS, Material UI
+        </td>
+      </tr>
+
+      <tr>
+        <td>Mobile Development</td>
+        <td>
+          React Native, Flutter, Kotlin, Java, Expo, React Navigation,
+          TanStack Query, EAS Build
+        </td>
+      </tr>
+
+      <tr>
+        <td>Architecture &amp; Integration</td>
+        <td>
+          REST APIs, GraphQL, Microservices, Distributed Systems,
+          Event-Driven Architecture, Domain-Driven Design, Design Patterns,
+          Clean Architecture, Enterprise System Integration
+        </td>
+      </tr>
+
+      <tr>
+        <td>Cloud &amp; DevOps</td>
+        <td>
+          AWS, Google Cloud Platform, Kubernetes, Docker, Terraform, GitHub
+          Actions, GitLab CI/CD, Jenkins
+        </td>
+      </tr>
+
+      <tr>
+        <td>Data &amp; Persistence</td>
+        <td>
+          PostgreSQL, MySQL, MongoDB, Oracle, DynamoDB, Redis
+        </td>
+      </tr>
+
+      <tr>
+        <td>Testing &amp; Quality</td>
+        <td>
+          Jest, Cypress, Playwright, JUnit, Mockito, Test-Driven
+          Development, Automated Testing
+        </td>
+      </tr>
+
+      <tr>
+        <td>Engineering Practices</td>
+        <td>
+          Agile, Scrum, CI/CD, SOLID Principles, Clean Code, Secure Software
+          Development
+        </td>
+      </tr>
+
+      <tr>
+        <td>Version Control</td>
+        <td>
+          Git, GitHub, GitLab
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Professional Experience</h2>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">OnePay</h3>
+          <p class="role-title">
+            Software Engineer / AI Developer — Contract, BairesDev
+          </p>
+        </div>
+
+        <div class="experience-dates">
+          May 2025 – June 2025
+        </div>
+      </div>
+
+      <p class="technology-line">
+        <span class="technology-label">Technologies:</span>
+        Node.js, NestJS, Next.js, React, TypeScript, Jest, Cypress, Cursor,
+        GitHub Copilot, Claude Code, ChatGPT, Gemini Code Assist, Codex,
+        AI-Assisted Development, CI/CD Automation
+      </p>
+
+      <ul>
+        <li>
+          Engineered backend services and REST APIs using Node.js, TypeScript,
+          and NestJS for a fintech platform.
+        </li>
+        <li>
+          Developed responsive web application features using React and
+          Next.js, improving usability, maintainability, and frontend
+          consistency.
+        </li>
+        <li>
+          Applied AI-assisted development workflows to accelerate
+          implementation, debugging, refactoring, technical analysis, and
+          problem resolution.
+        </li>
+        <li>
+          Integrated AI capabilities using LLM provider APIs,
+          prompt-engineered workflows, function calling, and structured
+          outputs.
+        </li>
+        <li>
+          Used AI-supported code review and security analysis to identify
+          defects, maintainability risks, dependency concerns, insecure
+          practices, and architectural improvement opportunities.
+        </li>
+        <li>
+          Generated test scenarios, edge cases, and coverage recommendations
+          to support unit, integration, and end-to-end testing with Jest and
+          Cypress.
+        </li>
+        <li>
+          Improved CI/CD and release workflows through analysis of build
+          processes, deployment configuration, pipeline failures, and
+          automation opportunities.
+        </li>
+        <li>
+          Collaborated with engineering, product, and quality assurance teams
+          on technical planning, code reviews, testing, documentation, and
+          production deployments.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">
+            National Commercial Bank Jamaica
+          </h3>
+
+          <p class="role-title">
+            Senior Software Engineer — Contract
+          </p>
+        </div>
+
+        <div class="experience-dates">
+          April 2023 – May 2025
+        </div>
+      </div>
+
+      <p class="technology-line">
+        <span class="technology-label">Technologies:</span>
+        Node.js, Java, Spring Boot, React, Kubernetes, Docker, GitLab CI/CD,
+        REST APIs, Microservices
+      </p>
+
+      <ul>
+        <li>
+          Designed and developed enterprise backend services and REST APIs
+          using Node.js, Java, and Spring Boot for banking applications.
+        </li>
+        <li>
+          Built maintainable microservices using object-oriented design,
+          reusable components, and modern software architecture patterns.
+        </li>
+        <li>
+          Developed and supported containerized workloads using Docker and
+          Kubernetes across enterprise application environments.
+        </li>
+        <li>
+          Implemented and optimized GitLab CI/CD pipelines to support
+          automated deployments across development, staging, and production
+          environments.
+        </li>
+        <li>
+          Integrated internal banking systems with external platforms,
+          third-party services, and enterprise applications.
+        </li>
+        <li>
+          Supported secure software delivery in a regulated banking
+          environment with emphasis on reliability, maintainability, and
+          operational continuity.
+        </li>
+        <li>
+          Collaborated with business stakeholders, engineering teams, quality
+          assurance professionals, and external vendors to deliver enterprise
+          banking solutions.
+        </li>
+        <li>
+          Participated in architecture reviews, code reviews, system testing,
+          production releases, incident resolution, and ongoing improvements
+          to performance, scalability, security, and maintainability.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">
+            Cision — PR Software &amp; Marketing Platform
+          </h3>
+
+          <p class="role-title">
+            Frontend Engineer — Contract, In All Media
+          </p>
+        </div>
+
+        <div class="experience-dates">
+          May 2022 – April 2023
+        </div>
+      </div>
+
+      <p class="technology-line">
+        <span class="technology-label">Technologies:</span>
+        JavaScript, Web Components, HTML5, CSS3
+      </p>
+
+      <ul>
+        <li>
+          Developed responsive, cross-browser-compatible, and
+          accessibility-focused web applications for a digital media and
+          public relations platform.
+        </li>
+        <li>
+          Built reusable, modular, and maintainable user-interface components
+          using JavaScript and Web Components.
+        </li>
+        <li>
+          Translated product requirements, design specifications, and
+          user-interface concepts into production-ready frontend features.
+        </li>
+        <li>
+          Improved frontend performance, usability, consistency, and
+          maintainability through continuous application enhancements and
+          defect resolution.
+        </li>
+        <li>
+          Collaborated with product owners, designers, backend engineers, and
+          quality assurance teams during planning, code reviews, testing, and
+          production releases.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">
+            National Commercial Bank Jamaica
+          </h3>
+
+          <p class="role-title">
+            Senior Software Engineer — Contract
+          </p>
+        </div>
+
+        <div class="experience-dates">
+          February 2021 – May 2022
+        </div>
+      </div>
+
+      <p class="technology-line">
+        <span class="technology-label">Technologies:</span>
+        Node.js, Java, Spring Boot, React, REST APIs, Microservices, CI/CD
+      </p>
+
+      <ul>
+        <li>
+          Designed and implemented backend services, REST APIs, and enterprise
+          integrations using Node.js, Java, and Spring Boot.
+        </li>
+        <li>
+          Developed responsive frontend applications and reusable React
+          components for internal banking and customer-facing systems.
+        </li>
+        <li>
+          Built and maintained enterprise software supporting internal banking
+          operations and customer-facing services.
+        </li>
+        <li>
+          Translated business requirements into secure, scalable, and
+          maintainable technical solutions.
+        </li>
+        <li>
+          Integrated internal applications with external services,
+          third-party platforms, and enterprise systems.
+        </li>
+        <li>
+          Supported technical design, code reviews, automated testing, release
+          planning, production deployments, and maintenance.
+        </li>
+        <li>
+          Diagnosed and resolved defects, integration failures, production
+          incidents, and application performance issues.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">Digicel Group</h3>
+          <p class="role-title">Application Developer</p>
+        </div>
+
+        <div class="experience-dates">
+          August 2020 – February 2021
+        </div>
+      </div>
+
+      <p class="technology-line">
+        <span class="technology-label">Technologies:</span>
+        Node.js, React, Angular, REST APIs, Cloud Services
+      </p>
+
+      <ul>
+        <li>
+          Developed backend services, REST APIs, and system integrations using
+          Node.js within cloud-based telecom environments.
+        </li>
+        <li>
+          Extended the BiP Messaging platform by implementing channel-based
+          features and customer-engagement capabilities.
+        </li>
+        <li>
+          Developed frontend applications and reusable user-interface
+          components using React and Angular.
+        </li>
+        <li>
+          Integrated internal services and third-party platforms to support
+          messaging and digital communication workflows.
+        </li>
+        <li>
+          Collaborated with business stakeholders, analysts, designers, and
+          engineers through design, development, testing, deployment,
+          production support, and incident resolution.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">Vertis Technology</h3>
+          <p class="role-title">Application Developer</p>
+        </div>
+
+        <div class="experience-dates">
+          March 2019 – June 2020
+        </div>
+      </div>
+
+      <p class="technology-line">
+        <span class="technology-label">Technologies:</span>
+        Node.js, Java, Spring Boot, React, Angular, AWS, REST APIs
+      </p>
+
+      <ul>
+        <li>
+          Designed and developed full-stack enterprise applications using
+          Node.js, Java, Spring Boot, React, and Angular.
+        </li>
+        <li>
+          Built and maintained cloud-native applications within AWS
+          environments, focusing on scalability, reliability, and
+          maintainability.
+        </li>
+        <li>
+          Developed REST APIs, backend services, database integrations,
+          reusable components, shared services, and modern frontend user
+          interfaces.
+        </li>
+        <li>
+          Translated business and functional requirements into practical
+          technical designs and production-ready software.
+        </li>
+        <li>
+          Supported application testing, deployment, maintenance, technical
+          documentation, troubleshooting, and continuous improvement.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">Self-Employed</h3>
+          <p class="role-title">Freelance Software Developer</p>
+        </div>
+
+        <div class="experience-dates">
+          January 2013 – December 2019
+        </div>
+      </div>
+
+      <p class="technology-line">
+        <span class="technology-label">Technologies:</span>
+        Node.js, React, Laravel, Symfony, WordPress, JavaScript, PHP, MySQL
+      </p>
+
+      <ul>
+        <li>
+          Designed and developed custom web applications, business platforms,
+          and websites using Node.js, React, Laravel, Symfony, WordPress,
+          JavaScript, and PHP.
+        </li>
+        <li>
+          Delivered end-to-end software solutions covering requirements
+          analysis, architecture, system design, development, testing,
+          deployment, and maintenance.
+        </li>
+        <li>
+          Developed REST APIs, authentication workflows, database schemas,
+          administrative dashboards, and customer-facing interfaces.
+        </li>
+        <li>
+          Integrated payment platforms, content management systems,
+          third-party services, and external APIs.
+        </li>
+        <li>
+          Managed client requirements, project scope, delivery schedules,
+          releases, post-launch support, defect resolution, performance
+          improvements, security enhancements, and new feature delivery.
+        </li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Education</h2>
+
+    <div class="education-item">
+      <div class="experience-header">
+        <h3>University of Technology, Jamaica</h3>
+
+        <div class="experience-dates">
+          Expected 2028
+        </div>
+      </div>
+
+      <p>
+        Bachelor of Science in Computing
+        <em>— In Progress</em>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Professional Development</h2>
+
+    <p>
+      Ongoing professional development through Udemy, technical documentation,
+      vendor learning resources, and hands-on project work focused on LLM API
+      integration, prompt engineering, AI agents, retrieval-augmented
+      generation, cloud architecture, secure software delivery, system design,
+      and modern full-stack engineering.
+    </p>
+  </section>
+
+</main>
+
+<button
+  class="print-button"
+  type="button"
+  onclick="window.print()"
+>
+  Print / Save as PDF
+</button>
+</body>
+</html>
