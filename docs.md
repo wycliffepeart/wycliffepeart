@@ -305,6 +305,7 @@ The Terraform configuration uploads:
 - `resume.html` as `resume.html`.
 - `resume.pdf` as `resume.pdf` when `resume.pdf` exists in the project root,
   with attachment headers for downloading.
+- Every file under `assets/` under the same `/assets/` path.
 
 The S3 bucket keeps object versions for rollback, and noncurrent object versions
 expire after 30 days to keep storage costs bounded.

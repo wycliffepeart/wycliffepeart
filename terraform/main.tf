@@ -25,7 +25,12 @@ locals {
     "resume.pdf" = "${local.source_root}/resume.pdf"
   } : {}
 
-  site_files = merge(local.html_files, local.optional_files)
+  asset_files = {
+    for asset_path in fileset("${local.source_root}/assets", "**") :
+    "assets/${asset_path}" => "${local.source_root}/assets/${asset_path}"
+  }
+
+  site_files = merge(local.html_files, local.optional_files, local.asset_files)
 
   content_types = {
     html = "text/html; charset=utf-8"
@@ -37,6 +42,7 @@ locals {
     png  = "image/png"
     jpg  = "image/jpeg"
     jpeg = "image/jpeg"
+    webp = "image/webp"
     svg  = "image/svg+xml"
     ico  = "image/x-icon"
   }

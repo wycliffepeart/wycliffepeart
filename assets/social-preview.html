@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wycliffe Peart Social Preview</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 1200px;
+      height: 630px;
+      margin: 0;
+      overflow: hidden;
+      background: #080b10;
+      color: #eef3f8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .preview {
+      position: relative;
+      width: 1200px;
+      height: 630px;
+      padding: 76px;
+      background:
+        linear-gradient(90deg, rgba(8, 11, 16, 0.97) 0%, rgba(8, 11, 16, 0.9) 38%, rgba(8, 11, 16, 0.25) 72%),
+        url("social-preview-background.png") center / cover no-repeat;
+    }
+
+    .preview::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      background:
+        radial-gradient(circle at 17% 23%, rgba(61, 183, 255, 0.22), transparent 23rem),
+        radial-gradient(circle at 47% 85%, rgba(139, 213, 165, 0.16), transparent 20rem);
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      display: grid;
+      width: 650px;
+      height: 100%;
+      align-content: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 22px;
+      color: #7dd3fc;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 82px;
+      font-weight: 800;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .title {
+      margin: 26px 0 0;
+      max-width: 620px;
+      color: #dbe7f3;
+      font-size: 32px;
+      font-weight: 650;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .summary {
+      margin: 28px 0 0;
+      max-width: 660px;
+      color: #aab8c8;
+      font-size: 24px;
+      line-height: 1.38;
+      letter-spacing: 0;
+    }
+
+    .footer {
+      position: absolute;
+      left: 76px;
+      bottom: 56px;
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      color: #e6eef7;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .mark {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid rgba(125, 211, 252, 0.42);
+      border-radius: 8px;
+      background: rgba(61, 183, 255, 0.14);
+      color: #8bd5a5;
+      font-size: 22px;
+      font-weight: 800;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
+    }
+  </style>
+</head>
+<body>
+  <main class="preview" aria-label="Social media preview for Wycliffe Peart">
+    <section class="content">
+      <p class="eyebrow">Full-Stack Software Engineer</p>
+      <h1>Wycliffe Peart</h1>
+      <p class="title">Cloud, web, and AI application development</p>
+      <p class="summary">Production-ready systems across React, Node.js, Java, AWS, and practical AI integrations.</p>
+    </section>
+    <div class="footer">
+      <span class="mark">WP</span>
+      <span>wycliffepeart.com</span>
+    </div>
+  </main>
+</body>
+</html>

@@ -14,21 +14,31 @@
     content="Wycliffe Peart, Senior Full-Stack Software Engineer, AI Application Developer, web development, cloud engineering, AWS, Node.js, Java, React, software architecture"
   />
   <meta property="og:type" content="profile" />
+  <meta property="og:url" content="https://wycliffepeart.com/" />
   <meta property="og:title" content="Wycliffe Peart | Senior Full-Stack Software Engineer" />
   <meta
     property="og:description"
     content="Building end-to-end solutions across web, cloud, and AI with production-ready applications, APIs, cloud delivery, and practical AI integrations."
   />
+  <meta property="og:image" content="https://wycliffepeart.com/assets/social-preview.png" />
+  <meta property="og:image:secure_url" content="https://wycliffepeart.com/assets/social-preview.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Wycliffe Peart, Full-Stack Software Engineer focused on cloud, web, and AI application development." />
   <meta property="og:site_name" content="Wycliffe Peart" />
   <meta property="profile:first_name" content="Wycliffe" />
   <meta property="profile:last_name" content="Peart" />
   <meta property="profile:username" content="wycliffepeart" />
-  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Wycliffe Peart | Senior Full-Stack Software Engineer" />
   <meta
     name="twitter:description"
     content="Building end-to-end solutions across web, cloud, and AI with production-ready applications, APIs, cloud delivery, and practical AI integrations."
   />
+  <meta name="twitter:image" content="https://wycliffepeart.com/assets/social-preview.png" />
+  <meta name="twitter:image:alt" content="Wycliffe Peart, Full-Stack Software Engineer focused on cloud, web, and AI application development." />
+  <link rel="canonical" href="https://wycliffepeart.com/" />
   <title>Wycliffe Peart | Senior Full-Stack Software Engineer &amp; AI Developer</title>
   <script type="application/ld+json">
     {
@@ -1476,6 +1486,11 @@
     }
 
     if (resumeModal) {
+      const isResumeParamOpen = () => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("resume") === "true";
+      };
+
       const openResumeModal = () => {
         resumeModal.classList.add("is-open");
         document.body.classList.add("modal-open");
@@ -1487,19 +1502,49 @@
         document.body.classList.remove("modal-open");
       };
 
+      const syncResumeModalWithUrl = () => {
+        if (isResumeParamOpen()) {
+          openResumeModal();
+          return;
+        }
+
+        closeResumeModal();
+      };
+
+      const updateResumeParam = (shouldOpen) => {
+        const url = new URL(window.location.href);
+
+        if (shouldOpen) {
+          url.searchParams.set("resume", "true");
+        } else {
+          url.searchParams.delete("resume");
+        }
+
+        const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+
+        if (nextUrl !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+          window.history.pushState(null, "", nextUrl);
+        }
+
+        syncResumeModalWithUrl();
+      };
+
       resumeOpenButtons.forEach((button) => {
-        button.addEventListener("click", openResumeModal);
+        button.addEventListener("click", () => updateResumeParam(true));
       });
 
       resumeCloseButtons.forEach((button) => {
-        button.addEventListener("click", closeResumeModal);
+        button.addEventListener("click", () => updateResumeParam(false));
       });
 
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && resumeModal.classList.contains("is-open")) {
-          closeResumeModal();
+          updateResumeParam(false);
         }
       });
+
+      window.addEventListener("popstate", syncResumeModalWithUrl);
+      syncResumeModalWithUrl();
     }
   </script>
 </body>
