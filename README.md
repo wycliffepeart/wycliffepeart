@@ -2,8 +2,6 @@
 
 💻 **Senior Full-Stack & Agentic AI Engineer** | ☁️ **Cloud & DevOps Builder**
 
-Building intelligent software systems where AI meets modern engineering.
-
 ---
 
 ## 🌟 About Me
