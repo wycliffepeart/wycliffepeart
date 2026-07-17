@@ -20,12 +20,12 @@
     property="og:description"
     content="Building end-to-end solutions across web, cloud, and AI with production-ready applications, APIs, cloud delivery, and practical AI integrations."
   />
-  <meta property="og:image" content="https://wycliffepeart.com/assets/social-preview.png" />
-  <meta property="og:image:secure_url" content="https://wycliffepeart.com/assets/social-preview.png" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Wycliffe Peart, Full-Stack Software Engineer focused on cloud, web, and AI application development." />
+  <meta property="og:image" content="https://wycliffepeart.com/assets/head-shot.jpeg" />
+  <meta property="og:image:secure_url" content="https://wycliffepeart.com/assets/head-shot.jpeg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1195" />
+  <meta property="og:image:height" content="1316" />
+  <meta property="og:image:alt" content="Headshot of Wycliffe Peart, Senior Full-Stack Software Engineer focused on web, cloud, and AI application development." />
   <meta property="og:site_name" content="Wycliffe Peart" />
   <meta property="profile:first_name" content="Wycliffe" />
   <meta property="profile:last_name" content="Peart" />
@@ -36,8 +36,8 @@
     name="twitter:description"
     content="Building end-to-end solutions across web, cloud, and AI with production-ready applications, APIs, cloud delivery, and practical AI integrations."
   />
-  <meta name="twitter:image" content="https://wycliffepeart.com/assets/social-preview.png" />
-  <meta name="twitter:image:alt" content="Wycliffe Peart, Full-Stack Software Engineer focused on cloud, web, and AI application development." />
+  <meta name="twitter:image" content="https://wycliffepeart.com/assets/head-shot.jpeg" />
+  <meta name="twitter:image:alt" content="Headshot of Wycliffe Peart, Senior Full-Stack Software Engineer focused on web, cloud, and AI application development." />
   <link rel="canonical" href="https://wycliffepeart.com/" />
   <title>Wycliffe Peart | Senior Full-Stack Software Engineer &amp; AI Developer</title>
   <script type="application/ld+json">
@@ -239,9 +239,9 @@
 
     .hero {
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1fr);
       gap: 44px;
-      align-items: center;
+      align-items: stretch;
       min-height: auto;
       padding: 64px 0 52px;
     }
@@ -278,9 +278,47 @@
 
     .hero-copy {
       max-width: 710px;
-      margin-bottom: 30px;
+      margin-bottom: 24px;
       color: #c8d3df;
       font-size: 18px;
+    }
+
+    .hero-intro {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .intro-lead {
+      max-width: 720px;
+      margin-bottom: 24px;
+      color: #d8e6f1;
+      font-size: 17px;
+    }
+
+    .intro-outcomes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .intro-outcome {
+      min-height: 100%;
+      padding: 15px;
+      border: 1px solid rgba(61, 183, 255, 0.18);
+      border-radius: 8px;
+      background: rgba(17, 23, 34, 0.72);
+      color: #cbd7e3;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .intro-outcome strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #ffffff;
+      font-size: 14px;
     }
 
     .actions {
@@ -319,73 +357,76 @@
       color: #06111d;
     }
 
-    .profile-panel {
+    .intro-card {
+      display: flex;
+      min-height: 100%;
+      flex-direction: column;
+      justify-content: space-between;
       border: 1px solid rgba(37, 50, 68, 0.9);
       border-radius: 8px;
-      background: rgba(17, 23, 34, 0.84);
+      background:
+        linear-gradient(145deg, rgba(61, 183, 255, 0.12), rgba(17, 23, 34, 0.82)),
+        rgba(17, 23, 34, 0.84);
       box-shadow: 0 22px 60px var(--shadow);
       overflow: hidden;
     }
 
-    .panel-top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(23, 31, 44, 0.76);
+    .intro-portrait {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      object-position: center 16%;
+      background: rgba(8, 11, 16, 0.42);
     }
 
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--line);
-    }
-
-    .dot.active {
-      background: var(--success);
-    }
-
-    .panel-body {
+    .intro-card-body {
       padding: 22px;
     }
 
-    .status {
-      margin-bottom: 24px;
+    .intro-name {
+      margin-bottom: 5px;
+      color: #ffffff;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .intro-role {
+      margin-bottom: 14px;
       color: var(--muted);
       font-size: 14px;
     }
 
-    .status strong {
-      display: block;
-      color: var(--text);
-      font-size: 18px;
+    .intro-actions {
+      margin-bottom: 18px;
     }
 
-    .metric-grid {
+    .intro-principles {
       display: grid;
       gap: 12px;
     }
 
-    .metric {
-      padding: 16px;
-      border: 1px solid var(--line);
+    .intro-principle {
+      padding: 14px;
+      border: 1px solid rgba(37, 50, 68, 0.9);
       border-radius: 8px;
       background: rgba(8, 11, 16, 0.42);
     }
 
-    .metric-value {
+    .intro-principle-label {
       display: block;
-      color: #ffffff;
-      font-size: 26px;
+      margin-bottom: 5px;
+      color: var(--accent-strong);
+      font-size: 12px;
       font-weight: 800;
-      line-height: 1.1;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
     }
 
-    .metric-label {
-      color: var(--muted);
-      font-size: 13px;
+    .intro-principle p {
+      margin-bottom: 0;
+      color: #cbd7e3;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
     .section {
@@ -594,6 +635,10 @@
       background: rgba(8, 11, 16, 0.9);
     }
 
+    .resume-modal-heading {
+      min-width: 0;
+    }
+
     .resume-modal-title {
       margin-bottom: 0;
       color: #ffffff;
@@ -605,6 +650,41 @@
       margin-bottom: 0;
       color: var(--muted);
       font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .resume-modal-controls {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .resume-header-download {
+      display: inline-flex;
+      width: 42px;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #06111d;
+      text-decoration: none;
+    }
+
+    .resume-header-download:hover {
+      background: var(--accent-strong);
+    }
+
+    .resume-header-download svg {
+      width: 19px;
+      height: 19px;
+      stroke: currentColor;
+      stroke-width: 2.2;
     }
 
     .modal-close {
@@ -679,6 +759,35 @@
 
     .resume-contact a:hover {
       color: var(--accent-strong);
+    }
+
+    .resume-highlights {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .resume-highlight {
+      min-height: 100%;
+      padding: 13px;
+      border: 1px solid rgba(61, 183, 255, 0.18);
+      border-radius: 8px;
+      background: rgba(8, 11, 16, 0.32);
+    }
+
+    .resume-highlight strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #ffffff;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .resume-highlight span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
     }
 
     .resume-actions {
@@ -939,8 +1048,16 @@
       .hero {
         grid-template-columns: 1fr;
         min-height: auto;
-        padding: 42px 0 44px;
-        gap: 28px;
+        padding: 24px 0 44px;
+        gap: 24px;
+      }
+
+      .intro-card {
+        max-width: 520px;
+      }
+
+      .intro-outcomes {
+        grid-template-columns: 1fr;
       }
 
       .section-heading,
@@ -959,6 +1076,10 @@
 
       .competency-grid {
         grid-template-columns: 1fr;
+      }
+
+      .resume-highlights {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .experience-card summary {
@@ -993,6 +1114,18 @@
         font-size: 16px;
       }
 
+      .hero {
+        padding-top: 16px;
+      }
+
+      .intro-card-body {
+        padding: 18px;
+      }
+
+      .intro-lead {
+        font-size: 16px;
+      }
+
       .button {
         width: 100%;
       }
@@ -1017,6 +1150,15 @@
         padding-right: 18px;
         padding-left: 18px;
       }
+
+      .resume-highlights {
+        grid-template-columns: 1fr;
+      }
+
+      .resume-modal-header {
+        gap: 10px;
+      }
+
     }
   </style>
 </head>
@@ -1053,51 +1195,60 @@
 
     <main id="top">
       <section class="hero" aria-labelledby="intro-title">
-        <div>
-          <p class="eyebrow">Senior Full-Stack Software Engineer | AI Application Development</p>
-          <h1 id="intro-title">Building end-to-end solutions across web, cloud, and AI.</h1>
-          <p class="hero-copy">
-            I design and deliver production-ready applications, APIs, and engineering workflows for real users. My work spans backend systems, polished frontends, cloud delivery, and practical AI integrations.
-          </p>
+        <aside class="intro-card" aria-label="Wycliffe Peart introduction">
+          <img class="intro-portrait" src="assets/head-shot.jpeg" alt="Wycliffe Peart" width="420" height="525" />
 
-          <div class="actions" aria-label="Profile links">
-            <button class="button primary" type="button" data-resume-open>Resume</button>
-            <a class="button" href="https://www.linkedin.com/in/wycliffepeart/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a class="button" href="https://github.com/wycliffepeart" target="_blank" rel="noopener noreferrer">GitHub</a>
-          </div>
-        </div>
+          <div class="intro-card-body">
+            <h2 class="intro-name">Wycliffe Peart</h2>
+            <p class="intro-role">Senior Full-Stack Software Engineer | AI Application Development</p>
 
-        <aside class="profile-panel" aria-label="Developer snapshot">
-          <div class="panel-top" aria-hidden="true">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
+            <div class="actions intro-actions" aria-label="Profile links">
+              <button class="button primary" type="button" data-resume-open>Resume</button>
+              <a class="button" href="https://www.linkedin.com/in/wycliffepeart/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              <a class="button" href="https://github.com/wycliffepeart" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
 
-          <div class="panel-body">
-            <p class="status">
-              <strong>Available for engineering conversations</strong>
-              Full-stack systems, AI application development, architecture, delivery, and developer workflow improvement.
-            </p>
-
-            <div class="metric-grid">
-              <div class="metric">
-                <span class="metric-value">10+</span>
-                <span class="metric-label">Years building software</span>
+            <div class="intro-principles" aria-label="Mission and vision">
+              <div class="intro-principle">
+                <span class="intro-principle-label">Mission</span>
+                <p>Help organizations turn practical software ideas into reliable web, cloud, and AI products.</p>
               </div>
 
-              <div class="metric">
-                <span class="metric-value">5</span>
-                <span class="metric-label">Industries served</span>
-              </div>
-
-              <div class="metric">
-                <span class="metric-value">AI</span>
-                <span class="metric-label">Current product and workflow focus</span>
+              <div class="intro-principle">
+                <span class="intro-principle-label">Vision</span>
+                <p>Build useful, maintainable systems that prepare teams for the next wave of AI-supported work.</p>
               </div>
             </div>
           </div>
         </aside>
+
+        <div class="hero-intro">
+          <p class="eyebrow">Available for engineering consultations</p>
+          <h1 id="intro-title">Building intelligent software systems where AI meets modern engineering.</h1>
+          <p class="hero-copy">
+            I help organizations design, build, and modernize production software across web applications, backend platforms, cloud infrastructure, and AI-enabled workflows.
+          </p>
+          <p class="intro-lead">
+            My work brings technical clarity to complex initiatives: aligning product goals, shaping scalable architecture, delivering dependable code, and improving the systems teams rely on to ship with confidence.
+          </p>
+
+          <div class="intro-outcomes" aria-label="What I provide to organizations">
+            <div class="intro-outcome">
+              <strong>Product Engineering</strong>
+              Full-stack applications, APIs, integrations, and user-facing features built for business-critical workflows.
+            </div>
+
+            <div class="intro-outcome">
+              <strong>Architecture</strong>
+              Scalable backend foundations, clean service boundaries, cloud infrastructure, and delivery practices that support growth.
+            </div>
+
+            <div class="intro-outcome">
+              <strong>AI Capability</strong>
+              Practical LLM integrations, automation, structured workflows, and AI features aligned with organizational goals.
+            </div>
+          </div>
+        </div>
       </section>
 
       <section class="section" id="work">
@@ -1236,12 +1387,21 @@
   <div class="resume-modal" id="resume-modal" role="dialog" aria-modal="true" aria-labelledby="resume-modal-title">
     <div class="resume-dialog">
       <header class="resume-modal-header">
-        <div>
+        <div class="resume-modal-heading">
           <h2 class="resume-modal-title" id="resume-modal-title">Resume</h2>
           <p class="resume-modal-subtitle">Wycliffe Otaniel Peart | Senior Full-Stack Software Engineer | AI Application Development</p>
         </div>
 
-        <button class="modal-close" type="button" data-resume-close aria-label="Close resume modal">×</button>
+        <div class="resume-modal-controls">
+          <a class="resume-header-download" href="/resume.pdf" target="_blank" rel="noopener noreferrer" download="Wycliffe-Peart-Resume.pdf" aria-label="Download resume PDF">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 3v12"></path>
+              <path d="m7 10 5 5 5-5"></path>
+              <path d="M5 21h14"></path>
+            </svg>
+          </a>
+          <button class="modal-close" type="button" data-resume-close aria-label="Close resume modal">×</button>
+        </div>
       </header>
 
       <div class="resume-modal-content">
@@ -1258,8 +1418,31 @@
               <span><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/wycliffepeart/" target="_blank" rel="noopener noreferrer">linkedin.com/in/wycliffepeart</a></span>
             </div>
 
+            <div class="resume-highlights" aria-label="Resume highlights">
+              <div class="resume-highlight">
+                <strong>10+ years</strong>
+                <span>Enterprise software delivery across regulated and product environments.</span>
+              </div>
+
+              <div class="resume-highlight">
+                <strong>5 industries</strong>
+                <span>Banking, fintech, telecommunications, consulting, and digital media.</span>
+              </div>
+
+              <div class="resume-highlight">
+                <strong>Full-stack</strong>
+                <span>Backend platforms, web applications, APIs, integrations, and cloud delivery.</span>
+              </div>
+
+              <div class="resume-highlight">
+                <strong>AI engineering</strong>
+                <span>LLM integrations, AI-assisted workflows, agents, RAG, and automation.</span>
+              </div>
+            </div>
+
             <div class="resume-actions" aria-label="Resume contact actions">
               <a class="resume-action primary" href="/resume.pdf" target="_blank" rel="noopener noreferrer" download="Wycliffe-Peart-Resume.pdf">Download PDF</a>
+              <a class="resume-action" href="resume.html" target="_blank" rel="noopener noreferrer">Full Resume Page</a>
               <a class="resume-action" href="mailto:wycliffepeart@gmail.com?subject=Engineering%20Opportunity">Email Me</a>
               <a class="resume-action" href="tel:+18763755597">Call</a>
               <a class="resume-action" href="https://github.com/wycliffepeart" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -1276,7 +1459,7 @@
             </div>
           </details>
 
-          <details class="resume-panel">
+          <details class="resume-panel" open>
             <summary>Core Competencies</summary>
             <div class="resume-panel-body">
               <div class="competency-grid">
@@ -1340,7 +1523,7 @@
                 </ul>
               </details>
 
-              <details class="experience-card">
+              <details class="experience-card" open>
                 <summary>
                   <span>
                     <h4>Cision — PR Software &amp; Marketing Platform</h4>
@@ -1358,7 +1541,7 @@
                 </ul>
               </details>
 
-              <details class="experience-card">
+              <details class="experience-card" open>
                 <summary>
                   <span>
                     <h4>National Commercial Bank Jamaica</h4>
@@ -1378,7 +1561,7 @@
                 </ul>
               </details>
 
-              <details class="experience-card">
+              <details class="experience-card" open>
                 <summary>
                   <span>
                     <h4>Digicel Group</h4>
@@ -1396,7 +1579,7 @@
                 </ul>
               </details>
 
-              <details class="experience-card">
+              <details class="experience-card" open>
                 <summary>
                   <span>
                     <h4>Vertis Technology</h4>
@@ -1414,7 +1597,7 @@
                 </ul>
               </details>
 
-              <details class="experience-card">
+              <details class="experience-card" open>
                 <summary>
                   <span>
                     <h4>Self-Employed</h4>
@@ -1434,7 +1617,7 @@
             </div>
           </details>
 
-          <details class="resume-panel">
+          <details class="resume-panel" open>
             <summary>Education</summary>
             <div class="resume-panel-body">
               <div class="education-block">
@@ -1447,7 +1630,7 @@
             </div>
           </details>
 
-          <details class="resume-panel">
+          <details class="resume-panel" open>
             <summary>Professional Development</summary>
             <div class="resume-panel-body">
               <p>Ongoing professional development through Udemy, technical documentation, vendor learning resources, and hands-on project work focused on LLM API integration, prompt engineering, AI agents, retrieval-augmented generation, cloud architecture, secure software delivery, system design, and modern full-stack engineering.</p>
