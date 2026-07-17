@@ -15,6 +15,18 @@ variable "site_bucket_name" {
   type        = string
 }
 
+variable "custom_domain_name" {
+  description = "Optional custom domain name for the CloudFront distribution, such as wycliffepeart.com."
+  type        = string
+  default     = ""
+}
+
+variable "acm_certificate_arn" {
+  description = "Optional issued ACM certificate ARN in us-east-1 for custom_domain_name."
+  type        = string
+  default     = ""
+}
+
 variable "default_root_object" {
   description = "CloudFront default root object."
   type        = string
@@ -30,4 +42,3 @@ variable "default_tags" {
     Application = "developer-profile"
   }
 }
-

@@ -22,9 +22,27 @@ Update:
 ```hcl
 aws_profile      = "your-sso-profile"
 site_bucket_name = "wycliffepeart-profile-site-your-account-id"
+custom_domain_name = "wycliffepeart.com"
+acm_certificate_arn = "arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERTIFICATE_ID"
 ```
 
+For GoDaddy-managed DNS, create an ACM certificate in `us-east-1`, add the ACM
+DNS validation CNAME in GoDaddy, wait for the certificate to be issued, then set
+`acm_certificate_arn`. After deployment, point the GoDaddy DNS record to the
+`godaddy_dns_record` output. Use `www.wycliffepeart.com` for a normal CNAME; the
+apex `wycliffepeart.com` usually needs GoDaddy forwarding or an ALIAS/ANAME
+feature if available. The `godaddy_dns_note` output calls this out when relevant.
+
 ## Deploy
+
+The primary deployment path is the project CLI:
+
+```sh
+cliffe deploy
+```
+
+Use direct Terraform commands only for targeted infrastructure operations or
+debugging.
 
 ```sh
 terraform init

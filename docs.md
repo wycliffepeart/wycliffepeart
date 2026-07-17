@@ -7,6 +7,9 @@ static profile site with Terraform. The CLI entry point is configured in
 The deployment creates a private S3 bucket, uploads the site files, and serves
 them through CloudFront over HTTPS.
 
+Use `cliffe deploy` as the primary deployment command. Use direct Terraform
+commands only for targeted infrastructure operations or debugging.
+
 ## Installation
 
 Create and activate a Python virtual environment, then install the package in
@@ -15,11 +18,16 @@ editable mode:
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
+python3 -m pip install --upgrade pip setuptools wheel
 python3 -m pip install -e .
 ```
 
 After installation, the `cliffe` command should be available in the active
 environment.
+
+The pip upgrade matters because older pip versions cannot install modern
+`pyproject.toml` projects in editable mode without legacy `setup.py` or
+`setup.cfg` files.
 
 For local testing without installing the package, run the module directly:
 
@@ -46,6 +54,12 @@ aws configure sso
 aws sso login --profile your-sso-profile
 ```
 
+If you use `aws login`, export the login credentials before running Terraform:
+
+```sh
+eval "$(aws configure export-credentials --format env)"
+```
+
 Create Terraform variables:
 
 ```sh
@@ -58,7 +72,16 @@ Edit `terraform/terraform.tfvars` and set at least:
 ```hcl
 aws_profile      = "your-sso-profile"
 site_bucket_name = "globally-unique-bucket-name"
+custom_domain_name = "wycliffepeart.com"
+acm_certificate_arn = "arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERTIFICATE_ID"
 ```
+
+For GoDaddy-managed DNS, create an ACM certificate in `us-east-1`, add the ACM
+DNS validation CNAME in GoDaddy, wait for the certificate to be issued, then set
+`acm_certificate_arn`. After deployment, point the GoDaddy DNS record to the
+`godaddy_dns_record` output. Use `www.wycliffepeart.com` for a normal CNAME; the
+apex `wycliffepeart.com` usually needs GoDaddy forwarding or an ALIAS/ANAME
+feature if available. The `godaddy_dns_note` output calls this out when relevant.
 
 Return to the project root before running `cliffe` commands:
 
@@ -285,7 +308,7 @@ updated.
 
 ## `cliffe deploy`
 
-Runs the full deployment workflow.
+Runs the full deployment workflow. This is the primary way to deploy the site.
 
 Default behavior:
 
@@ -386,8 +409,10 @@ First-time setup and deployment:
 ```sh
 aws configure sso
 aws sso login --profile your-sso-profile
+eval "$(aws configure export-credentials --format env)"
 python3 -m venv .venv
 source .venv/bin/activate
+python3 -m pip install --upgrade pip setuptools wheel
 python3 -m pip install -e .
 cd terraform
 cp terraform.tfvars.example terraform.tfvars

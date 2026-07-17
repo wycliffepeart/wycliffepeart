@@ -1,6 +1,12 @@
 locals {
   source_root = abspath("${path.module}/..")
 
+  custom_domain_enabled = var.custom_domain_name != "" && var.acm_certificate_arn != ""
+  custom_domain_labels  = split(".", var.custom_domain_name)
+  custom_domain_is_apex = length(local.custom_domain_labels) == 2
+  godaddy_record_name   = local.custom_domain_is_apex ? "@" : local.custom_domain_labels[0]
+  godaddy_record_type   = local.custom_domain_is_apex ? "ALIAS/ANAME or forwarding" : "CNAME"
+
   html_files = {
     "index.html"   = "${local.source_root}/profile.html"
     "profile.html" = "${local.source_root}/profile.html"
@@ -99,6 +105,7 @@ resource "aws_cloudfront_distribution" "site" {
   comment             = "Developer profile static site"
   default_root_object = var.default_root_object
   price_class         = "PriceClass_100"
+  aliases             = local.custom_domain_enabled ? [var.custom_domain_name] : []
 
   origin {
     domain_name              = aws_s3_bucket.site.bucket_regional_domain_name
@@ -141,7 +148,10 @@ resource "aws_cloudfront_distribution" "site" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    cloudfront_default_certificate = local.custom_domain_enabled ? false : true
+    acm_certificate_arn            = local.custom_domain_enabled ? var.acm_certificate_arn : null
+    ssl_support_method             = local.custom_domain_enabled ? "sni-only" : null
+    minimum_protocol_version       = local.custom_domain_enabled ? "TLSv1.2_2021" : null
   }
 }
 

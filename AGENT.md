@@ -72,11 +72,21 @@ configuration for S3 plus CloudFront.
 
 ## Terraform And Deployment Rules
 
+- Use `cliffe deploy` as the primary deployment path. It regenerates
+  `resume.pdf`, runs Terraform init/plan/apply from the correct directory, and
+  keeps the PDF plus infrastructure workflow together. Use direct Terraform
+  commands only for targeted infrastructure operations, debugging, or when the
+  user explicitly asks for Terraform commands.
 - Terraform lives in `terraform/` and should be run with that directory as the
   working directory unless using the `cliffe` wrapper.
+- Do not add Route 53 hosted zones, Route 53 records, or DNS-provider automation
+  unless the user explicitly asks for DNS to be managed in Terraform. The
+  current domain workflow assumes DNS remains at GoDaddy and Terraform only
+  attaches an already-issued ACM certificate to CloudFront.
 - Terraform deploys a private S3 bucket with public access blocked, S3
   versioning, AES256 server-side encryption, CloudFront Origin Access Control,
-  and a CloudFront distribution using the default CloudFront certificate.
+  and a CloudFront distribution using either the default CloudFront certificate
+  or a supplied ACM certificate ARN for a custom domain.
 - Terraform uploads:
   - `profile.html` as `index.html`
   - `profile.html` as `profile.html`

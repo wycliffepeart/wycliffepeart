@@ -92,7 +92,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     deploy_parser = subparsers.add_parser(
         "deploy",
-        help="Generate resume.pdf, then run terraform init, plan, and apply.",
+        help="Primary deploy path: generate resume.pdf, then run terraform init, plan, and apply.",
     )
     add_pdf_arguments(deploy_parser)
     deploy_parser.add_argument("--skip-init", action="store_true", help="Skip terraform init.")

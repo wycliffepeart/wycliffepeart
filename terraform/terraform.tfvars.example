@@ -1,6 +1,8 @@
-aws_region       = "us-east-1"
-aws_profile      = "your-sso-profile"
-site_bucket_name = "wycliffepeart-profile-site-your-account-id"
+aws_region         = "us-east-1"
+aws_profile        = "your-sso-profile"
+site_bucket_name   = "wycliffepeart-profile-site-your-account-id"
+custom_domain_name = "wycliffepeart.com"
+acm_certificate_arn = ""
 
 default_tags = {
   Project     = "wycliffepeart-profile"
@@ -8,4 +10,3 @@ default_tags = {
   Application = "developer-profile"
   Environment = "production"
 }
-
