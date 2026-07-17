@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Blog posts by Wycliffe Otaniel Peart on practical software engineering, AI application development, cloud delivery, and production systems."
+  />
+  <meta name="author" content="Wycliffe Otaniel Peart" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.wycliffepeart.com/blog/" />
+  <title>Blog | Wycliffe Otaniel Peart</title>
+
+  <style>
+    :root {
+      --background: #f5f7fb;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-gloss: rgba(255, 255, 255, 0.66);
+      --text: #1d1d1f;
+      --heading: #101114;
+      --muted: #626973;
+      --line: rgba(29, 29, 31, 0.12);
+      --line-bright: rgba(255, 255, 255, 0.86);
+      --accent: #0a84ff;
+      --accent-strong: #1264d8;
+      --shadow: rgba(29, 29, 31, 0.1);
+      color-scheme: light;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 80% 0%, rgba(0, 122, 255, 0.14), transparent 34rem),
+        radial-gradient(circle at 10% 18%, rgba(133, 92, 255, 0.1), transparent 28rem),
+        linear-gradient(180deg, #f9fbff 0%, var(--background) 52%, #eef2f7 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 58px;
+      padding: 10px 10px 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.38) 50%, rgba(255, 255, 255, 0.64)),
+        rgba(255, 255, 255, 0.54);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 18px 44px rgba(29, 29, 31, 0.1);
+      backdrop-filter: blur(30px) saturate(190%);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 1px solid var(--line-bright);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 48%),
+        rgba(0, 122, 255, 0.1);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .nav-link {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .nav-link:hover {
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.52);
+      color: var(--text);
+    }
+
+    .hero {
+      padding-bottom: 34px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 20px;
+      color: var(--heading);
+      font-size: clamp(42px, 7vw, 72px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .post {
+      margin-top: 34px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, var(--surface-gloss), transparent 46%),
+        rgba(255, 255, 255, 0.72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 12px 34px var(--shadow);
+    }
+
+    .post h2 {
+      margin-bottom: 10px;
+      color: var(--heading);
+      font-size: 30px;
+      line-height: 1.15;
+    }
+
+    .post-meta {
+      margin-bottom: 22px;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .post p {
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .post p:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer {
+      margin-top: 34px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        padding-top: 16px;
+      }
+
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 38px;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      .post {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <nav class="nav" aria-label="Blog navigation">
+      <a class="brand" href="../profile.html" aria-label="Wycliffe Otaniel Peart profile home">
+        <span class="brand-mark">WP</span>
+        <span>Wycliffe Otaniel Peart</span>
+      </a>
+
+      <a class="nav-link" href="../profile.html#blog">Back to Profile</a>
+    </nav>
+
+    <main>
+      <header class="hero">
+        <p class="eyebrow">Blog</p>
+        <h1>Notes on practical software engineering and AI systems.</h1>
+        <p class="hero-copy">
+          Short posts on building useful software, applying AI responsibly, and keeping production systems maintainable.
+        </p>
+      </header>
+
+      <article class="post">
+        <p class="post-meta">Sample post | July 17, 2026</p>
+        <h2>Building AI Features That Survive Production</h2>
+        <p>
+          AI features become valuable when they are treated as part of the product system, not as a thin layer around a prompt. The useful work starts with clear user intent, explicit boundaries, stable input and output contracts, and a plan for what should happen when the model is uncertain or unavailable.
+        </p>
+        <p>
+          I like to design these features around measurable behavior. That means structured outputs where possible, narrow tools for external actions, test cases based on realistic examples, and enough logging to understand decisions without exposing sensitive data. The goal is not to make the model seem magical. The goal is to make the system dependable.
+        </p>
+        <p>
+          A production-ready AI workflow should have fallback paths, human review where risk is high, and monitoring that shows whether the feature is actually helping users. When those basics are in place, LLMs can become a practical capability inside the software instead of a fragile demo.
+        </p>
+      </article>
+    </main>
+
+    <footer class="footer">
+      Build it clearly. Ship it carefully. Improve it continuously.
+    </footer>
+  </div>
+</body>
+</html>

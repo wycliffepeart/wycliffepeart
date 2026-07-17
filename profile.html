@@ -673,6 +673,7 @@
     html[data-theme="dark"] .intro-outcome,
     html[data-theme="dark"] .intro-principle,
     html[data-theme="dark"] .card,
+    html[data-theme="dark"] .blog-post,
     html[data-theme="dark"] .focus-primary,
     html[data-theme="dark"] .focus-item,
     html[data-theme="dark"] .contact,
@@ -821,6 +822,46 @@
     }
 
     .card p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .blog-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .blog-post {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, var(--surface-gloss), transparent 46%),
+        rgba(255, 255, 255, 0.7);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 12px 34px rgba(29, 29, 31, 0.06);
+    }
+
+    .blog-post h3 {
+      margin-bottom: 8px;
+      color: var(--heading);
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .blog-meta {
+      margin-bottom: 8px;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .blog-post p {
+      max-width: 700px;
       margin-bottom: 0;
       color: var(--muted);
       font-size: 14px;
@@ -1482,6 +1523,7 @@
 
       .section-heading,
       .grid,
+      .blog-post,
       .focus-board {
         grid-template-columns: 1fr;
       }
@@ -1608,6 +1650,7 @@
           <a href="#work">Work</a>
           <a href="#stack">Stack</a>
           <a href="#focus">Focus</a>
+          <a href="#blog">Blog</a>
           <a href="#contact">Contact</a>
           <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
             <span class="theme-toggle-icon" aria-hidden="true"></span>
@@ -1782,6 +1825,29 @@
               <p>Maintainability, observability, security, and architecture decisions that support long-term business use.</p>
             </article>
           </div>
+        </div>
+      </section>
+
+      <section class="section" id="blog">
+        <div class="section-heading">
+          <h2>Blog</h2>
+          <p>
+            Short notes on practical software engineering, AI application development, and the delivery systems that help teams ship with confidence.
+          </p>
+        </div>
+
+        <div class="blog-list">
+          <article class="blog-post">
+            <div>
+              <p class="blog-meta">Sample post</p>
+              <h3>Building AI Features That Survive Production</h3>
+              <p>
+                A practical note on treating LLM integrations like product systems: clear boundaries, measurable behavior, fallback paths, and observability from the start.
+              </p>
+            </div>
+
+            <a class="button" href="blog/">Read Blog</a>
+          </article>
         </div>
       </section>
 

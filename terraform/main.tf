@@ -16,9 +16,10 @@ locals {
   }
 
   html_files = {
-    "index.html"   = "${local.source_root}/profile.html"
-    "profile.html" = "${local.source_root}/profile.html"
-    "resume.html"  = "${local.source_root}/resume.html"
+    "index.html"      = "${local.source_root}/profile.html"
+    "profile.html"    = "${local.source_root}/profile.html"
+    "resume.html"     = "${local.source_root}/resume.html"
+    "blog/index.html" = "${local.source_root}/blog/index.html"
   }
 
   optional_files = fileexists("${local.source_root}/resume.pdf") ? {
@@ -121,7 +122,7 @@ resource "aws_s3_object" "site_files" {
   etag                = filemd5(each.value)
   content_type        = lookup(local.content_types, lower(regex("[^.]+$", each.key)), "application/octet-stream")
   content_disposition = lookup(local.content_dispositions, each.key, null)
-  cache_control = each.key == "index.html" || each.key == "profile.html" || each.key == "resume.html" ? (
+  cache_control = contains(keys(local.html_files), each.key) ? (
     "no-cache, no-store, must-revalidate"
   ) : "public, max-age=31536000, immutable"
 
@@ -173,6 +174,24 @@ resource "aws_cloudfront_response_headers_policy" "site_security" {
   }
 }
 
+resource "aws_cloudfront_function" "blog_index_rewrite" {
+  name    = "${var.site_bucket_name}-blog-index-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Rewrite clean blog paths to the blog index object"
+  publish = true
+  code    = <<-EOT
+function handler(event) {
+  var request = event.request;
+
+  if (request.uri === "/blog" || request.uri === "/blog/") {
+    request.uri = "/blog/index.html";
+  }
+
+  return request;
+}
+EOT
+}
+
 resource "aws_cloudfront_distribution" "site" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -194,6 +213,11 @@ resource "aws_cloudfront_distribution" "site" {
     cached_methods             = ["GET", "HEAD"]
     compress                   = true
     response_headers_policy_id = aws_cloudfront_response_headers_policy.site_security.id
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.blog_index_rewrite.arn
+    }
 
     forwarded_values {
       query_string = false

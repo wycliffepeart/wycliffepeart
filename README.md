@@ -43,6 +43,10 @@ The short version: I like turning messy requirements into software that is usefu
 - Designing secure, scalable APIs and cloud-native systems
 - Sharpening system design and architecture for real-world business software
 
+## ✍️ Blog
+
+I share short notes on practical software engineering, AI application development, and delivery systems at [wycliffepeart.com/blog](https://www.wycliffepeart.com/blog/).
+
 ## 💬 Ask Me About
 
 - Full-stack application development

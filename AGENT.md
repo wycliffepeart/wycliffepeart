@@ -91,7 +91,10 @@ configuration for S3 plus CloudFront.
   - `profile.html` as `index.html`
   - `profile.html` as `profile.html`
   - `resume.html` as `resume.html`
+  - `blog/index.html` as `blog/index.html`
   - `resume.pdf` as `resume.pdf` only when project-root `resume.pdf` exists
+  - clean `/blog` and `/blog/` requests are rewritten to `/blog/index.html`
+    by a CloudFront Function
 - HTML objects use no-cache headers. Other uploaded assets, including PDFs, use
   long immutable caching by default.
 - Keep `terraform/main.tf` `local.html_files`, `local.optional_files`,

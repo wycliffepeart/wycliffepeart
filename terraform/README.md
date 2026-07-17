@@ -57,9 +57,14 @@ Terraform uploads:
 - `profile.html` as `index.html`
 - `profile.html` as `profile.html`
 - `resume.html` as `resume.html`
+- `blog/index.html` as `blog/index.html`
 - `resume.pdf` as `resume.pdf` when that file exists in the project root, with
   attachment headers for downloading
 - every file under `assets/` under the same `/assets/` path
+
+A CloudFront Function rewrites `/blog` and `/blog/` to `/blog/index.html` so
+the blog can use a clean public URL while the private S3 origin still stores an
+explicit object key.
 
 The S3 bucket keeps object versions for rollback, and noncurrent object versions
 expire after 30 days to keep storage costs bounded.
