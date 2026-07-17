@@ -16,13 +16,19 @@ variable "site_bucket_name" {
 }
 
 variable "custom_domain_name" {
-  description = "Optional custom domain name for the CloudFront distribution, such as wycliffepeart.com."
+  description = "Primary custom domain name for the CloudFront distribution, such as wycliffepeart.com."
   type        = string
   default     = ""
 }
 
+variable "custom_domain_names" {
+  description = "Optional custom domain aliases for the CloudFront distribution. Leave empty to use custom_domain_name only."
+  type        = list(string)
+  default     = []
+}
+
 variable "acm_certificate_arn" {
-  description = "Optional issued ACM certificate ARN in us-east-1 for custom_domain_name."
+  description = "Optional issued ACM certificate ARN in us-east-1 that covers every custom domain alias."
   type        = string
   default     = ""
 }

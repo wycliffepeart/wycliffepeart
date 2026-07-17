@@ -1,7 +1,8 @@
-aws_region         = "us-east-1"
-aws_profile        = "your-sso-profile"
-site_bucket_name   = "wycliffepeart-profile-site-your-account-id"
-custom_domain_name = "wycliffepeart.com"
+aws_region          = "us-east-1"
+aws_profile         = "your-sso-profile"
+site_bucket_name    = "wycliffepeart-profile-site-your-account-id"
+custom_domain_name  = "wycliffepeart.com"
+custom_domain_names = ["wycliffepeart.com", "www.wycliffepeart.com"]
 acm_certificate_arn = ""
 
 default_tags = {

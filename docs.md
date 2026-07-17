@@ -70,18 +70,20 @@ cp terraform.tfvars.example terraform.tfvars
 Edit `terraform/terraform.tfvars` and set at least:
 
 ```hcl
-aws_profile      = "your-sso-profile"
-site_bucket_name = "globally-unique-bucket-name"
-custom_domain_name = "wycliffepeart.com"
+aws_profile         = "your-sso-profile"
+site_bucket_name    = "globally-unique-bucket-name"
+custom_domain_name  = "wycliffepeart.com"
+custom_domain_names = ["wycliffepeart.com", "www.wycliffepeart.com"]
 acm_certificate_arn = "arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERTIFICATE_ID"
 ```
 
 For GoDaddy-managed DNS, create an ACM certificate in `us-east-1`, add the ACM
 DNS validation CNAME in GoDaddy, wait for the certificate to be issued, then set
 `acm_certificate_arn`. After deployment, point the GoDaddy DNS record to the
-`godaddy_dns_record` output. Use `www.wycliffepeart.com` for a normal CNAME; the
-apex `wycliffepeart.com` usually needs GoDaddy forwarding or an ALIAS/ANAME
-feature if available. The `godaddy_dns_note` output calls this out when relevant.
+`godaddy_dns_records` output. Use `www.wycliffepeart.com` for a normal CNAME.
+The apex `wycliffepeart.com` must use ALIAS/ANAME/CNAME flattening to stay on
+the apex domain; if GoDaddy does not support that, move DNS hosting to Route 53
+or Cloudflare, or redirect the apex to `www.wycliffepeart.com`.
 
 Return to the project root before running `cliffe` commands:
 

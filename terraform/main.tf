@@ -1,11 +1,19 @@
 locals {
   source_root = abspath("${path.module}/..")
 
-  custom_domain_enabled = var.custom_domain_name != "" && var.acm_certificate_arn != ""
-  custom_domain_labels  = split(".", var.custom_domain_name)
-  custom_domain_is_apex = length(local.custom_domain_labels) == 2
-  godaddy_record_name   = local.custom_domain_is_apex ? "@" : local.custom_domain_labels[0]
-  godaddy_record_type   = local.custom_domain_is_apex ? "ALIAS/ANAME or forwarding" : "CNAME"
+  configured_custom_domains = length(var.custom_domain_names) > 0 ? var.custom_domain_names : compact([var.custom_domain_name])
+  custom_domain_names       = distinct(local.configured_custom_domains)
+  primary_custom_domain     = length(local.custom_domain_names) > 0 ? local.custom_domain_names[0] : ""
+  custom_domain_enabled     = length(local.custom_domain_names) > 0 && var.acm_certificate_arn != ""
+
+  godaddy_dns_records = {
+    for domain in local.custom_domain_names : domain => {
+      type  = length(split(".", domain)) == 2 ? "ALIAS/ANAME/CNAME flattening" : "CNAME"
+      name  = length(split(".", domain)) == 2 ? "@" : split(".", domain)[0]
+      value = aws_cloudfront_distribution.site.domain_name
+      ttl   = "1 hour"
+    }
+  }
 
   html_files = {
     "index.html"   = "${local.source_root}/profile.html"
@@ -160,7 +168,7 @@ resource "aws_cloudfront_distribution" "site" {
   comment             = "Developer profile static site"
   default_root_object = var.default_root_object
   price_class         = "PriceClass_100"
-  aliases             = local.custom_domain_enabled ? [var.custom_domain_name] : []
+  aliases             = local.custom_domain_enabled ? local.custom_domain_names : []
 
   origin {
     domain_name              = aws_s3_bucket.site.bucket_regional_domain_name
