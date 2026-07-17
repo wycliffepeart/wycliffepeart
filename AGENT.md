@@ -6,9 +6,10 @@ configuration for S3 plus CloudFront.
 
 ## Default Workflow
 
-- Commit changes after each completed change when the user has asked for project
-  edits. Use descriptive commit messages that clearly match the change being
-  committed, and include a concise commit description that explains what changed.
+- Commit after any completed change when the user has asked for project edits.
+  Use a detailed, descriptive commit message that clearly supports the change:
+  summarize the purpose in the subject and include concise details about what
+  changed in the commit body when the change is more than trivial.
 - Before editing, check `git status --short` and do not overwrite unrelated user
   changes. If a file already has user edits, work with the current contents.
 - Keep changes scoped to the requested area. Do not reformat large HTML,
