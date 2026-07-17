@@ -1,6 +1,6 @@
 # Hi there, I'm Wycliffe Otaniel Peart 👋
 
-💻 **Senior Full-Stack & Agentic AI Engineer** | ☁️ **Cloud & DevOps Builder**
+💻 **Building intelligent software systems where AI meets modern engineering.** | ☁️ **Cloud & DevOps Builder**
 
 ---
 
