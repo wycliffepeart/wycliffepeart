@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Developer profile for Wycliffe Peart, Senior Full-Stack Software Engineer and AI Application Developer."
+  />
+  <title>Wycliffe Peart | Developer Profile</title>
+
+  <style>
+    :root {
+      --background: #080b10;
+      --surface: #111722;
+      --surface-soft: #171f2c;
+      --text: #eef3f8;
+      --muted: #9aa8ba;
+      --line: #253244;
+      --accent: #3db7ff;
+      --accent-strong: #7dd3fc;
+      --success: #8bd5a5;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 80% 0%, rgba(61, 183, 255, 0.14), transparent 34rem),
+        linear-gradient(180deg, #080b10 0%, #0b1018 48%, #080b10 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(37, 50, 68, 0.8);
+      background: rgba(8, 11, 16, 0.86);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 18px 0;
+      gap: 24px;
+    }
+
+    .nav-top {
+      display: contents;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--text);
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 1px solid rgba(125, 211, 252, 0.42);
+      border-radius: 8px;
+      background: rgba(61, 183, 255, 0.1);
+      color: var(--accent-strong);
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 42px;
+      height: 42px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(17, 23, 34, 0.82);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .menu-toggle:hover {
+      border-color: rgba(125, 211, 252, 0.5);
+      background: var(--surface-soft);
+    }
+
+    .menu-icon,
+    .menu-icon::before,
+    .menu-icon::after {
+      display: block;
+      width: 18px;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+      transition: transform 180ms ease, opacity 180ms ease;
+    }
+
+    .menu-icon {
+      position: relative;
+    }
+
+    .menu-icon::before,
+    .menu-icon::after {
+      position: absolute;
+      left: 0;
+      content: "";
+    }
+
+    .menu-icon::before {
+      top: -6px;
+    }
+
+    .menu-icon::after {
+      top: 6px;
+    }
+
+    .menu-toggle[aria-expanded="true"] .menu-icon {
+      background: transparent;
+    }
+
+    .menu-toggle[aria-expanded="true"] .menu-icon::before {
+      transform: translateY(6px) rotate(45deg);
+    }
+
+    .menu-toggle[aria-expanded="true"] .menu-icon::after {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    .nav-links a {
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 44px;
+      align-items: center;
+      min-height: auto;
+      padding: 64px 0 52px;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin-bottom: 22px;
+      color: #ffffff;
+      font-size: clamp(42px, 7vw, 78px);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 710px;
+      margin-bottom: 30px;
+      color: #c8d3df;
+      font-size: 18px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(125, 211, 252, 0.62);
+      background: var(--surface-soft);
+    }
+
+    .button.primary {
+      border-color: transparent;
+      background: var(--accent);
+      color: #06111d;
+    }
+
+    .profile-panel {
+      border: 1px solid rgba(37, 50, 68, 0.9);
+      border-radius: 8px;
+      background: rgba(17, 23, 34, 0.84);
+      box-shadow: 0 22px 60px var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(23, 31, 44, 0.76);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--line);
+    }
+
+    .dot.active {
+      background: var(--success);
+    }
+
+    .panel-body {
+      padding: 22px;
+    }
+
+    .status {
+      margin-bottom: 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status strong {
+      display: block;
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .metric-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(8, 11, 16, 0.42);
+    }
+
+    .metric-value {
+      display: block;
+      color: #ffffff;
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section {
+      padding: 48px 0;
+      border-top: 1px solid rgba(37, 50, 68, 0.72);
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.38fr) minmax(0, 0.62fr);
+      gap: 28px;
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      margin-bottom: 0;
+      color: #ffffff;
+      font-size: 30px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .section-heading p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      min-height: 100%;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(17, 23, 34, 0.74);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      color: #ffffff;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .card p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .skills li {
+      padding: 8px 11px;
+      border: 1px solid rgba(61, 183, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(61, 183, 255, 0.07);
+      color: #d8e6f1;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .focus-board {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.42fr) minmax(0, 0.58fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .focus-primary {
+      display: flex;
+      min-height: 330px;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 28px;
+      border: 1px solid rgba(61, 183, 255, 0.3);
+      border-radius: 8px;
+      background:
+        linear-gradient(145deg, rgba(61, 183, 255, 0.16), rgba(17, 23, 34, 0.76)),
+        rgba(17, 23, 34, 0.84);
+    }
+
+    .focus-kicker {
+      margin-bottom: 16px;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .focus-primary h3 {
+      max-width: 430px;
+      margin-bottom: 18px;
+      color: #ffffff;
+      font-size: 28px;
+      line-height: 1.18;
+    }
+
+    .focus-primary p {
+      margin-bottom: 0;
+      color: #cbd7e3;
+    }
+
+    .focus-items {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .focus-item {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(17, 23, 34, 0.72);
+    }
+
+    .focus-number {
+      display: inline-grid;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 18px;
+      place-items: center;
+      border: 1px solid rgba(125, 211, 252, 0.34);
+      border-radius: 8px;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .focus-item h3 {
+      margin-bottom: 9px;
+      color: #ffffff;
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .focus-item p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .contact {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(61, 183, 255, 0.14), rgba(17, 23, 34, 0.9));
+    }
+
+    .contact p {
+      max-width: 620px;
+      margin-bottom: 0;
+      color: #cbd7e3;
+    }
+
+    .resume-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      background: rgba(8, 11, 16, 0.94);
+    }
+
+    .resume-modal.is-open {
+      display: block;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .resume-dialog {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      background:
+        radial-gradient(circle at 82% 4%, rgba(61, 183, 255, 0.14), transparent 30rem),
+        var(--background);
+    }
+
+    .resume-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px max(16px, calc((100vw - 1120px) / 2));
+      border-bottom: 1px solid var(--line);
+      background: rgba(8, 11, 16, 0.9);
+    }
+
+    .resume-modal-title {
+      margin-bottom: 0;
+      color: #ffffff;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .resume-modal-subtitle {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .modal-close {
+      display: inline-grid;
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      border-color: rgba(125, 211, 252, 0.5);
+      background: var(--surface-soft);
+    }
+
+    .resume-modal-content {
+      overflow: auto;
+      padding: 28px max(16px, calc((100vw - 1120px) / 2)) 42px;
+    }
+
+    .resume-sheet {
+      display: grid;
+      gap: 16px;
+    }
+
+    .resume-intro,
+    .resume-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(17, 23, 34, 0.78);
+    }
+
+    .resume-intro {
+      padding: 24px;
+    }
+
+    .resume-intro h3 {
+      margin-bottom: 6px;
+      color: #ffffff;
+      font-size: 28px;
+      line-height: 1.15;
+    }
+
+    .resume-title {
+      margin-bottom: 16px;
+      color: var(--accent-strong);
+      font-weight: 700;
+    }
+
+    .resume-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .resume-contact a {
+      color: #b8d8ea;
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .resume-contact a:hover {
+      color: var(--accent-strong);
+    }
+
+    .resume-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .resume-action {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 15px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(8, 11, 16, 0.34);
+      color: #d4e0ea;
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .resume-action:hover {
+      border-color: rgba(125, 211, 252, 0.5);
+      background: var(--surface-soft);
+    }
+
+    .resume-action.primary {
+      border-color: transparent;
+      background: var(--accent);
+      color: #06111d;
+    }
+
+    .resume-panel {
+      overflow: hidden;
+    }
+
+    .resume-panel > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 22px;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .resume-panel > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .resume-panel > summary::after {
+      content: "+";
+      display: inline-grid;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid rgba(125, 211, 252, 0.3);
+      border-radius: 8px;
+      color: var(--accent-strong);
+      font-size: 18px;
+    }
+
+    .resume-panel[open] > summary {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .resume-panel[open] > summary::after {
+      content: "-";
+    }
+
+    .resume-panel-body {
+      padding: 20px 22px 24px;
+      color: #d6e0ea;
+    }
+
+    .resume-panel-body p {
+      margin-bottom: 14px;
+    }
+
+    .resume-panel-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .competency-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .competency-item {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(8, 11, 16, 0.32);
+    }
+
+    .competency-item strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #ffffff;
+    }
+
+    .experience-card {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .experience-card:first-child {
+      padding-top: 0;
+    }
+
+    .experience-card:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .experience-card summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px 18px;
+      align-items: start;
+      color: #ffffff;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .experience-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .experience-card summary::after {
+      content: "Expand details";
+      grid-column: 1 / -1;
+      width: fit-content;
+      padding: 5px 9px;
+      border: 1px solid rgba(125, 211, 252, 0.24);
+      border-radius: 8px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .experience-card[open] summary::after {
+      content: "Collapse details";
+    }
+
+    .experience-card h4 {
+      margin: 0 0 4px;
+      color: #ffffff;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .experience-role,
+    .experience-dates,
+    .experience-tech {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .experience-dates {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .experience-tech {
+      grid-column: 1 / -1;
+      color: #b7c4d1;
+    }
+
+    .experience-card ul {
+      margin: 14px 0 0;
+      padding-left: 20px;
+      color: #d6e0ea;
+    }
+
+    .experience-card li {
+      margin-bottom: 8px;
+    }
+
+    .experience-card li:last-child {
+      margin-bottom: 0;
+    }
+
+    .education-block {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .education-block h4 {
+      margin: 0 0 6px;
+      color: #ffffff;
+      font-size: 18px;
+    }
+
+    .footer {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 30px 0 42px;
+      border-top: 1px solid rgba(37, 50, 68, 0.72);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .nav {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .nav-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 16px;
+      }
+
+      .menu-toggle {
+        display: inline-flex;
+      }
+
+      .nav-links {
+        display: grid;
+        width: 100%;
+        max-height: 0;
+        overflow: hidden;
+        gap: 0;
+        padding: 0;
+        border-top: 0 solid transparent;
+        opacity: 0;
+        transition: max-height 220ms ease, opacity 180ms ease, padding 220ms ease, border-color 220ms ease;
+      }
+
+      .nav-links.is-open {
+        max-height: 260px;
+        padding: 14px 0 2px;
+        border-top: 1px solid rgba(37, 50, 68, 0.72);
+        opacity: 1;
+      }
+
+      .nav-links a {
+        display: block;
+        padding: 12px 0;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding: 42px 0 44px;
+        gap: 28px;
+      }
+
+      .section-heading,
+      .grid,
+      .focus-board {
+        grid-template-columns: 1fr;
+      }
+
+      .focus-primary {
+        min-height: auto;
+      }
+
+      .focus-items {
+        grid-template-columns: 1fr;
+      }
+
+      .competency-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .experience-card summary {
+        grid-template-columns: 1fr;
+      }
+
+      .education-block {
+        flex-direction: column;
+      }
+
+      .experience-dates {
+        text-align: left;
+        white-space: normal;
+      }
+
+      .contact {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .nav-links {
+        font-size: 13px;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      .hero-copy {
+        font-size: 16px;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .section {
+        padding: 38px 0;
+      }
+
+      .contact {
+        padding: 24px;
+      }
+
+      .resume-modal-header,
+      .resume-modal-content {
+        padding-right: 16px;
+        padding-left: 16px;
+      }
+
+      .resume-intro,
+      .resume-panel-body,
+      .resume-panel > summary {
+        padding-right: 18px;
+        padding-left: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header class="site-header">
+      <nav class="nav" aria-label="Primary navigation">
+        <div class="nav-top">
+          <a class="brand" href="#top" aria-label="Wycliffe Peart profile home">
+            <span class="brand-mark">WP</span>
+            <span>Wycliffe Peart</span>
+          </a>
+
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="primary-menu"
+            aria-label="Open navigation menu"
+          >
+            <span class="menu-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="nav-links" id="primary-menu">
+          <a href="#work">Work</a>
+          <a href="#stack">Stack</a>
+          <a href="#focus">Focus</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="intro-title">
+        <div>
+          <p class="eyebrow">Senior Full-Stack Software Engineer</p>
+          <h1 id="intro-title">Building useful software across web, cloud, and AI.</h1>
+          <p class="hero-copy">
+            I design and deliver production-ready applications, APIs, and engineering workflows for real users. My work spans backend systems, polished frontends, cloud delivery, and practical AI integrations.
+          </p>
+
+          <div class="actions" aria-label="Profile links">
+            <a class="button primary" href="https://www.linkedin.com/in/wycliffepeart/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a class="button" href="https://github.com/wycliffepeart" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <button class="button" type="button" data-resume-open>Resume</button>
+          </div>
+        </div>
+
+        <aside class="profile-panel" aria-label="Developer snapshot">
+          <div class="panel-top" aria-hidden="true">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+
+          <div class="panel-body">
+            <p class="status">
+              <strong>Available for engineering conversations</strong>
+              Full-stack systems, AI application development, architecture, delivery, and developer workflow improvement.
+            </p>
+
+            <div class="metric-grid">
+              <div class="metric">
+                <span class="metric-value">10+</span>
+                <span class="metric-label">Years building software</span>
+              </div>
+
+              <div class="metric">
+                <span class="metric-value">5</span>
+                <span class="metric-label">Industries served</span>
+              </div>
+
+              <div class="metric">
+                <span class="metric-value">AI</span>
+                <span class="metric-label">Current product and workflow focus</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section" id="work">
+        <div class="section-heading">
+          <h2>What I Build</h2>
+          <p>
+            I work across the full delivery path: understanding requirements, shaping architecture, writing maintainable code, and helping teams ship with confidence.
+          </p>
+        </div>
+
+        <div class="grid">
+          <article class="card">
+            <h3>Backend Platforms</h3>
+            <p>Secure APIs, distributed services, integrations, event-driven systems, and cloud-native foundations that are built to evolve.</p>
+          </article>
+
+          <article class="card">
+            <h3>Web Applications</h3>
+            <p>Responsive frontend experiences using modern JavaScript frameworks, clean interaction patterns, and practical component systems.</p>
+          </article>
+
+          <article class="card">
+            <h3>AI Features</h3>
+            <p>LLM API integrations, prompt workflows, structured outputs, function calling, retrieval patterns, and agent-style application behavior.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="stack">
+        <div class="section-heading">
+          <h2>Technology Stack</h2>
+          <p>
+            A practical stack for building, testing, deploying, and improving modern software products.
+          </p>
+        </div>
+
+        <ul class="skills" aria-label="Technology skills">
+          <li>Node.js</li>
+          <li>TypeScript</li>
+          <li>Java</li>
+          <li>Spring Boot</li>
+          <li>NestJS</li>
+          <li>React</li>
+          <li>Next.js</li>
+          <li>Angular</li>
+          <li>React Native</li>
+          <li>Flutter</li>
+          <li>AWS</li>
+          <li>Google Cloud</li>
+          <li>Kubernetes</li>
+          <li>Docker</li>
+          <li>Terraform</li>
+          <li>PostgreSQL</li>
+          <li>MongoDB</li>
+          <li>Redis</li>
+          <li>Jest</li>
+          <li>Playwright</li>
+          <li>GitHub Actions</li>
+          <li>LLM APIs</li>
+          <li>RAG</li>
+          <li>AI Agents</li>
+        </ul>
+      </section>
+
+      <section class="section" id="focus">
+        <div class="section-heading">
+          <h2>Current Focus</h2>
+          <p>
+            I am focused on building software systems that combine strong engineering fundamentals with practical AI capabilities and reliable delivery.
+          </p>
+        </div>
+
+        <div class="focus-board">
+          <article class="focus-primary">
+            <div>
+              <p class="focus-kicker">Engineering Direction</p>
+              <h3>Practical AI, clean architecture, and delivery systems that hold up in production.</h3>
+            </div>
+
+            <p>
+              My current work sits at the intersection of full-stack product engineering, cloud-native backend design, and AI-supported development workflows.
+            </p>
+          </article>
+
+          <div class="focus-items" aria-label="Current focus areas">
+            <article class="focus-item">
+              <span class="focus-number">01</span>
+              <h3>Production AI Features</h3>
+              <p>LLM APIs, structured outputs, function calling, agents, and RAG patterns designed for real product behavior.</p>
+            </article>
+
+            <article class="focus-item">
+              <span class="focus-number">02</span>
+              <h3>Backend Architecture</h3>
+              <p>Secure APIs, clean service boundaries, reliable integrations, and scalable cloud infrastructure.</p>
+            </article>
+
+            <article class="focus-item">
+              <span class="focus-number">03</span>
+              <h3>Developer Workflows</h3>
+              <p>AI-assisted code review, test generation, documentation, CI/CD improvements, and release automation.</p>
+            </article>
+
+            <article class="focus-item">
+              <span class="focus-number">04</span>
+              <h3>System Quality</h3>
+              <p>Maintainability, observability, security, and architecture decisions that support long-term business use.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="contact">
+        <div class="contact">
+          <div>
+            <p class="eyebrow">Connect</p>
+            <h2>Let us talk about the next useful thing to build.</h2>
+            <p>
+              I am open to conversations around full-stack engineering, backend architecture, AI application development, DevOps workflows, and maintainable product delivery.
+            </p>
+          </div>
+
+          <div class="actions">
+            <a class="button primary" href="mailto:wycliffepeart@gmail.com">Email Me</a>
+            <a class="button" href="https://github.com/wycliffepeart" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      Build it clearly. Ship it carefully. Improve it continuously.
+    </footer>
+  </div>
+
+  <div class="resume-modal" id="resume-modal" role="dialog" aria-modal="true" aria-labelledby="resume-modal-title">
+    <div class="resume-dialog">
+      <header class="resume-modal-header">
+        <div>
+          <h2 class="resume-modal-title" id="resume-modal-title">Resume</h2>
+          <p class="resume-modal-subtitle">Wycliffe Otaniel Peart | Senior Full-Stack Software Engineer | AI Application Development</p>
+        </div>
+
+        <button class="modal-close" type="button" data-resume-close aria-label="Close resume modal">×</button>
+      </header>
+
+      <div class="resume-modal-content">
+        <div class="resume-sheet">
+          <section class="resume-intro">
+            <h3>Wycliffe Otaniel Peart</h3>
+            <p class="resume-title">Senior Full-Stack Software Engineer | AI Application Development</p>
+
+            <div class="resume-contact">
+              <span><strong>Email:</strong> <a href="mailto:wycliffepeart@gmail.com">wycliffepeart@gmail.com</a></span>
+              <span><strong>Phone:</strong> <a href="tel:+18763755597">+1 (876) 375-5597</a></span>
+              <span><strong>Location:</strong> Jamaica</span>
+              <span><strong>GitHub:</strong> <a href="https://github.com/wycliffepeart" target="_blank" rel="noopener noreferrer">github.com/wycliffepeart</a></span>
+              <span><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/wycliffepeart/" target="_blank" rel="noopener noreferrer">linkedin.com/in/wycliffepeart</a></span>
+            </div>
+
+            <div class="resume-actions" aria-label="Resume contact actions">
+              <a class="resume-action primary" href="mailto:wycliffepeart@gmail.com?subject=Engineering%20Opportunity">Email Me</a>
+              <a class="resume-action" href="https://raw.githubusercontent.com/wycliffepeart/wycliffepeart/main/resume.pdf" target="_blank" rel="noopener noreferrer" download="Wycliffe-Peart-Resume.pdf">Download PDF</a>
+              <a class="resume-action" href="tel:+18763755597">Call</a>
+              <a class="resume-action" href="https://github.com/wycliffepeart" target="_blank" rel="noopener noreferrer">GitHub</a>
+              <a class="resume-action" href="https://www.linkedin.com/in/wycliffepeart/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </div>
+          </section>
+
+          <details class="resume-panel" open>
+            <summary>Professional Summary</summary>
+            <div class="resume-panel-body">
+              <p>Senior Full-Stack Software Engineer with AI engineering experience and 10+ years of experience designing, developing, and delivering enterprise software solutions across banking, fintech, telecommunications, consulting, and digital media.</p>
+              <p>Strong background in backend engineering, cloud-native architecture, microservices, distributed systems, enterprise integrations, and modern web application development. Experienced in building scalable REST APIs, event-driven systems, CI/CD pipelines, and production-grade applications using Node.js, Java, Spring Boot, React, Next.js, AWS, and Kubernetes.</p>
+              <p>Applies AI-assisted engineering practices across the software development lifecycle, including LLM integration, prompt engineering, intelligent automation, code review, security analysis, documentation, automated testing, and CI/CD optimization. Combines full-stack engineering, software architecture, cloud infrastructure, and AI-enabled workflows to deliver secure, maintainable systems that support real-world business operations.</p>
+            </div>
+          </details>
+
+          <details class="resume-panel">
+            <summary>Core Competencies</summary>
+            <div class="resume-panel-body">
+              <div class="competency-grid">
+                <div class="competency-item"><strong>AI Development</strong>Prompt Engineering, AI Application Development, LLM Provider API Integration, AI APIs, AI Agents, Retrieval-Augmented Generation, Model Context Protocol, Function Calling, Structured Outputs</div>
+                <div class="competency-item"><strong>AI Engineering Tools</strong>Cursor, GitHub Copilot, Claude Code, ChatGPT, Gemini Code Assist, Codex, AI-Assisted Code Review, Security Analysis, Test Generation, Documentation, CI/CD Optimization</div>
+                <div class="competency-item"><strong>Backend Engineering</strong>Node.js, TypeScript, Java, Spring Boot, NestJS, Express.js, Fastify</div>
+                <div class="competency-item"><strong>Frontend Engineering</strong>React, Next.js, Angular, TypeScript, JavaScript, HTML5, CSS3, Tailwind CSS, Material UI</div>
+                <div class="competency-item"><strong>Mobile Development</strong>React Native, Flutter, Kotlin, Java, Expo, React Navigation, TanStack Query, EAS Build</div>
+                <div class="competency-item"><strong>Architecture &amp; Integration</strong>REST APIs, GraphQL, Microservices, Distributed Systems, Event-Driven Architecture, Domain-Driven Design, Design Patterns, Clean Architecture, Enterprise System Integration</div>
+                <div class="competency-item"><strong>Cloud &amp; DevOps</strong>AWS, Google Cloud Platform, Kubernetes, Docker, Terraform, GitHub Actions, GitLab CI/CD, Jenkins</div>
+                <div class="competency-item"><strong>Data &amp; Persistence</strong>PostgreSQL, MySQL, MongoDB, Oracle, DynamoDB, Redis</div>
+                <div class="competency-item"><strong>Testing &amp; Quality</strong>Jest, Cypress, Playwright, JUnit, Mockito, Test-Driven Development, Automated Testing</div>
+                <div class="competency-item"><strong>Engineering Practices</strong>Agile, Scrum, CI/CD, SOLID Principles, Clean Code, Secure Software Development</div>
+                <div class="competency-item"><strong>Version Control</strong>Git, GitHub, GitLab</div>
+              </div>
+            </div>
+          </details>
+
+          <details class="resume-panel" open>
+            <summary>Professional Experience</summary>
+            <div class="resume-panel-body">
+              <details class="experience-card" open>
+                <summary>
+                  <span>
+                    <h4>OnePay</h4>
+                    <p class="experience-role">Software Engineer / AI Developer — Contract, BairesDev</p>
+                  </span>
+                  <span class="experience-dates">May 2025 - June 2025</span>
+                  <span class="experience-tech"><strong>Technologies:</strong> Node.js, NestJS, Next.js, React, TypeScript, Jest, Cypress, Cursor, GitHub Copilot, Claude Code, ChatGPT, Gemini Code Assist, Codex, AI-Assisted Development, CI/CD Automation</span>
+                </summary>
+                <ul>
+                  <li>Engineered backend services and REST APIs using Node.js, TypeScript, and NestJS for a fintech platform.</li>
+                  <li>Developed responsive web application features using React and Next.js, improving usability, maintainability, and frontend consistency.</li>
+                  <li>Applied AI-assisted development workflows to accelerate implementation, debugging, refactoring, technical analysis, and problem resolution.</li>
+                  <li>Integrated AI capabilities using LLM provider APIs, prompt-engineered workflows, function calling, and structured outputs.</li>
+                  <li>Used AI-supported code review and security analysis to identify defects, maintainability risks, dependency concerns, insecure practices, and architectural improvement opportunities.</li>
+                  <li>Generated test scenarios, edge cases, and coverage recommendations to support unit, integration, and end-to-end testing with Jest and Cypress.</li>
+                  <li>Improved CI/CD and release workflows through analysis of build processes, deployment configuration, pipeline failures, and automation opportunities.</li>
+                  <li>Collaborated with engineering, product, and quality assurance teams on technical planning, code reviews, testing, documentation, and production deployments.</li>
+                </ul>
+              </details>
+
+              <details class="experience-card" open>
+                <summary>
+                  <span>
+                    <h4>National Commercial Bank Jamaica</h4>
+                    <p class="experience-role">Senior Software Engineer — Contract</p>
+                  </span>
+                  <span class="experience-dates">April 2023 - May 2025</span>
+                  <span class="experience-tech"><strong>Technologies:</strong> Node.js, Java, Spring Boot, React, Kubernetes, Docker, GitLab CI/CD, REST APIs, Microservices</span>
+                </summary>
+                <ul>
+                  <li>Designed and developed enterprise backend services and REST APIs using Node.js, Java, and Spring Boot for banking applications.</li>
+                  <li>Built maintainable microservices using object-oriented design, reusable components, and modern software architecture patterns.</li>
+                  <li>Developed and supported containerized workloads using Docker and Kubernetes across enterprise application environments.</li>
+                  <li>Implemented and optimized GitLab CI/CD pipelines to support automated deployments across development, staging, and production environments.</li>
+                  <li>Integrated internal banking systems with external platforms, third-party services, and enterprise applications.</li>
+                  <li>Supported secure software delivery in a regulated banking environment with emphasis on reliability, maintainability, and operational continuity.</li>
+                  <li>Collaborated with business stakeholders, engineering teams, quality assurance professionals, and external vendors to deliver enterprise banking solutions.</li>
+                  <li>Participated in architecture reviews, code reviews, system testing, production releases, incident resolution, and ongoing improvements to performance, scalability, security, and maintainability.</li>
+                </ul>
+              </details>
+
+              <details class="experience-card">
+                <summary>
+                  <span>
+                    <h4>Cision — PR Software &amp; Marketing Platform</h4>
+                    <p class="experience-role">Frontend Engineer — Contract, In All Media</p>
+                  </span>
+                  <span class="experience-dates">May 2022 - April 2023</span>
+                  <span class="experience-tech"><strong>Technologies:</strong> JavaScript, Web Components, HTML5, CSS3</span>
+                </summary>
+                <ul>
+                  <li>Developed responsive, cross-browser-compatible, and accessibility-focused web applications for a digital media and public relations platform.</li>
+                  <li>Built reusable, modular, and maintainable user-interface components using JavaScript and Web Components.</li>
+                  <li>Translated product requirements, design specifications, and user-interface concepts into production-ready frontend features.</li>
+                  <li>Improved frontend performance, usability, consistency, and maintainability through continuous application enhancements and defect resolution.</li>
+                  <li>Collaborated with product owners, designers, backend engineers, and quality assurance teams during planning, code reviews, testing, and production releases.</li>
+                </ul>
+              </details>
+
+              <details class="experience-card">
+                <summary>
+                  <span>
+                    <h4>National Commercial Bank Jamaica</h4>
+                    <p class="experience-role">Senior Software Engineer — Contract</p>
+                  </span>
+                  <span class="experience-dates">February 2021 - May 2022</span>
+                  <span class="experience-tech"><strong>Technologies:</strong> Node.js, Java, Spring Boot, React, REST APIs, Microservices, CI/CD</span>
+                </summary>
+                <ul>
+                  <li>Designed and implemented backend services, REST APIs, and enterprise integrations using Node.js, Java, and Spring Boot.</li>
+                  <li>Developed responsive frontend applications and reusable React components for internal banking and customer-facing systems.</li>
+                  <li>Built and maintained enterprise software supporting internal banking operations and customer-facing services.</li>
+                  <li>Translated business requirements into secure, scalable, and maintainable technical solutions.</li>
+                  <li>Integrated internal applications with external services, third-party platforms, and enterprise systems.</li>
+                  <li>Supported technical design, code reviews, automated testing, release planning, production deployments, and maintenance.</li>
+                  <li>Diagnosed and resolved defects, integration failures, production incidents, and application performance issues.</li>
+                </ul>
+              </details>
+
+              <details class="experience-card">
+                <summary>
+                  <span>
+                    <h4>Digicel Group</h4>
+                    <p class="experience-role">Application Developer</p>
+                  </span>
+                  <span class="experience-dates">August 2020 - February 2021</span>
+                  <span class="experience-tech"><strong>Technologies:</strong> Node.js, React, Angular, REST APIs, Cloud Services</span>
+                </summary>
+                <ul>
+                  <li>Developed backend services, REST APIs, and system integrations using Node.js within cloud-based telecom environments.</li>
+                  <li>Extended the BiP Messaging platform by implementing channel-based features and customer-engagement capabilities.</li>
+                  <li>Developed frontend applications and reusable user-interface components using React and Angular.</li>
+                  <li>Integrated internal services and third-party platforms to support messaging and digital communication workflows.</li>
+                  <li>Collaborated with business stakeholders, analysts, designers, and engineers through design, development, testing, deployment, production support, and incident resolution.</li>
+                </ul>
+              </details>
+
+              <details class="experience-card">
+                <summary>
+                  <span>
+                    <h4>Vertis Technology</h4>
+                    <p class="experience-role">Application Developer</p>
+                  </span>
+                  <span class="experience-dates">March 2019 - June 2020</span>
+                  <span class="experience-tech"><strong>Technologies:</strong> Node.js, Java, Spring Boot, React, Angular, AWS, REST APIs</span>
+                </summary>
+                <ul>
+                  <li>Designed and developed full-stack enterprise applications using Node.js, Java, Spring Boot, React, and Angular.</li>
+                  <li>Built and maintained cloud-native applications within AWS environments, focusing on scalability, reliability, and maintainability.</li>
+                  <li>Developed REST APIs, backend services, database integrations, reusable components, shared services, and modern frontend user interfaces.</li>
+                  <li>Translated business and functional requirements into practical technical designs and production-ready software.</li>
+                  <li>Supported application testing, deployment, maintenance, technical documentation, troubleshooting, and continuous improvement.</li>
+                </ul>
+              </details>
+
+              <details class="experience-card">
+                <summary>
+                  <span>
+                    <h4>Self-Employed</h4>
+                    <p class="experience-role">Freelance Software Developer</p>
+                  </span>
+                  <span class="experience-dates">January 2013 - December 2019</span>
+                  <span class="experience-tech"><strong>Technologies:</strong> Node.js, React, Laravel, Symfony, WordPress, JavaScript, PHP, MySQL</span>
+                </summary>
+                <ul>
+                  <li>Designed and developed custom web applications, business platforms, and websites using Node.js, React, Laravel, Symfony, WordPress, JavaScript, and PHP.</li>
+                  <li>Delivered end-to-end software solutions covering requirements analysis, architecture, system design, development, testing, deployment, and maintenance.</li>
+                  <li>Developed REST APIs, authentication workflows, database schemas, administrative dashboards, and customer-facing interfaces.</li>
+                  <li>Integrated payment platforms, content management systems, third-party services, and external APIs.</li>
+                  <li>Managed client requirements, project scope, delivery schedules, releases, post-launch support, defect resolution, performance improvements, security enhancements, and new feature delivery.</li>
+                </ul>
+              </details>
+            </div>
+          </details>
+
+          <details class="resume-panel">
+            <summary>Education</summary>
+            <div class="resume-panel-body">
+              <div class="education-block">
+                <div>
+                  <h4>University of Technology, Jamaica</h4>
+                  <p>Bachelor of Science in Computing <em>— In Progress</em></p>
+                </div>
+                <p class="experience-dates">Expected 2028</p>
+              </div>
+            </div>
+          </details>
+
+          <details class="resume-panel">
+            <summary>Professional Development</summary>
+            <div class="resume-panel-body">
+              <p>Ongoing professional development through Udemy, technical documentation, vendor learning resources, and hands-on project work focused on LLM API integration, prompt engineering, AI agents, retrieval-augmented generation, cloud architecture, secure software delivery, system design, and modern full-stack engineering.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const menuToggle = document.querySelector(".menu-toggle");
+    const primaryMenu = document.querySelector("#primary-menu");
+    const resumeModal = document.querySelector("#resume-modal");
+    const resumeOpenButtons = document.querySelectorAll("[data-resume-open]");
+    const resumeCloseButtons = document.querySelectorAll("[data-resume-close]");
+
+    if (menuToggle && primaryMenu) {
+      menuToggle.addEventListener("click", () => {
+        const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
+
+        menuToggle.setAttribute("aria-expanded", String(!isOpen));
+        menuToggle.setAttribute("aria-label", isOpen ? "Open navigation menu" : "Close navigation menu");
+        primaryMenu.classList.toggle("is-open", !isOpen);
+      });
+
+      primaryMenu.addEventListener("click", (event) => {
+        if (!event.target.matches("a")) {
+          return;
+        }
+
+        menuToggle.setAttribute("aria-expanded", "false");
+        menuToggle.setAttribute("aria-label", "Open navigation menu");
+        primaryMenu.classList.remove("is-open");
+      });
+    }
+
+    if (resumeModal) {
+      const openResumeModal = () => {
+        resumeModal.classList.add("is-open");
+        document.body.classList.add("modal-open");
+        resumeModal.querySelector("[data-resume-close]")?.focus();
+      };
+
+      const closeResumeModal = () => {
+        resumeModal.classList.remove("is-open");
+        document.body.classList.remove("modal-open");
+      };
+
+      resumeOpenButtons.forEach((button) => {
+        button.addEventListener("click", openResumeModal);
+      });
+
+      resumeCloseButtons.forEach((button) => {
+        button.addEventListener("click", closeResumeModal);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && resumeModal.classList.contains("is-open")) {
+          closeResumeModal();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

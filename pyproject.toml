@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wycliffepeart-profile"
+version = "0.1.0"
+description = "Developer profile website deployment utilities."
+requires-python = ">=3.9"
+
+[project.scripts]
+cliffe = "scripts.cli:main"
+resume-to-pdf = "scripts.resume_to_pdf:main"
+
+[tool.setuptools.packages.find]
+include = ["scripts*"]

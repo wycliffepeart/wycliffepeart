@@ -54,7 +54,3 @@ The short version: I like turning messy requirements into software that is usefu
 
 - **GitHub:** [github.com/wycliffepeart](https://github.com/wycliffepeart)
 - **LinkedIn:** [linkedin.com/in/wycliffepeart](https://www.linkedin.com/in/wycliffepeart/)
-
----
-
-> _Build it clearly. Ship it carefully. Improve it continuously._

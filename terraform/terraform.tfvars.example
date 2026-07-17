@@ -1,0 +1,11 @@
+aws_region       = "us-east-1"
+aws_profile      = "your-sso-profile"
+site_bucket_name = "wycliffepeart-profile-site-your-account-id"
+
+default_tags = {
+  Project     = "wycliffepeart-profile"
+  ManagedBy   = "terraform"
+  Application = "developer-profile"
+  Environment = "production"
+}
+
