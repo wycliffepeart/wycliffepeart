@@ -1,6 +1,6 @@
 # Hi there, I'm Wycliffe 👋
 
-💻 **Senior Full-Stack Software Engineer** | 🤖 **AI Application Developer** | ☁️ **Cloud & DevOps Builder**
+💻 **Senior Full-Stack & Agentic AI Engineer** | ☁️ **Cloud & DevOps Builder**
 
 ---
 
@@ -21,10 +21,11 @@ The short version: I like turning messy requirements into software that is usefu
 - **Mobile:** React Native, Flutter, Kotlin, Java, Expo
 - **Architecture:** REST APIs, GraphQL, microservices, distributed systems, event-driven architecture, enterprise integrations
 
-### **AI Development**
+### **Agentic AI Engineering**
 
-- **AI Apps:** LLM provider API integration, AI agents, RAG, function calling, structured outputs
-- **AI Workflow:** Prompt engineering, AI-assisted code review, security analysis, test generation, documentation, CI/CD optimization
+- **AI Apps:** LLM provider APIs, AI agents, agentic workflows, MCP (Model Context Protocol), function calling, structured outputs, retrieval-augmented generation (RAG)
+- **AI Integration:** Prompt engineering, AI integration, multi-step AI workflows, intelligent automation
+- **AI Workflow:** AI-assisted code review, security analysis, test generation, documentation, CI/CD optimization
 - **Tools I Use:** ChatGPT, Codex, GitHub Copilot, Cursor, Claude Code, Gemini Code Assist
 
 ### **Cloud, Data & Delivery**
