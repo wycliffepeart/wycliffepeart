@@ -303,6 +303,9 @@ The Terraform configuration uploads:
 - `resume.html` as `resume.html`.
 - `resume.pdf` as `resume.pdf` when `resume.pdf` exists in the project root.
 
+The S3 bucket keeps object versions for rollback, and noncurrent object versions
+expire after 30 days to keep storage costs bounded.
+
 Use `cliffe resume-pdf` before `cliffe apply` if the deployed PDF should be
 updated.
 
@@ -450,6 +453,11 @@ Get the deployed site URL after applying:
 cd terraform
 terraform output site_url
 ```
+
+Rollback a bad content deploy by reverting the Git commit or checking out the
+last known good version, regenerating `resume.pdf` when needed, and running
+`cliffe deploy` again. Use S3 object versions only for short-term object
+recovery; Git is the source of truth.
 
 ---
 

@@ -57,6 +57,9 @@ Terraform uploads:
 - `resume.html` as `resume.html`
 - `resume.pdf` as `resume.pdf` when that file exists in the project root
 
+The S3 bucket keeps object versions for rollback, and noncurrent object versions
+expire after 30 days to keep storage costs bounded.
+
 Generate the PDF before deployment with:
 
 ```sh
@@ -78,3 +81,10 @@ terraform apply
 ```
 
 CloudFront may cache responses briefly. The HTML objects are uploaded with no-cache headers so browsers should revalidate them.
+
+## Rollback
+
+For a content rollback, revert the bad Git commit or check out the last known
+good version, regenerate `resume.pdf` if resume content changed, and run
+`cliffe deploy` again. S3 object versioning provides a short recovery window for
+individual uploaded objects, but Git remains the source of truth.
