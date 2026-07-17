@@ -1,62 +1,44 @@
-# Hi there, I'm Wycliffe 👋
+# Hi, I'm Wycliffe Peart
 
-💻 **Full-Stack & Backend Software Engineer** | 🤖 **AI Developer** |  **☁️ Cloud Developer** 
+Senior full-stack software engineer building backend systems, web apps, cloud-native platforms, and AI-powered developer workflows.
 
----
+I have spent 10+ years shipping software across banking, fintech, telecommunications, consulting, and digital media. These days I am especially interested in how AI changes the way teams design, build, review, test, secure, and operate production software.
 
-## 🌟 About Me
-I’m a software engineer with **10+ years** of experience designing, building, and scaling applications across **backend, frontend, cloud, and distributed architectures**. I specialize in **Node.js**, **TypeScript**, and **microservices**, with deep expertise in **API development**, **event-driven systems**, and **cloud-native deployments**.
+## What I Work On
 
-With **5+ years** of microservices architecture, **7 years** in SPA development (React, Vue), and **enterprise-grade API design**, I focus on **scalability, performance, and security**. I also have strong experience in **serverless**, **AWS**, **DevOps**, and **data engineering**.
+- Full-stack applications with Node.js, TypeScript, Java, Spring Boot, React, and Next.js
+- REST APIs, microservices, distributed systems, and enterprise integrations
+- AI application development using LLM provider APIs, prompt engineering, function calling, structured outputs, agents, and RAG
+- Cloud and DevOps work with AWS, Google Cloud Platform, Kubernetes, Docker, Terraform, GitHub Actions, GitLab CI/CD, and Jenkins
+- Testing and quality workflows with Jest, Cypress, Playwright, JUnit, Mockito, code review, documentation, and CI/CD automation
 
-## 🛠️ Tech Stack
+## Current Focus
 
-### **Core Skills**
-- **Languages & Frameworks:** Node.js, TypeScript, Java, Python, React, Vue, Next.js
-- **Backend:** RESTful APIs, Event-driven architecture, Kafka, RabbitMQ
-- **Databases:** PostgreSQL, MySQL, MongoDB Atlas, DynamoDB, SQL Server
-- **Cloud & Serverless:** AWS Lambda, API Gateway, S3, DynamoDB, Azure Functions
-- **Infrastructure & CI/CD:** Terraform, GitLab CI, TeamCity, Octopus Deploy, Spinnaker
-- **Security:** Authentication & Authorization, Secure API Design, AI in Cybersecurity
+- Building practical AI-assisted engineering workflows
+- Integrating LLM capabilities into real applications, not just demos
+- Improving secure software delivery for cloud-native systems
+- Sharpening system design, architecture, and production reliability skills
+- Exploring better developer tools for code review, testing, documentation, and release automation
 
-### **Specialties**
-- **Microservices** with distributed data patterns
-- **Event Streaming** with Kafka & AWS SQS/SNS
-- **Performance Optimization** & **Scalability Planning**
-- **Idempotency & Consistency** in distributed systems
+## Tech I Reach For
 
-## 🚀 Recent Highlights
-- **Kafka-based monitoring system** for real-time telemetry aggregation.
-- **Microservices trading platform** with AWS SQS/SNS and polyglot persistence.
-- **CI/CD automation** for ECS Fargate with Bitbucket Pipelines & ECR.
-- **Security-enhanced API Gateway** with VPC-private endpoints and IAM policies.
-- **AI-powered threat detection prototypes** for cybersecurity research.
+**Languages & Frameworks:** Node.js, TypeScript, Java, Spring Boot, NestJS, Express.js, Fastify, React, Next.js, Angular  
+**AI Development:** LLM APIs, prompt engineering, AI agents, RAG, Model Context Protocol, function calling, structured outputs  
+**Cloud & DevOps:** AWS, Google Cloud Platform, Kubernetes, Docker, Terraform, GitHub Actions, GitLab CI/CD, Jenkins  
+**Data:** PostgreSQL, MySQL, MongoDB, Oracle, DynamoDB, Redis  
+**Quality:** Jest, Cypress, Playwright, JUnit, Mockito, automated testing, secure software development  
 
-## 📚 Current Interests
-- Leveraging **AI for automated threat detection** and incident response.
-- Advanced **Node.js event loop** & performance tuning.
-- **Public speaking** and sharing technical knowledge.
-- Building **developer-friendly tooling** for cloud and distributed apps.
+## Good Topics To Talk About
 
-## 📫 Connect With Me
-- **GitHub:** [github.com/wycliffepeart](https://github.com/wycliffepeart)
-- **LinkedIn:** [linkedin.com/in/wycliffepeart](https://www.linkedin.com/in/wycliffepeart/)
+- Designing APIs and backend services that age well
+- Using AI tools without losing engineering judgment
+- Making CI/CD pipelines less painful
+- Building maintainable full-stack systems
+- Turning messy business requirements into working software
 
----
+## Connect
 
-> _"Code should be simple, scalable, and secure — in that order."_
+- GitHub: [github.com/wycliffepeart](https://github.com/wycliffepeart)
+- LinkedIn: [linkedin.com/in/wycliffepeart](https://www.linkedin.com/in/wycliffepeart/)
 
-<!--
-**wycliffepeart/wycliffepeart** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-
-Here are some ideas to get you started:
-
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+> Build it clearly. Ship it carefully. Improve it continuously.
