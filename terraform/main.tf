@@ -40,6 +40,10 @@ locals {
     svg  = "image/svg+xml"
     ico  = "image/x-icon"
   }
+
+  content_dispositions = {
+    "resume.pdf" = "attachment; filename=\"Wycliffe-Peart-Resume.pdf\""
+  }
 }
 
 resource "aws_s3_bucket" "site" {
@@ -105,11 +109,12 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "site" {
 resource "aws_s3_object" "site_files" {
   for_each = local.site_files
 
-  bucket       = aws_s3_bucket.site.id
-  key          = each.key
-  source       = each.value
-  etag         = filemd5(each.value)
-  content_type = lookup(local.content_types, lower(regex("[^.]+$", each.key)), "application/octet-stream")
+  bucket              = aws_s3_bucket.site.id
+  key                 = each.key
+  source              = each.value
+  etag                = filemd5(each.value)
+  content_type        = lookup(local.content_types, lower(regex("[^.]+$", each.key)), "application/octet-stream")
+  content_disposition = lookup(local.content_dispositions, each.key, null)
   cache_control = each.key == "index.html" || each.key == "profile.html" || each.key == "resume.html" ? (
     "no-cache, no-store, must-revalidate"
   ) : "public, max-age=31536000, immutable"
