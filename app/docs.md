@@ -4,19 +4,13 @@
 static profile site with Terraform. The CLI entry point is configured in
 the root `pyproject.toml` and points to `scripts.cli:main`.
 
-This app lives at `apps/wp-profile` inside the monorepo. Run `cliffe` and
-`python3 -m scripts...` commands from the monorepo root unless the CLI is
-installed in your active environment. From the monorepo root, use the Moon
-tasks:
+This app lives at `app` inside the project. Run `cliffe` and
+`python3 -m scripts...` commands from the project root unless the CLI is
+installed in your active environment.
 
 ```sh
-moon run wp-profile:cli-help
-moon run wp-profile:resume-pdf
-moon run wp-profile:init
-moon run wp-profile:plan
-moon run wp-profile:apply
-moon run wp-profile:deploy
-moon run wp-profile:run
+python3 -m scripts.cli --help
+python3 -m scripts.cli run
 ```
 
 The deployment creates a private S3 bucket, uploads the site files, and serves
@@ -27,7 +21,7 @@ commands only for targeted infrastructure operations or debugging.
 
 ## Installation
 
-From the monorepo root, create and activate a Python virtual environment, then
+From the project root, create and activate a Python virtual environment, then
 install the package in editable mode:
 
 ```sh
@@ -51,7 +45,7 @@ python3 -m scripts.cli --help
 ```
 
 Do not run `python3 scripts/cli.py` directly. The CLI imports the `scripts`
-package, so it expects the monorepo root to be on Python's import path.
+package, so it expects the project root to be on Python's import path.
 
 ## Prerequisites
 
@@ -78,11 +72,11 @@ eval "$(aws configure export-credentials --format env)"
 Create Terraform variables:
 
 ```sh
-cd terraform
+cd app/terraform
 cp terraform.tfvars.example terraform.tfvars
 ```
 
-Edit `terraform/terraform.tfvars` and set at least:
+Edit `app/terraform/terraform.tfvars` and set at least:
 
 ```hcl
 aws_profile         = "your-sso-profile"
@@ -100,7 +94,7 @@ The apex `wycliffepeart.com` must use ALIAS/ANAME/CNAME flattening to stay on
 the apex domain; if GoDaddy does not support that, move DNS hosting to Route 53
 or Cloudflare, or redirect the apex to `www.wycliffepeart.com`.
 
-Return to the monorepo root before running `cliffe` commands:
+Return to the project root before running `cliffe` commands:
 
 ```sh
 cd ../..
@@ -114,6 +108,7 @@ cliffe init
 cliffe plan
 cliffe apply
 cliffe deploy
+cliffe run
 ```
 
 Run help for the full command list:
@@ -127,6 +122,7 @@ Run help for a specific command:
 ```sh
 cliffe resume-pdf --help
 cliffe deploy --help
+cliffe run --help
 ```
 
 ## `cliffe resume-pdf`
@@ -135,8 +131,8 @@ Generates a PDF version of the resume HTML file.
 
 Default behavior:
 
-- Reads `apps/wp-profile/resume.html`.
-- Writes `apps/wp-profile/resume.pdf`.
+- Reads `app/resume.html`.
+- Writes `app/resume.pdf`.
 - Looks for a Chromium-based browser automatically.
 - Uses headless browser printing with `--print-to-pdf`.
 - Creates the output directory if it does not already exist.
@@ -158,22 +154,22 @@ resume-to-pdf
 Direct app script:
 
 ```sh
-python3 apps/wp-profile/scripts/resume_to_pdf.py
+python3 app/scripts/resume_to_pdf.py
 ```
 
 Options:
 
 | Option | Description | Default |
 | --- | --- | --- |
-| `--input INPUT` | HTML file to render. | `resume.html` |
-| `--output OUTPUT` | PDF output path. | `resume.pdf` |
+| `--input INPUT` | HTML file to render. | `app/resume.html` |
+| `--output OUTPUT` | PDF output path. | `app/resume.pdf` |
 | `--browser BROWSER` | Explicit path to Chrome, Chromium, or Edge. This overrides `CHROME_BIN` and automatic detection. | Auto-detected |
 | `--timeout TIMEOUT` | Maximum seconds to wait for PDF generation. | `60` |
 
 Examples:
 
 ```sh
-cliffe resume-pdf --input resume.html --output resume.pdf
+cliffe resume-pdf --input app/resume.html --output app/resume.pdf
 ```
 
 ```sh
@@ -202,12 +198,12 @@ directory.
 
 ## `cliffe init`
 
-Initializes Terraform in the `terraform/` directory.
+Initializes Terraform in the `app/terraform/` directory.
 
 Default behavior:
 
 - Runs `terraform init`.
-- Uses `terraform/` as the working directory.
+- Uses `app/terraform/` as the working directory.
 - Downloads and initializes the Terraform providers declared by the project.
 - Prepares the Terraform directory for `plan`, `apply`, and `deploy`.
 
@@ -220,7 +216,7 @@ cliffe init
 Equivalent underlying action:
 
 ```sh
-cd terraform
+cd app/terraform
 terraform init
 ```
 
@@ -234,8 +230,8 @@ Creates a Terraform execution plan for the static site infrastructure.
 Default behavior:
 
 - Runs `terraform plan`.
-- Uses `terraform/` as the working directory.
-- Reads variables from `terraform/terraform.tfvars` when present.
+- Uses `app/terraform/` as the working directory.
+- Reads variables from `app/terraform/terraform.tfvars` when present.
 - Shows what Terraform will create, update, or destroy.
 - Does not make infrastructure changes.
 
@@ -248,7 +244,7 @@ cliffe plan
 Equivalent underlying action:
 
 ```sh
-cd terraform
+cd app/terraform
 terraform plan
 ```
 
@@ -280,7 +276,7 @@ Applies Terraform changes for the static site infrastructure.
 Default behavior:
 
 - Runs `terraform apply`.
-- Uses `terraform/` as the working directory.
+- Uses `app/terraform/` as the working directory.
 - Prompts for approval unless `--auto-approve` is used or Terraform is applying
   a saved plan file.
 - Creates or updates AWS resources.
@@ -295,7 +291,7 @@ cliffe apply
 Equivalent underlying action:
 
 ```sh
-cd terraform
+cd app/terraform
 terraform apply
 ```
 
@@ -325,7 +321,7 @@ The Terraform configuration uploads:
 - `index.html` as `index.html`.
 - `index.html` as `profile.html`.
 - `resume.html` as `resume.html`.
-- `resume.pdf` as `resume.pdf` when `apps/wp-profile/resume.pdf` exists,
+- `resume.pdf` as `resume.pdf` when `app/resume.pdf` exists,
   with attachment headers for downloading.
 - Every file under `assets/` under the same `/assets/` path.
 
@@ -356,8 +352,8 @@ Options and arguments:
 
 | Option or argument | Description | Default |
 | --- | --- | --- |
-| `--input INPUT` | HTML file to render into PDF before deployment. | `resume.html` |
-| `--output OUTPUT` | PDF output path. | `resume.pdf` |
+| `--input INPUT` | HTML file to render into PDF before deployment. | `app/resume.html` |
+| `--output OUTPUT` | PDF output path. | `app/resume.pdf` |
 | `--browser BROWSER` | Explicit path to Chrome, Chromium, or Edge. Overrides `CHROME_BIN` and automatic detection. | Auto-detected |
 | `--timeout TIMEOUT` | Maximum seconds to wait for PDF generation. | `60` |
 | `--skip-init` | Skips `terraform init`. Use only when Terraform has already been initialized. | Disabled |
@@ -410,6 +406,36 @@ Use `deploy` when you want the standard end-to-end path for publishing changes.
 Use the individual commands when you want more control or need to inspect a
 Terraform plan before applying it.
 
+## `cliffe run`
+
+Serves the static app locally from the `app/` directory.
+
+Default behavior:
+
+- Runs Python's built-in static file server.
+- Binds to `127.0.0.1`.
+- Serves on port `8000`.
+- Uses `app/` as the document root.
+
+Basic usage:
+
+```sh
+cliffe run
+```
+
+Options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--host HOST` | Host interface to bind. | `127.0.0.1` |
+| `--port PORT` | Port to serve on. | `8000` |
+
+Example:
+
+```sh
+cliffe run --port 8080
+```
+
 ## Error Handling
 
 The CLI returns a non-zero exit code when a command fails.
@@ -443,10 +469,10 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install --upgrade pip setuptools wheel
 python3 -m pip install -e .
-cd terraform
+cd app/terraform
 cp terraform.tfvars.example terraform.tfvars
 # edit terraform.tfvars
-cd ..
+cd ../..
 cliffe deploy
 ```
 
@@ -476,7 +502,7 @@ cliffe apply
 Get the deployed site URL after applying:
 
 ```sh
-cd terraform
+cd app/terraform
 terraform output site_url
 ```
 

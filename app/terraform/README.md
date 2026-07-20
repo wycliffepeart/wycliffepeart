@@ -2,9 +2,8 @@
 
 This Terraform configuration deploys the profile site to a private S3 bucket and serves it through CloudFront over HTTPS.
 
-This app lives at `apps/wp-profile` inside the monorepo. Run `cliffe` from the
-monorepo root, or use Moon tasks such as `moon run wp-profile:terraform-fmt`
-and `moon run wp-profile:terraform-validate` from the monorepo root.
+This app lives at `app` inside the project. Run `cliffe` from the project root.
+Run direct Terraform commands from this `app/terraform` directory.
 
 ## AWS SSO Setup
 
@@ -62,7 +61,7 @@ Terraform uploads:
 - `index.html` as `profile.html`
 - `resume.html` as `resume.html`
 - `blog/index.html` as `blog/index.html`
-- `resume.pdf` as `resume.pdf` when `apps/wp-profile/resume.pdf` exists, with
+- `resume.pdf` as `resume.pdf` when `app/resume.pdf` exists, with
   attachment headers for downloading
 - every file under `assets/` under the same `/assets/` path
 

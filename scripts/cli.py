@@ -13,9 +13,9 @@ from typing import Sequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PROFILE_APP_DIR = ROOT / "apps" / "wp-profile"
-RESUME_TO_PDF_SCRIPT = PROFILE_APP_DIR / "scripts" / "resume_to_pdf.py"
-TERRAFORM_DIR = PROFILE_APP_DIR / "terraform"
+APP_DIR = ROOT / "app"
+RESUME_TO_PDF_SCRIPT = APP_DIR / "scripts" / "resume_to_pdf.py"
+TERRAFORM_DIR = APP_DIR / "terraform"
 RESUME_TO_PDF = None
 
 
@@ -92,6 +92,22 @@ def deploy(args: argparse.Namespace) -> None:
     terraform_apply(args)
 
 
+def run_app(args: argparse.Namespace) -> None:
+    run_command(
+        [
+            sys.executable,
+            "-m",
+            "http.server",
+            str(args.port),
+            "--bind",
+            args.host,
+            "--directory",
+            str(APP_DIR),
+        ],
+        ROOT,
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="cliffe",
@@ -125,6 +141,11 @@ def build_parser() -> argparse.ArgumentParser:
     deploy_parser.add_argument("--auto-approve", action="store_true", help="Pass -auto-approve to Terraform apply.")
     deploy_parser.add_argument("plan_file", nargs="?", help="Optional Terraform plan file to apply.")
     deploy_parser.set_defaults(func=deploy)
+
+    run_parser = subparsers.add_parser("run", help="Serve the static app locally.")
+    run_parser.add_argument("--host", default="127.0.0.1", help="Host interface to bind.")
+    run_parser.add_argument("--port", type=int, default=8000, help="Port to serve on.")
+    run_parser.set_defaults(func=run_app)
 
     return parser
 

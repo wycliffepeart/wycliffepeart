@@ -11,9 +11,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Moon
-.moon/cache/
-
 # Python
 __pycache__/
 .pycache/
