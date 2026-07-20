@@ -1,0 +1,50 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+
+id: wycliffepeart
+language: python
+type: application
+tags:
+  - cli
+  - profile
+
+tasks:
+  cli-help:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - --help
+  resume-pdf:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - resume-pdf
+    outputs:
+      - apps/wp-profile/resume.pdf
+  init:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - init
+  plan:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - plan
+  apply:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - apply
+  deploy:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - deploy
+    outputs:
+      - apps/wp-profile/resume.pdf
