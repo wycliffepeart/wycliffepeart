@@ -1,61 +1,29 @@
-# Hi there, I'm Wycliffe Otaniel Peart 👋
+# wycliffepeart
 
-💻 **Senior Full-Stack AI Engineer** | ☁️ **Cloud & DevOps Builder**
+Moon-managed monorepo for Wycliffe Peart projects.
 
----
+## Projects
 
-## 🌟 About Me
+- `apps/wp-profile` - GitHub profile content, static profile site, resume
+  HTML/PDF workflow, deployment CLI, and Terraform infrastructure.
 
-I'm a software engineer with **10+ years** of experience designing, building, and delivering software across **banking, fintech, telecommunications, consulting, and digital media**.
+## Moon
 
-I enjoy working across the stack, from backend services and cloud infrastructure to polished web applications and AI-powered engineering workflows. My current focus is building practical AI features with **LLM provider APIs**, **prompt engineering**, **function calling**, **structured outputs**, **agents**, and **RAG**.
+List projects and tasks:
 
-The short version: I like turning messy requirements into software that is useful, maintainable, secure, and ready for real users.
+```sh
+moon project wp-profile
+```
 
-## 🛠️ Tech Stack
+Run profile app tasks from the monorepo root:
 
-### **Core Engineering**
+```sh
+moon run wp-profile:cli-help
+moon run wp-profile:resume-pdf
+moon run wp-profile:terraform-fmt
+moon run wp-profile:terraform-validate
+```
 
-- **Backend:** Node.js, TypeScript, Java, Spring Boot, NestJS, Express.js, Fastify
-- **Frontend:** React, Next.js, Angular, JavaScript, HTML5, CSS3, Tailwind CSS, Material UI
-- **Mobile:** React Native, Flutter, Kotlin, Java, Expo
-- **Architecture:** REST APIs, GraphQL, microservices, distributed systems, event-driven architecture, enterprise integrations
-
-### **Agentic AI Engineering**
-
-- **AI Apps:** LLM provider APIs, AI agents, agentic workflows, MCP (Model Context Protocol), function calling, structured outputs, retrieval-augmented generation (RAG)
-- **AI Integration:** Prompt engineering, AI integration, multi-step AI workflows, intelligent automation
-- **AI Workflow:** AI-assisted code review, security analysis, test generation, documentation, CI/CD optimization
-- **Tools I Use:** ChatGPT, Codex, GitHub Copilot, Cursor, Claude Code, Gemini Code Assist
-
-### **Cloud, Data & Delivery**
-
-- **Cloud & DevOps:** AWS, Google Cloud Platform, Kubernetes, Docker, Terraform, GitHub Actions, GitLab CI/CD, Jenkins
-- **Databases:** PostgreSQL, MySQL, MongoDB, Oracle, DynamoDB, Redis
-- **Testing:** Jest, Cypress, Playwright, JUnit, Mockito, automated testing
-- **Practices:** Agile, Scrum, SOLID principles, clean code, secure software development
-
-## 🚀 What I'm Exploring
-
-- Building AI-assisted engineering workflows that actually help developers move faster
-- Integrating LLM capabilities into production-style applications, not just demos
-- Improving CI/CD, testing, documentation, and release automation with AI
-- Designing secure, scalable APIs and cloud-native systems
-- Sharpening system design and architecture for real-world business software
-
-## ✍️ Blog
-
-I share short notes on practical software engineering, AI application development, and delivery systems at [wycliffepeart.com/blog](https://www.wycliffepeart.com/blog/).
-
-## 💬 Ask Me About
-
-- Full-stack application development
-- Backend architecture and API design
-- AI application development with LLM APIs
-- Cloud-native delivery and DevOps workflows
-- Making codebases easier to test, review, maintain, and ship
-
-## 📫 Connect With Me
-
-- **GitHub:** [github.com/wycliffepeart](https://github.com/wycliffepeart)
-- **LinkedIn:** [linkedin.com/in/wycliffepeart](https://www.linkedin.com/in/wycliffepeart/)
+The profile app can still be used directly from `apps/wp-profile` with the
+existing `cliffe` and Terraform commands documented in
+`apps/wp-profile/docs.md`.

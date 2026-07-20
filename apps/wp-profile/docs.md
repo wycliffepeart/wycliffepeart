@@ -4,6 +4,18 @@
 static profile site with Terraform. The CLI entry point is configured in
 `pyproject.toml` and points to `scripts.cli:main`.
 
+This app lives at `apps/wp-profile` inside the monorepo. Run the direct
+`cliffe`, Python, and Terraform commands in this document from the
+`apps/wp-profile` app root unless a command says otherwise. From the monorepo
+root, use the Moon tasks:
+
+```sh
+moon run wp-profile:cli-help
+moon run wp-profile:resume-pdf
+moon run wp-profile:terraform-fmt
+moon run wp-profile:terraform-validate
+```
+
 The deployment creates a private S3 bucket, uploads the site files, and serves
 them through CloudFront over HTTPS.
 
@@ -16,6 +28,7 @@ Create and activate a Python virtual environment, then install the package in
 editable mode:
 
 ```sh
+cd apps/wp-profile
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install --upgrade pip setuptools wheel
@@ -36,7 +49,7 @@ python3 -m scripts.cli --help
 ```
 
 Do not run `python3 scripts/cli.py` directly. The CLI imports the `scripts`
-package, so it expects the project root to be on Python's import path.
+package, so it expects the app root to be on Python's import path.
 
 ## Prerequisites
 
@@ -85,7 +98,7 @@ The apex `wycliffepeart.com` must use ALIAS/ANAME/CNAME flattening to stay on
 the apex domain; if GoDaddy does not support that, move DNS hosting to Route 53
 or Cloudflare, or redirect the apex to `www.wycliffepeart.com`.
 
-Return to the project root before running `cliffe` commands:
+Return to the app root before running `cliffe` commands:
 
 ```sh
 cd ..
@@ -120,8 +133,8 @@ Generates a PDF version of the resume HTML file.
 
 Default behavior:
 
-- Reads `resume.html` from the project root.
-- Writes `resume.pdf` to the project root.
+- Reads `resume.html` from the app root.
+- Writes `resume.pdf` to the app root.
 - Looks for a Chromium-based browser automatically.
 - Uses headless browser printing with `--print-to-pdf`.
 - Creates the output directory if it does not already exist.
@@ -176,7 +189,7 @@ Browser detection order:
 9. macOS Chromium application path.
 
 Use this command before deployment when you want `resume.pdf` uploaded to S3.
-Terraform only uploads `resume.pdf` when the file exists in the project root.
+Terraform only uploads `resume.pdf` when the file exists in the app root.
 
 ## `cliffe init`
 
@@ -303,7 +316,7 @@ The Terraform configuration uploads:
 - `profile.html` as `index.html`.
 - `profile.html` as `profile.html`.
 - `resume.html` as `resume.html`.
-- `resume.pdf` as `resume.pdf` when `resume.pdf` exists in the project root,
+- `resume.pdf` as `resume.pdf` when `resume.pdf` exists in the app root,
   with attachment headers for downloading.
 - Every file under `assets/` under the same `/assets/` path.
 

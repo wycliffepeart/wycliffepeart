@@ -1463,6 +1463,92 @@
       font-size: 14px;
     }
 
+    html[data-theme="dark"] {
+      --surface: #10141c;
+      --surface-soft: #161c26;
+      --surface-gloss: transparent;
+      --line: rgba(237, 246, 255, 0.12);
+      --line-bright: rgba(237, 246, 255, 0.2);
+    }
+
+    html[data-theme="dark"] body,
+    html[data-theme="dark"] body::before,
+    html[data-theme="dark"] .resume-dialog {
+      background: var(--background);
+    }
+
+    html[data-theme="dark"] body::before {
+      content: none;
+    }
+
+    html[data-theme="dark"] .nav,
+    html[data-theme="dark"] .brand-mark,
+    html[data-theme="dark"] .theme-toggle,
+    html[data-theme="dark"] .button,
+    html[data-theme="dark"] .modal-close,
+    html[data-theme="dark"] .resume-action,
+    html[data-theme="dark"] .resume-header-download,
+    html[data-theme="dark"] .menu-toggle,
+    html[data-theme="dark"] .intro-card,
+    html[data-theme="dark"] .intro-outcome,
+    html[data-theme="dark"] .intro-principle,
+    html[data-theme="dark"] .card,
+    html[data-theme="dark"] .blog-post,
+    html[data-theme="dark"] .focus-primary,
+    html[data-theme="dark"] .focus-item,
+    html[data-theme="dark"] .contact,
+    html[data-theme="dark"] .resume-intro,
+    html[data-theme="dark"] .resume-panel,
+    html[data-theme="dark"] .resume-highlight,
+    html[data-theme="dark"] .competency-item,
+    html[data-theme="dark"] .skills li,
+    html[data-theme="dark"] .focus-number,
+    html[data-theme="dark"] .resume-panel > summary::after,
+    html[data-theme="dark"] .experience-card summary::after {
+      background: var(--surface);
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+
+    html[data-theme="dark"] .theme-toggle:hover,
+    html[data-theme="dark"] .button:hover,
+    html[data-theme="dark"] .button.primary:hover,
+    html[data-theme="dark"] .modal-close:hover,
+    html[data-theme="dark"] .resume-action:hover,
+    html[data-theme="dark"] .resume-action.primary:hover,
+    html[data-theme="dark"] .resume-header-download:hover,
+    html[data-theme="dark"] .menu-toggle:hover,
+    html[data-theme="dark"] .nav-links a:hover {
+      background: var(--surface-soft);
+      box-shadow: none;
+    }
+
+    html[data-theme="dark"] .button.primary,
+    html[data-theme="dark"] .resume-action.primary,
+    html[data-theme="dark"] .resume-header-download {
+      border-color: rgba(142, 219, 255, 0.36);
+      background: var(--surface);
+      color: var(--accent-strong);
+    }
+
+    html[data-theme="dark"] .button::before,
+    html[data-theme="dark"] .theme-toggle::before,
+    html[data-theme="dark"] .resume-action::before,
+    html[data-theme="dark"] .resume-header-download::before,
+    html[data-theme="dark"] .modal-close::before {
+      opacity: 0;
+    }
+
+    html[data-theme="dark"] .resume-modal {
+      background: rgba(5, 7, 11, 0.94);
+      backdrop-filter: none;
+    }
+
+    html[data-theme="dark"] .resume-modal-header {
+      background: var(--background);
+      backdrop-filter: none;
+    }
+
     @media (max-width: 860px) {
       .nav {
         align-items: stretch;

@@ -1,0 +1,33 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+
+id: wp-profile
+language: python
+type: application
+tags:
+  - profile
+  - static-site
+
+tasks:
+  cli-help:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - --help
+  resume-pdf:
+    command: python3
+    args:
+      - -m
+      - scripts.resume_to_pdf
+    outputs:
+      - resume.pdf
+  terraform-fmt:
+    command: terraform
+    args:
+      - fmt
+      - terraform
+  terraform-validate:
+    command: terraform
+    args:
+      - -chdir=terraform
+      - validate

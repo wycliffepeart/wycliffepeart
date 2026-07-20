@@ -1,7 +1,8 @@
 # Agent Instructions
 
-This repository contains Wycliffe Peart's GitHub profile content, a static profile
-site, a resume HTML/PDF workflow, a small Python CLI, and Terraform deployment
+This repository is a Moon-managed monorepo. The `apps/wp-profile` project
+contains Wycliffe Peart's GitHub profile content, a static profile site, a
+resume HTML/PDF workflow, a small Python CLI, and Terraform deployment
 configuration for S3 plus CloudFront.
 
 ## Default Workflow
@@ -20,35 +21,42 @@ configuration for S3 plus CloudFront.
 
 ## Project Files
 
-- `README.md` is the GitHub profile README. Only update it when resume/profile
-  content changes require the public GitHub profile text to change. Do not update
-  it for unrelated styling, infrastructure, CLI, or deployment changes unless the
-  user explicitly asks.
-- `profile.html` is the deployed profile site's primary page. Terraform uploads
-  it as both `index.html` and `profile.html`.
-- `resume.html` is the source of the browser-rendered resume.
-- `resume.pdf` is generated output from `resume.html`. Do not hand-edit it.
-- `scripts/resume_to_pdf.py` converts `resume.html` to `resume.pdf` with a
-  Chromium-based browser.
-- `scripts/cli.py` provides the `cliffe` CLI for PDF generation and Terraform
-  commands.
-- `docs.md` documents CLI and non-resume project workflows. Update it for CLI,
-  infrastructure, deployment, or other non-resume behavior changes that need
-  documentation.
-- `terraform/README.md` documents Terraform-specific deployment steps. Update it
-  when Terraform behavior, uploaded files, or deployment prerequisites change.
+- Root `README.md` documents the monorepo and Moon entry points.
+- `.moon/workspace.yml` discovers projects under `apps/*`.
+- `apps/wp-profile/README.md` is the GitHub profile README. Only update it when
+  resume/profile content changes require the public GitHub profile text to
+  change. Do not update it for unrelated styling, infrastructure, CLI, or
+  deployment changes unless the user explicitly asks.
+- `apps/wp-profile/profile.html` is the deployed profile site's primary page.
+  Terraform uploads it as both `index.html` and `profile.html`.
+- `apps/wp-profile/resume.html` is the source of the browser-rendered resume.
+- `apps/wp-profile/resume.pdf` is generated output from `resume.html`. Do not
+  hand-edit it.
+- `apps/wp-profile/scripts/resume_to_pdf.py` converts `resume.html` to
+  `resume.pdf` with a Chromium-based browser.
+- `apps/wp-profile/scripts/cli.py` provides the `cliffe` CLI for PDF generation
+  and Terraform commands.
+- `apps/wp-profile/docs.md` documents CLI and non-resume project workflows.
+  Update it for CLI, infrastructure, deployment, or other non-resume behavior
+  changes that need documentation.
+- `apps/wp-profile/terraform/README.md` documents Terraform-specific deployment
+  steps. Update it when Terraform behavior, uploaded files, or deployment
+  prerequisites change.
 
 ## Resume PDF Rules
 
-- Keep the default PDF output filename in `scripts/resume_to_pdf.py` synchronized
-  with Terraform's upload key in `terraform/main.tf`.
+- Keep the default PDF output filename in
+  `apps/wp-profile/scripts/resume_to_pdf.py` synchronized with Terraform's
+  upload key in `apps/wp-profile/terraform/main.tf`.
 - The current invariant is:
-  - `scripts/resume_to_pdf.py` `DEFAULT_OUTPUT` -> project-root `resume.pdf`
-  - `terraform/main.tf` `local.optional_files` uploads project-root
-    `resume.pdf` as S3 object key `resume.pdf`
+  - `apps/wp-profile/scripts/resume_to_pdf.py` `DEFAULT_OUTPUT` ->
+    `apps/wp-profile/resume.pdf`
+  - `apps/wp-profile/terraform/main.tf` `local.optional_files` uploads
+    `apps/wp-profile/resume.pdf` as S3 object key `resume.pdf`
 - If the generated PDF filename or location changes, update all references in
-  `scripts/resume_to_pdf.py`, `scripts/cli.py`, `docs.md`,
-  `terraform/main.tf`, `terraform/README.md`, and any profile download links.
+  `apps/wp-profile/scripts/resume_to_pdf.py`, `apps/wp-profile/scripts/cli.py`,
+  `apps/wp-profile/docs.md`, `apps/wp-profile/terraform/main.tf`,
+  `apps/wp-profile/terraform/README.md`, and any profile download links.
 - Generate `resume.pdf` before deployment whenever `resume.html` has changed and
   the deployed PDF should reflect the latest resume.
 - Do not commit a stale `resume.pdf` after changing `resume.html`. Regenerate it
@@ -57,12 +65,14 @@ configuration for S3 plus CloudFront.
 ## CLI And Local Commands
 
 - Install locally with:
+  `cd apps/wp-profile`
   `python3 -m pip install -e .`
 - Use the package/module entry points instead of running `scripts/cli.py`
   directly:
   - `python3 -m scripts.cli --help`
   - `cliffe --help`
 - Generate the resume PDF with one of:
+  - `moon run wp-profile:resume-pdf`
   - `cliffe resume-pdf`
   - `python3 -m scripts.resume_to_pdf`
 - `resume_to_pdf.py` requires Chrome, Chromium, Edge, or `CHROME_BIN` pointing to
@@ -72,13 +82,13 @@ configuration for S3 plus CloudFront.
 
 ## Terraform And Deployment Rules
 
-- Use `cliffe deploy` as the primary deployment path. It regenerates
-  `resume.pdf`, runs Terraform init/plan/apply from the correct directory, and
-  keeps the PDF plus infrastructure workflow together. Use direct Terraform
-  commands only for targeted infrastructure operations, debugging, or when the
-  user explicitly asks for Terraform commands.
-- Terraform lives in `terraform/` and should be run with that directory as the
-  working directory unless using the `cliffe` wrapper.
+- Use `cliffe deploy` from `apps/wp-profile` as the primary deployment path. It
+  regenerates `resume.pdf`, runs Terraform init/plan/apply from the correct
+  directory, and keeps the PDF plus infrastructure workflow together. Use direct
+  Terraform commands only for targeted infrastructure operations, debugging, or
+  when the user explicitly asks for Terraform commands.
+- Terraform lives in `apps/wp-profile/terraform/` and should be run with that
+  directory as the working directory unless using the `cliffe` wrapper.
 - Do not add Route 53 hosted zones, Route 53 records, or DNS-provider automation
   unless the user explicitly asks for DNS to be managed in Terraform. The
   current domain workflow assumes DNS remains at GoDaddy and Terraform only
@@ -92,16 +102,16 @@ configuration for S3 plus CloudFront.
   - `profile.html` as `profile.html`
   - `resume.html` as `resume.html`
   - `blog/index.html` as `blog/index.html`
-  - `resume.pdf` as `resume.pdf` only when project-root `resume.pdf` exists
+  - `resume.pdf` as `resume.pdf` only when `apps/wp-profile/resume.pdf` exists
   - clean `/blog` and `/blog/` requests are rewritten to `/blog/index.html`
     by a CloudFront Function
 - HTML objects use no-cache headers. Other uploaded assets, including PDFs, use
   long immutable caching by default.
-- Keep `terraform/main.tf` `local.html_files`, `local.optional_files`,
-  `local.content_types`, and cache-control behavior synchronized with any new
-  deployed asset types.
-- Do not commit `terraform/terraform.tfvars`, Terraform state files, plan files,
-  AWS credentials, or generated provider directories.
+- Keep `apps/wp-profile/terraform/main.tf` `local.html_files`,
+  `local.optional_files`, `local.content_types`, and cache-control behavior
+  synchronized with any new deployed asset types.
+- Do not commit `apps/wp-profile/terraform/terraform.tfvars`, Terraform state
+  files, plan files, AWS credentials, or generated provider directories.
 - For deployment changes, validate with `terraform fmt` and `terraform validate`
   when Terraform is initialized. If validation cannot run because providers or
   credentials are unavailable, report that clearly.
@@ -110,10 +120,12 @@ configuration for S3 plus CloudFront.
 
 ## Documentation Rules
 
-- Resume/profile content changes may require updates across `README.md`,
-  `profile.html`, `resume.html`, and regenerated `resume.pdf`.
+- Resume/profile content changes may require updates across
+  `apps/wp-profile/README.md`, `apps/wp-profile/profile.html`,
+  `apps/wp-profile/resume.html`, and regenerated `apps/wp-profile/resume.pdf`.
 - CLI, PDF workflow, Terraform, or deployment behavior changes may require
-  updates to `docs.md` and `terraform/README.md`.
+  updates to `apps/wp-profile/docs.md` and
+  `apps/wp-profile/terraform/README.md`.
 - Keep command examples consistent with the supported entry points in
   `pyproject.toml`: `cliffe` and `resume-to-pdf`.
 
@@ -125,7 +137,8 @@ configuration for S3 plus CloudFront.
   is available.
 - For CLI changes, run `python3 -m scripts.cli --help` and any affected
   subcommand help.
-- For Terraform changes, run `terraform fmt` and `terraform validate` from
-  `terraform/` when possible.
+- For Terraform changes, run `moon run wp-profile:terraform-fmt` and
+  `moon run wp-profile:terraform-validate` when possible, or run Terraform from
+  `apps/wp-profile/terraform/`.
 - Before finishing, run `git status --short` and summarize changed files,
   generated files, and any checks that could not be completed.
