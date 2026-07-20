@@ -4,17 +4,41 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import subprocess
 import sys
 from pathlib import Path
+from types import ModuleType
 from typing import Sequence
-
-from scripts.resume_to_pdf import DEFAULT_INPUT, DEFAULT_OUTPUT, convert_to_pdf
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE_APP_DIR = ROOT / "apps" / "wp-profile"
+RESUME_TO_PDF_SCRIPT = PROFILE_APP_DIR / "scripts" / "resume_to_pdf.py"
 TERRAFORM_DIR = PROFILE_APP_DIR / "terraform"
+RESUME_TO_PDF = None
+
+
+def load_resume_to_pdf() -> ModuleType:
+    global RESUME_TO_PDF
+
+    if RESUME_TO_PDF is not None:
+        return RESUME_TO_PDF
+
+    spec = importlib.util.spec_from_file_location("wp_profile_resume_to_pdf", RESUME_TO_PDF_SCRIPT)
+
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load resume PDF script: {RESUME_TO_PDF_SCRIPT}")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    RESUME_TO_PDF = module
+    return module
+
+
+RESUME_TO_PDF_MODULE = load_resume_to_pdf()
+DEFAULT_INPUT = RESUME_TO_PDF_MODULE.DEFAULT_INPUT
+DEFAULT_OUTPUT = RESUME_TO_PDF_MODULE.DEFAULT_OUTPUT
 
 
 def run_command(command: Sequence[str], cwd: Path) -> None:
@@ -23,7 +47,7 @@ def run_command(command: Sequence[str], cwd: Path) -> None:
 
 
 def generate_resume_pdf(args: argparse.Namespace) -> None:
-    convert_to_pdf(args.input, args.output, args.browser, args.timeout)
+    load_resume_to_pdf().convert_to_pdf(args.input, args.output, args.browser, args.timeout)
     print(f"Created {args.output.resolve()}")
 
 
@@ -134,6 +158,10 @@ def main() -> int:
         return 1
 
     return 0
+
+
+def resume_to_pdf_main() -> int:
+    return load_resume_to_pdf().main()
 
 
 if __name__ == "__main__":

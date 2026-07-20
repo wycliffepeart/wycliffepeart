@@ -10,7 +10,7 @@ requires-python = ">=3.9"
 
 [project.scripts]
 cliffe = "scripts.cli:main"
-resume-to-pdf = "scripts.resume_to_pdf:main"
+resume-to-pdf = "scripts.cli:resume_to_pdf_main"
 
 [tool.setuptools.packages.find]
 include = ["scripts*"]

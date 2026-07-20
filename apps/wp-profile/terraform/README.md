@@ -76,7 +76,7 @@ expire after 30 days to keep storage costs bounded.
 Generate the PDF before deployment with:
 
 ```sh
-python3 -m scripts.resume_to_pdf
+resume-to-pdf
 ```
 
 After deployment, use:

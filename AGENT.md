@@ -32,8 +32,9 @@ configuration for S3 plus CloudFront.
 - `apps/wp-profile/resume.html` is the source of the browser-rendered resume.
 - `apps/wp-profile/resume.pdf` is generated output from `resume.html`. Do not
   hand-edit it.
-- Root `scripts/resume_to_pdf.py` converts `apps/wp-profile/resume.html` to
-  `apps/wp-profile/resume.pdf` with a Chromium-based browser.
+- `apps/wp-profile/scripts/resume_to_pdf.py` converts
+  `apps/wp-profile/resume.html` to `apps/wp-profile/resume.pdf` with a
+  Chromium-based browser.
 - Root `scripts/cli.py` provides the `cliffe` CLI for PDF generation and
   Terraform commands targeting `apps/wp-profile`.
 - `apps/wp-profile/docs.md` documents CLI and non-resume project workflows.
@@ -45,17 +46,18 @@ configuration for S3 plus CloudFront.
 
 ## Resume PDF Rules
 
-- Keep the default PDF output filename in root `scripts/resume_to_pdf.py`
-  synchronized with Terraform's upload key in
+- Keep the default PDF output filename in
+  `apps/wp-profile/scripts/resume_to_pdf.py` synchronized with Terraform's
+  upload key in
   `apps/wp-profile/terraform/main.tf`.
 - The current invariant is:
-  - `scripts/resume_to_pdf.py` `DEFAULT_OUTPUT` ->
+  - `apps/wp-profile/scripts/resume_to_pdf.py` `DEFAULT_OUTPUT` ->
     `apps/wp-profile/resume.pdf`
   - `apps/wp-profile/terraform/main.tf` `local.optional_files` uploads
     `apps/wp-profile/resume.pdf` as S3 object key `resume.pdf`
 - If the generated PDF filename or location changes, update all references in
-  `scripts/resume_to_pdf.py`, `scripts/cli.py`, `apps/wp-profile/docs.md`,
-  `apps/wp-profile/terraform/main.tf`,
+  `apps/wp-profile/scripts/resume_to_pdf.py`, `scripts/cli.py`,
+  `apps/wp-profile/docs.md`, `apps/wp-profile/terraform/main.tf`,
   `apps/wp-profile/terraform/README.md`, and any profile download links.
 - Generate `resume.pdf` before deployment whenever `resume.html` has changed and
   the deployed PDF should reflect the latest resume.
@@ -73,7 +75,8 @@ configuration for S3 plus CloudFront.
 - Generate the resume PDF with one of:
   - `moon run wp-profile:resume-pdf`
   - `cliffe resume-pdf`
-  - `python3 -m scripts.resume_to_pdf`
+  - `resume-to-pdf`
+  - `python3 apps/wp-profile/scripts/resume_to_pdf.py`
 - `resume_to_pdf.py` requires Chrome, Chromium, Edge, or `CHROME_BIN` pointing to
   a Chromium-based browser.
 - If touching Python code, run the relevant command help or targeted command when

@@ -151,7 +151,13 @@ cliffe resume-pdf
 Equivalent underlying action:
 
 ```sh
-python3 -m scripts.resume_to_pdf
+resume-to-pdf
+```
+
+Direct app script:
+
+```sh
+python3 apps/wp-profile/scripts/resume_to_pdf.py
 ```
 
 Options:
