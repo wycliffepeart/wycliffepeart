@@ -1,9 +1,11 @@
 # Agent Instructions
 
-This repository is a Moon-managed monorepo. The `apps/wp-profile` project
-contains Wycliffe Peart's GitHub profile content, a static profile site, a
-resume HTML/PDF workflow, a small Python CLI, and Terraform deployment
-configuration for S3 plus CloudFront.
+This repository is a Moon-managed profile project. The root `README.md` is the
+public profile and must reflect the profile details maintained in
+`apps/wp-profile`. The `apps/wp-profile` project contains Wycliffe Peart's
+GitHub profile content, a static profile site, a resume HTML/PDF workflow, a
+small Python CLI, and Terraform deployment configuration for S3 plus
+CloudFront.
 
 ## Default Workflow
 
@@ -21,7 +23,9 @@ configuration for S3 plus CloudFront.
 
 ## Project Files
 
-- Root `README.md` documents the monorepo and Moon entry points.
+- Root `README.md` is the public profile README. Only update it with profile
+  details from `apps/wp-profile`; do not use it for monorepo, Moon,
+  infrastructure, CLI, or deployment documentation.
 - `.moon/workspace.yml` discovers projects under `apps/*`.
 - `apps/wp-profile/README.md` is the GitHub profile README. Only update it when
   resume/profile content changes require the public GitHub profile text to
@@ -122,9 +126,10 @@ configuration for S3 plus CloudFront.
 
 ## Documentation Rules
 
-- Resume/profile content changes may require updates across
+- Resume/profile content changes may require updates across root `README.md`,
   `apps/wp-profile/README.md`, `apps/wp-profile/profile.html`,
   `apps/wp-profile/resume.html`, and regenerated `apps/wp-profile/resume.pdf`.
+  Keep root `README.md` aligned with profile details from `apps/wp-profile`.
 - CLI, PDF workflow, Terraform, or deployment behavior changes may require
   updates to `apps/wp-profile/docs.md` and
   `apps/wp-profile/terraform/README.md`.
