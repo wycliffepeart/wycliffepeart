@@ -18,7 +18,34 @@ tasks:
     command: python3
     args:
       - -m
-      - scripts.resume_to_pdf
+      - scripts.cli
+      - resume-pdf
+    outputs:
+      - resume.pdf
+  init:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - init
+  plan:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - plan
+  apply:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - apply
+  deploy:
+    command: python3
+    args:
+      - -m
+      - scripts.cli
+      - deploy
     outputs:
       - resume.pdf
   terraform-fmt:

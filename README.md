@@ -15,13 +15,15 @@ List projects and tasks:
 moon project wp-profile
 ```
 
-Run profile app tasks from the monorepo root:
+Run `cliffe` through Moon from the monorepo root:
 
 ```sh
 moon run wp-profile:cli-help
 moon run wp-profile:resume-pdf
-moon run wp-profile:terraform-fmt
-moon run wp-profile:terraform-validate
+moon run wp-profile:init
+moon run wp-profile:plan
+moon run wp-profile:apply
+moon run wp-profile:deploy
 ```
 
 The profile app can still be used directly from `apps/wp-profile` with the

@@ -12,8 +12,10 @@ root, use the Moon tasks:
 ```sh
 moon run wp-profile:cli-help
 moon run wp-profile:resume-pdf
-moon run wp-profile:terraform-fmt
-moon run wp-profile:terraform-validate
+moon run wp-profile:init
+moon run wp-profile:plan
+moon run wp-profile:apply
+moon run wp-profile:deploy
 ```
 
 The deployment creates a private S3 bucket, uploads the site files, and serves
