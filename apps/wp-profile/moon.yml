@@ -10,44 +10,56 @@ tags:
 tasks:
   cli-help:
     command: python3
+    options:
+      runFromWorkspaceRoot: true
     args:
       - -m
       - scripts.cli
       - --help
   resume-pdf:
     command: python3
+    options:
+      runFromWorkspaceRoot: true
     args:
       - -m
       - scripts.cli
       - resume-pdf
     outputs:
-      - resume.pdf
+      - apps/wp-profile/resume.pdf
   init:
     command: python3
+    options:
+      runFromWorkspaceRoot: true
     args:
       - -m
       - scripts.cli
       - init
   plan:
     command: python3
+    options:
+      runFromWorkspaceRoot: true
     args:
       - -m
       - scripts.cli
       - plan
   apply:
     command: python3
+    options:
+      runFromWorkspaceRoot: true
     args:
       - -m
       - scripts.cli
       - apply
   deploy:
     command: python3
+    options:
+      runFromWorkspaceRoot: true
     args:
       - -m
       - scripts.cli
       - deploy
     outputs:
-      - resume.pdf
+      - apps/wp-profile/resume.pdf
   terraform-fmt:
     command: terraform
     args:

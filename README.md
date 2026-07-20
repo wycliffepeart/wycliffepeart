@@ -26,6 +26,5 @@ moon run wp-profile:apply
 moon run wp-profile:deploy
 ```
 
-The profile app can still be used directly from `apps/wp-profile` with the
-existing `cliffe` and Terraform commands documented in
-`apps/wp-profile/docs.md`.
+The root-level `cliffe` CLI operates on `apps/wp-profile` by default. App
+details are documented in `apps/wp-profile/docs.md`.

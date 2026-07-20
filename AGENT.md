@@ -32,10 +32,10 @@ configuration for S3 plus CloudFront.
 - `apps/wp-profile/resume.html` is the source of the browser-rendered resume.
 - `apps/wp-profile/resume.pdf` is generated output from `resume.html`. Do not
   hand-edit it.
-- `apps/wp-profile/scripts/resume_to_pdf.py` converts `resume.html` to
-  `resume.pdf` with a Chromium-based browser.
-- `apps/wp-profile/scripts/cli.py` provides the `cliffe` CLI for PDF generation
-  and Terraform commands.
+- Root `scripts/resume_to_pdf.py` converts `apps/wp-profile/resume.html` to
+  `apps/wp-profile/resume.pdf` with a Chromium-based browser.
+- Root `scripts/cli.py` provides the `cliffe` CLI for PDF generation and
+  Terraform commands targeting `apps/wp-profile`.
 - `apps/wp-profile/docs.md` documents CLI and non-resume project workflows.
   Update it for CLI, infrastructure, deployment, or other non-resume behavior
   changes that need documentation.
@@ -45,17 +45,17 @@ configuration for S3 plus CloudFront.
 
 ## Resume PDF Rules
 
-- Keep the default PDF output filename in
-  `apps/wp-profile/scripts/resume_to_pdf.py` synchronized with Terraform's
-  upload key in `apps/wp-profile/terraform/main.tf`.
+- Keep the default PDF output filename in root `scripts/resume_to_pdf.py`
+  synchronized with Terraform's upload key in
+  `apps/wp-profile/terraform/main.tf`.
 - The current invariant is:
-  - `apps/wp-profile/scripts/resume_to_pdf.py` `DEFAULT_OUTPUT` ->
+  - `scripts/resume_to_pdf.py` `DEFAULT_OUTPUT` ->
     `apps/wp-profile/resume.pdf`
   - `apps/wp-profile/terraform/main.tf` `local.optional_files` uploads
     `apps/wp-profile/resume.pdf` as S3 object key `resume.pdf`
 - If the generated PDF filename or location changes, update all references in
-  `apps/wp-profile/scripts/resume_to_pdf.py`, `apps/wp-profile/scripts/cli.py`,
-  `apps/wp-profile/docs.md`, `apps/wp-profile/terraform/main.tf`,
+  `scripts/resume_to_pdf.py`, `scripts/cli.py`, `apps/wp-profile/docs.md`,
+  `apps/wp-profile/terraform/main.tf`,
   `apps/wp-profile/terraform/README.md`, and any profile download links.
 - Generate `resume.pdf` before deployment whenever `resume.html` has changed and
   the deployed PDF should reflect the latest resume.
@@ -65,7 +65,6 @@ configuration for S3 plus CloudFront.
 ## CLI And Local Commands
 
 - Install locally with:
-  `cd apps/wp-profile`
   `python3 -m pip install -e .`
 - Use the package/module entry points instead of running `scripts/cli.py`
   directly:
@@ -82,8 +81,8 @@ configuration for S3 plus CloudFront.
 
 ## Terraform And Deployment Rules
 
-- Use `cliffe deploy` from `apps/wp-profile` as the primary deployment path. It
-  regenerates `resume.pdf`, runs Terraform init/plan/apply from the correct
+- Use root `cliffe deploy` as the primary deployment path. It regenerates
+  `apps/wp-profile/resume.pdf`, runs Terraform init/plan/apply from the correct
   directory, and keeps the PDF plus infrastructure workflow together. Use direct
   Terraform commands only for targeted infrastructure operations, debugging, or
   when the user explicitly asks for Terraform commands.

@@ -13,7 +13,8 @@ from scripts.resume_to_pdf import DEFAULT_INPUT, DEFAULT_OUTPUT, convert_to_pdf
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TERRAFORM_DIR = ROOT / "terraform"
+PROFILE_APP_DIR = ROOT / "apps" / "wp-profile"
+TERRAFORM_DIR = PROFILE_APP_DIR / "terraform"
 
 
 def run_command(command: Sequence[str], cwd: Path) -> None:

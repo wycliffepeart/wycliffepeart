@@ -14,8 +14,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_INPUT = ROOT / "resume.html"
-DEFAULT_OUTPUT = ROOT / "resume.pdf"
+PROFILE_APP_DIR = ROOT / "apps" / "wp-profile"
+DEFAULT_INPUT = PROFILE_APP_DIR / "resume.html"
+DEFAULT_OUTPUT = PROFILE_APP_DIR / "resume.pdf"
 
 
 def browser_candidates() -> list[str]:
