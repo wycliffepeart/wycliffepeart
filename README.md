@@ -57,5 +57,6 @@ I share short notes on practical software engineering, AI application developmen
 
 ## 📫 Connect With Me
 
+- **Website:** [wycliffepeart.com](https://www.wycliffepeart.com/)
 - **GitHub:** [github.com/wycliffepeart](https://github.com/wycliffepeart)
 - **LinkedIn:** [linkedin.com/in/wycliffepeart](https://www.linkedin.com/in/wycliffepeart/)
