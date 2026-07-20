@@ -2,7 +2,7 @@ $schema: "https://moonrepo.dev/schemas/project.json"
 
 id: wycliffepeart
 language: python
-type: application
+layer: application
 tags:
   - cli
   - profile

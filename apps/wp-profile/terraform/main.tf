@@ -16,8 +16,8 @@ locals {
   }
 
   html_files = {
-    "index.html"      = "${local.source_root}/profile.html"
-    "profile.html"    = "${local.source_root}/profile.html"
+    "index.html"      = "${local.source_root}/index.html"
+    "profile.html"    = "${local.source_root}/index.html"
     "resume.html"     = "${local.source_root}/resume.html"
     "blog/index.html" = "${local.source_root}/blog/index.html"
   }

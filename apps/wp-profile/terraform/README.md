@@ -58,8 +58,8 @@ terraform apply
 
 Terraform uploads:
 
-- `profile.html` as `index.html`
-- `profile.html` as `profile.html`
+- `index.html` as `index.html`
+- `index.html` as `profile.html`
 - `resume.html` as `resume.html`
 - `blog/index.html` as `blog/index.html`
 - `resume.pdf` as `resume.pdf` when `apps/wp-profile/resume.pdf` exists, with
@@ -87,7 +87,7 @@ terraform output site_url
 
 ## Updating The Site
 
-After editing `profile.html` or `resume.html`, run:
+After editing `index.html` or `resume.html`, run:
 
 ```sh
 terraform apply

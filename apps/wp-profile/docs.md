@@ -16,6 +16,7 @@ moon run wp-profile:init
 moon run wp-profile:plan
 moon run wp-profile:apply
 moon run wp-profile:deploy
+moon run wp-profile:run
 ```
 
 The deployment creates a private S3 bucket, uploads the site files, and serves
@@ -321,8 +322,8 @@ cliffe apply tfplan
 
 The Terraform configuration uploads:
 
-- `profile.html` as `index.html`.
-- `profile.html` as `profile.html`.
+- `index.html` as `index.html`.
+- `index.html` as `profile.html`.
 - `resume.html` as `resume.html`.
 - `resume.pdf` as `resume.pdf` when `apps/wp-profile/resume.pdf` exists,
   with attachment headers for downloading.
@@ -464,7 +465,7 @@ Regenerate only the PDF:
 cliffe resume-pdf
 ```
 
-Apply site changes after editing `profile.html` or `resume.html`:
+Apply site changes after editing `index.html` or `resume.html`:
 
 ```sh
 cliffe resume-pdf

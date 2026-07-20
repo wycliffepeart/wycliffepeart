@@ -1,11 +1,12 @@
 # Agent Instructions
 
-This repository is a Moon-managed profile project. The root `README.md` is the
-public profile and must reflect the profile details maintained in
-`apps/wp-profile`. The `apps/wp-profile` project contains Wycliffe Peart's
-GitHub profile content, a static profile site, a resume HTML/PDF workflow, a
-small Python CLI, and Terraform deployment configuration for S3 plus
-CloudFront.
+This repository is a Moon-managed profile project with LinkedIn content
+automation. The root `README.md` is the public profile and must reflect the
+profile details maintained in `apps/wp-profile`. The `apps/wp-profile` project
+contains Wycliffe Peart's GitHub profile content, a static profile site, a
+resume HTML/PDF workflow, a small Python CLI, and Terraform deployment
+configuration for S3 plus CloudFront. The root `content/linkedin` and `prompts`
+directories store professional LinkedIn draft content and generation prompts.
 
 ## Default Workflow
 
@@ -31,7 +32,7 @@ CloudFront.
   resume/profile content changes require the public GitHub profile text to
   change. Do not update it for unrelated styling, infrastructure, CLI, or
   deployment changes unless the user explicitly asks.
-- `apps/wp-profile/profile.html` is the deployed profile site's primary page.
+- `apps/wp-profile/index.html` is the deployed profile site's primary page.
   Terraform uploads it as both `index.html` and `profile.html`.
 - `apps/wp-profile/resume.html` is the source of the browser-rendered resume.
 - `apps/wp-profile/resume.pdf` is generated output from `resume.html`. Do not
@@ -47,6 +48,59 @@ CloudFront.
 - `apps/wp-profile/terraform/README.md` documents Terraform-specific deployment
   steps. Update it when Terraform behavior, uploaded files, or deployment
   prerequisites change.
+- `content/linkedin/posts.json` is the LinkedIn post index.
+- `content/linkedin/posts/` contains generated LinkedIn markdown posts.
+- `prompts/linkedin-post-generator.md` is the canonical LinkedIn generation
+  prompt.
+- `.github/workflows/generate-linkedin-post.yml` runs the scheduled/manual
+  LinkedIn post generation workflow.
+
+## LinkedIn Content Rules
+
+- Generate exactly one LinkedIn post per run.
+- Never overwrite, delete, or rewrite existing posts unless explicitly
+  requested.
+- Read `content/linkedin/posts.json` before generating content.
+- Inspect previous markdown posts before choosing a topic, title, hook,
+  examples, conclusion, and hashtags.
+- Avoid duplicate topics, titles, hooks, conclusions, examples, hashtags, and
+  distinctive wording.
+- Keep posts professional, natural, educational, and practical.
+- Avoid marketing language, clickbait, unsupported statistics, and references to
+  AI generating the content.
+- Keep post body length between 150 and 300 words.
+- Include a strong opening, short paragraphs, practical insight, an actionable
+  takeaway, a thoughtful closing question, and 3-5 hashtags.
+
+## LinkedIn Metadata Rules
+
+- Use UUID v4 for `id`.
+- Use kebab-case for `slug`.
+- Use UTC ISO-8601 for `createdAt`.
+- Use `YYYY-MM-DD` for `date`.
+- Set `status` to `draft`.
+- Use 3-5 tags.
+- Keep `excerpt` at or below 180 characters.
+- Store markdown at
+  `content/linkedin/posts/YYYY/MM/YYYY-MM-DD-HHMMSS-<slug>.md`.
+- Ensure each JSON entry's `markdown` path matches the file that was created.
+
+## LinkedIn Validation Rules
+
+- Confirm the markdown file exists.
+- Confirm `content/linkedin/posts.json` is valid JSON.
+- Confirm the UUID is unique.
+- Confirm the slug is unique.
+- Confirm exactly one new post was added.
+- Confirm `updatedAt` was updated when a post is added.
+
+## LinkedIn Git Rules
+
+- Review the diff before committing.
+- Stage all modified files for the generated post.
+- Use a Conventional Commit message that describes the actual content change.
+- Commit generated content changes.
+- Do not push unless explicitly requested.
 
 ## Resume PDF Rules
 
@@ -81,6 +135,7 @@ CloudFront.
   - `cliffe resume-pdf`
   - `resume-to-pdf`
   - `python3 apps/wp-profile/scripts/resume_to_pdf.py`
+- Run the static profile locally with `moon run wp-profile:run`.
 - `resume_to_pdf.py` requires Chrome, Chromium, Edge, or `CHROME_BIN` pointing to
   a Chromium-based browser.
 - If touching Python code, run the relevant command help or targeted command when
@@ -104,8 +159,8 @@ CloudFront.
   and a CloudFront distribution using either the default CloudFront certificate
   or a supplied ACM certificate ARN for a custom domain.
 - Terraform uploads:
-  - `profile.html` as `index.html`
-  - `profile.html` as `profile.html`
+  - `index.html` as `index.html`
+  - `index.html` as `profile.html`
   - `resume.html` as `resume.html`
   - `blog/index.html` as `blog/index.html`
   - `resume.pdf` as `resume.pdf` only when `apps/wp-profile/resume.pdf` exists
@@ -127,7 +182,7 @@ CloudFront.
 ## Documentation Rules
 
 - Resume/profile content changes may require updates across root `README.md`,
-  `apps/wp-profile/README.md`, `apps/wp-profile/profile.html`,
+  `apps/wp-profile/README.md`, `apps/wp-profile/index.html`,
   `apps/wp-profile/resume.html`, and regenerated `apps/wp-profile/resume.pdf`.
   Keep root `README.md` aligned with profile details from `apps/wp-profile`.
 - CLI, PDF workflow, Terraform, or deployment behavior changes may require

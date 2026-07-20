@@ -2,7 +2,7 @@ $schema: "https://moonrepo.dev/schemas/project.json"
 
 id: wp-profile
 language: python
-type: application
+layer: application
 tags:
   - profile
   - static-site
@@ -60,6 +60,16 @@ tasks:
       - deploy
     outputs:
       - apps/wp-profile/resume.pdf
+  run:
+    command: python3
+    options:
+      cache: false
+    args:
+      - -m
+      - http.server
+      - "9"
+      - --directory
+      - .
   terraform-fmt:
     command: terraform
     args:

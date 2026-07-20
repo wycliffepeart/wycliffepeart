@@ -1,0 +1,56 @@
+name: Generate LinkedIn Post
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: linkedin-posts
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Ensure content directories exist
+        run: |
+          mkdir -p content/linkedin/posts
+          if [ ! -f content/linkedin/posts.json ]; then
+            printf '%s\n' \
+              '{' \
+              '  "version": 1,' \
+              '  "updatedAt": null,' \
+              '  "posts": []' \
+              '}' > content/linkedin/posts.json
+          fi
+
+      - name: Load LinkedIn generator prompt
+        id: linkedin_prompt
+        run: |
+          {
+            echo 'prompt<<EOF'
+            cat prompts/linkedin-post-generator.md
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Generate LinkedIn content with Codex
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          permission-profile: ":workspace"
+          effort: medium
+          prompt: ${{ steps.linkedin_prompt.outputs.prompt }}
+
+      - name: Push Codex commit
+        run: |
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:${GITHUB_REF_NAME}
