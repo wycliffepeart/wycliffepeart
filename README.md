@@ -1,13 +1,17 @@
 # Wycliffe Peart Profile
 
-Static developer profile site, resume PDF generator, Terraform deployment
-utilities, and a LinkedIn post generation / blog content workflow.
+Next.js developer profile site (built as a static export), resume PDF
+generator, Terraform deployment utilities, and a LinkedIn post generation /
+blog content workflow.
 
-The site source lives in `app/`. The `wp` CLI handles the common local and
+The site source lives in `site/` (a Next.js App Router project). `app/`
+holds the content the site doesn't own: images, the LinkedIn draft
+pipeline, and generated posts. The `wp` CLI handles the common local and
 deployment tasks:
 
-- serve the static site locally
-- generate `app/resume.pdf` from `app/resume.html`
+- build the Next.js site, merge it with `app/`'s content directories, and
+  serve it locally
+- generate `app/resume.pdf` from the built resume page
 - initialize, plan, and apply the Terraform deployment
 - run the full deploy workflow end to end
 
@@ -29,18 +33,17 @@ See [Content And LinkedIn Workflow](#content-and-linkedin-workflow) below.
 
 | Path | Purpose |
 | --- | --- |
-| `app/` | Static site files served locally and uploaded to S3. |
-| `app/index.html` | Main profile page. |
-| `app/resume.html` | HTML resume source. |
+| `site/` | Next.js (App Router) source for the site: `site/src/app/` for pages, `site/src/components/`, `site/src/styles/`. |
+| `site/out/` | Build output: `wp build` runs `next build` here, then merges in `app/`'s content directories. Not committed; this is what Terraform uploads. |
+| `app/` | Content the Next.js app doesn't own, served locally and uploaded to S3. |
 | `app/resume.pdf` | Generated resume PDF, uploaded only when present. |
-| `app/blog/` | Blog/post content by topic, served at `/blog`, plus `app/blog/linkedin/` for the LinkedIn draft pipeline. |
-| `app/blog/index.html` | Blog page served at `/blog`. |
-| `app/assets/` | Images and static assets for the site. |
+| `app/blog/` | Blog/post content by topic (for example `app/blog/sql/joins/`), plus `app/blog/linkedin/` for the LinkedIn draft pipeline. Merged into `site/out/blog/` at build time; the `/blog` page itself is `site/src/app/blog/page.tsx`. |
+| `app/assets/` | Images and static assets for the site. Merged into `site/out/assets/` at build time. |
 | `prompts/` | LinkedIn post generation prompts used by `wp codex e`. |
 | `templates/design/` | LinkedIn carousel HTML templates used by `wp linkedin-carousel generate`. |
 | `assets/` | Reference assets for the content workflow (design references, etc.). |
 | `.github/workflows/generate-linkedin-post.yml` | Scheduled/manual LinkedIn post generation workflow. |
-| `scripts/` | Python CLI, PDF generation, and content workflow code. |
+| `scripts/` | Python CLI, PDF generation, site build/merge, and content workflow code. |
 | `terraform/` | AWS S3, CloudFront, DNS, and upload configuration. |
 | `pyproject.toml` | Python package metadata and CLI entry points. |
 
@@ -50,6 +53,7 @@ the package is installed in your active environment.
 ## Prerequisites
 
 - Python 3.9 or newer.
+- Node.js and npm, for the Next.js site in `site/`.
 - Terraform installed as `terraform`.
 - AWS CLI installed and configured.
 - An AWS SSO profile, or another AWS profile Terraform can use.
@@ -65,6 +69,7 @@ source .venv/bin/activate
 python3 -m pip install --upgrade pip setuptools wheel
 python3 -m pip install -e .
 python3 -m playwright install chromium
+cd site && npm install && cd ..
 ```
 
 For local testing without installing the package, run the module directly:
@@ -78,11 +83,17 @@ package and expects the project root to be on Python's import path.
 
 ## Local Development
 
-Serve the static site from `app/`:
+Build the site and serve it from `site/out/`:
 
 ```sh
 wp run
 ```
+
+This runs `next build` in `site/`, merges in `app/`'s content directories
+(images, LinkedIn posts, generated posts, and `app/resume.pdf` if present),
+and serves the result - the same thing `wp deploy` uploads. There's no
+hot-reload; re-run `wp run` after editing `site/src/`. For fast-iteration
+UI work without the content merge, run `cd site && npm run dev` directly.
 
 The default URL is:
 
@@ -96,13 +107,21 @@ Use another port when needed:
 wp run --port 8080
 ```
 
+Build the site without serving it:
+
+```sh
+wp build
+```
+
 Generate the resume PDF:
 
 ```sh
 wp pdf
 ```
 
-By default, this reads `app/resume.html` and writes `app/resume.pdf`.
+By default, this reads the built `site/out/resume.html` and writes
+`app/resume.pdf`, so run `wp build` first (or use `wp deploy`, which
+sequences this automatically).
 
 ## AWS And Terraform Setup
 
@@ -197,6 +216,7 @@ Use the individual commands when you want to inspect changes before applying
 them:
 
 ```sh
+wp build
 wp pdf
 wp init
 wp plan --out tfplan
@@ -228,11 +248,13 @@ wp run --help
 
 ### `wp pdf`
 
-Generates a PDF version of the resume HTML file.
+Generates a PDF version of the resume page. Requires `wp build` to have run
+first, since it renders the built `site/out/resume.html`, not source files
+under `site/src/`.
 
 Default behavior:
 
-- reads `app/resume.html`
+- reads `site/out/resume.html`
 - writes `app/resume.pdf`
 - uses Playwright's managed Chromium browser
 - creates the output directory when needed
@@ -243,7 +265,7 @@ Options:
 
 | Option | Description | Default |
 | --- | --- | --- |
-| `--input INPUT` | Source HTML file to render. | `app/resume.html` |
+| `--input INPUT` | Built HTML file to render. | `site/out/resume.html` |
 | `--output OUTPUT` | Destination PDF path. | `app/resume.pdf` |
 | `--browser BROWSER` | Optional path to a Chrome or Chromium executable. | Playwright Chromium |
 | `--timeout TIMEOUT` | Maximum seconds to wait for PDF generation. | `60` |
@@ -251,14 +273,14 @@ Options:
 Examples:
 
 ```sh
+wp build
 wp pdf
-wp pdf --input app/resume.html --output app/resume.pdf
 wp pdf --timeout 120
 wp pdf --browser "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 ```
 
-Terraform uploads `resume.pdf` only when the file exists in `app/`, so run this
-command before deployment when the deployed PDF should change.
+Terraform uploads `resume.pdf` only when `app/resume.pdf` exists; `wp deploy`
+regenerates it from the freshly built resume page automatically.
 
 ### `wp init`
 
@@ -304,13 +326,14 @@ wp apply tfplan
 
 ### `wp deploy`
 
-Runs the full deployment workflow.
+Runs the full deployment workflow: builds the site, generates `resume.pdf`
+from the freshly built resume page, then runs Terraform init/plan/apply.
 
 Options and arguments:
 
 | Option or argument | Description | Default |
 | --- | --- | --- |
-| `--input INPUT` | Source HTML file to render into PDF before deployment. | `app/resume.html` |
+| `--input INPUT` | Built HTML file to render into PDF before deployment. | `site/out/resume.html` |
 | `--output OUTPUT` | Destination PDF path. | `app/resume.pdf` |
 | `--browser BROWSER` | Optional path to a Chrome or Chromium executable. | Playwright Chromium |
 | `--timeout TIMEOUT` | Maximum seconds to wait for PDF generation. | `60` |
@@ -323,9 +346,15 @@ Prefer either `--out` or an explicit `plan_file`. If both are supplied,
 Terraform creates a new plan at the `--out` path, but apply receives the
 explicit `plan_file`.
 
+### `wp build`
+
+Builds the Next.js site (`next build` in `site/`) and merges it with
+`app/`'s content directories into `site/out/`. This is what `wp run` and
+`wp deploy` both use.
+
 ### `wp run`
 
-Serves the static app locally from `app/`.
+Runs `wp build`, then serves the merged output from `site/out/`.
 
 Options:
 
@@ -336,15 +365,17 @@ Options:
 
 ## What Terraform Uploads
 
-The Terraform configuration uploads:
+The Terraform configuration uploads, from `site/out/`:
 
-- `app/index.html` as `index.html`
-- `app/index.html` as `profile.html`
-- `app/resume.html` as `resume.html`
-- `app/blog/index.html` as `blog/index.html`
-- `app/resume.pdf` as `resume.pdf` when it exists, with attachment headers for
+- `index.html` as `index.html`
+- `profile.html` as `profile.html` (legacy duplicate of `index.html`)
+- `resume.html` as `resume.html`
+- `blog/index.html` as `blog/index.html`
+- `resume.pdf` as `resume.pdf` when it exists, with attachment headers for
   downloading
-- every file under `app/assets/` under the same `/assets/` path
+- every file under `assets/` under the same `/assets/` path
+- every file under `_next/` under the same `/_next/` path (the Next.js
+  build's JS/CSS chunks)
 
 A CloudFront Function rewrites `/blog` and `/blog/` to `/blog/index.html`.
 
@@ -445,6 +476,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install --upgrade pip setuptools wheel
 python3 -m pip install -e .
+cd site && npm install && cd ..
 cd terraform
 cp terraform.tfvars.example terraform.tfvars
 # edit terraform.tfvars
@@ -452,10 +484,10 @@ cd ..
 wp deploy
 ```
 
-Apply site changes after editing `app/index.html`, `app/resume.html`, or
-`app/blog/index.html`:
+Apply site changes after editing `site/src/`:
 
 ```sh
+wp build
 wp pdf
 wp plan
 wp apply

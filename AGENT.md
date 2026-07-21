@@ -1,14 +1,18 @@
 # Agent Instructions
 
 This repository is Wycliffe Peart's profile site, LinkedIn post generation
-workflow, and blog/post content repo. The `app` directory contains the
-GitHub profile content, a static profile site, a resume HTML/PDF workflow,
-and Terraform deployment configuration for S3 plus CloudFront. `app/blog/`
-holds topic-organized blog/post content plus `app/blog/linkedin/`, the
-LinkedIn draft pipeline; it is deployed to the site's `/blog/` path.
+workflow, and blog/post content repo. The site itself is a Next.js (App
+Router) app in `site/`, built as a static export. The `app` directory
+contains the GitHub profile content and the content the Next.js app doesn't
+own: images, a resume PDF workflow, and Terraform deployment configuration
+for S3 plus CloudFront. `app/blog/` holds topic-organized blog/post content
+plus `app/blog/linkedin/`, the LinkedIn draft pipeline; it is merged into
+the built site and deployed to the site's `/blog/` path (the `/blog` page
+itself is `site/src/app/blog/page.tsx`, not part of `app/`).
 `prompts/` and `templates/` hold the LinkedIn draft generation workflow.
 The root `scripts/cli.py` module provides the single `wp` project CLI for
-both areas.
+both areas, including `scripts/site_build.py`, which builds the Next.js app
+and merges it with `app/`'s content directories into `site/out/`.
 
 ## Default Workflow
 
@@ -30,16 +34,23 @@ both areas.
   resume/profile content changes require the public GitHub profile text to
   change. Do not update it for unrelated styling, infrastructure, CLI, or
   deployment changes unless the user explicitly asks.
-- `app/index.html` is the deployed profile site's primary page.
-  Terraform uploads it as both `index.html` and `profile.html`.
-- `app/resume.html` is the source of the browser-rendered resume.
-- `app/resume.pdf` is generated output from `resume.html`. Do not
+- `site/src/app/page.tsx` is the deployed profile site's primary page
+  (route `/`). Terraform uploads its built output as both `index.html` and
+  `profile.html`.
+- `site/src/app/resume/page.tsx` is the source of the browser-rendered
+  resume (route `/resume`, built to the flat `resume.html`).
+  `site/src/lib/resume-data.ts` holds the resume content shared between
+  that page and the home page's resume modal (`site/src/components/home/ResumeModal.tsx`)
+  - keep both in sync by editing the shared data, not by hand-duplicating text.
+- `app/resume.pdf` is generated output from the built resume page. Do not
   hand-edit it.
-- `scripts/resume_to_pdf.py` converts
-  `app/resume.html` to `app/resume.pdf` with a
-  Chromium-based browser.
-- Root `scripts/cli.py` provides the `wp` CLI for PDF generation and
-  Terraform commands targeting `app`.
+- `scripts/resume_to_pdf.py` converts the built `site/out/resume.html` to
+  `app/resume.pdf` with a Chromium-based browser. Run `wp build` (or
+  `wp deploy`) before `wp pdf`, since it renders the build output, not
+  `site/src/`.
+- Root `scripts/cli.py` provides the `wp` CLI for building the site, PDF
+  generation, and Terraform commands. `scripts/site_build.py` is the build
+  and content-merge step both `wp run` and `wp deploy` use.
 - `app/docs.md` documents CLI and non-resume project workflows.
   Update it for CLI, infrastructure, deployment, or other non-resume behavior
   changes that need documentation.
@@ -49,50 +60,64 @@ both areas.
 
 ## Resume PDF Rules
 
-- Keep the default PDF output filename in
+- Keep the default PDF input/output paths in
   `scripts/resume_to_pdf.py` synchronized with Terraform's
   upload key in
   `terraform/main.tf`.
 - The current invariant is:
-  - `scripts/resume_to_pdf.py` `DEFAULT_OUTPUT` ->
-    `app/resume.pdf`
+  - `scripts/resume_to_pdf.py` `DEFAULT_INPUT` -> `site/out/resume.html`
+    (the built resume page)
+  - `scripts/resume_to_pdf.py` `DEFAULT_OUTPUT` -> `app/resume.pdf`
   - `terraform/main.tf` `local.optional_files` uploads
-    `app/resume.pdf` as S3 object key `resume.pdf`
+    `resume.pdf` (from `site/out/resume.pdf`, copied there by
+    `scripts/site_build.py` after PDF generation) as S3 object key
+    `resume.pdf`
 - If the generated PDF filename or location changes, update all references in
-  `scripts/resume_to_pdf.py`, `scripts/cli.py`,
-  `app/docs.md`, `terraform/main.tf`, `terraform/README.md`, and any profile
+  `scripts/resume_to_pdf.py`, `scripts/site_build.py`, `scripts/cli.py`,
+  `terraform/main.tf`, `terraform/README.md`, and any profile
   download links.
-- Generate `resume.pdf` before deployment whenever `resume.html` has changed and
-  the deployed PDF should reflect the latest resume.
-- Do not commit a stale `resume.pdf` after changing `resume.html`. Regenerate it
-  or clearly report that PDF generation could not be run.
+- Generate `resume.pdf` before deployment whenever the resume content has
+  changed and the deployed PDF should reflect the latest resume. `wp deploy`
+  does this automatically (build site -> generate PDF from the built resume
+  page -> copy it into the merged output).
+- Do not commit a stale `resume.pdf` after changing resume content. Regenerate
+  it or clearly report that PDF generation could not be run.
 
 ## CLI And Local Commands
 
 - Install locally with:
-  `python3 -m pip install -e .`
+  - `python3 -m pip install -e .`
+  - `cd site && npm install && cd ..`
 - Use the package/module entry points instead of running `scripts/cli.py`
   directly:
   - `python3 -m scripts.cli --help`
   - `wp --help`
-- Generate the resume PDF with one of:
+- Build the site (Next.js build + merge with `app/`'s content) with
+  `wp build`.
+- Generate the resume PDF with one of (after `wp build`):
   - `wp pdf`
   - `python3 -m scripts.resume_to_pdf`
-- Run the static profile locally with `wp run`.
+- Run the built site locally with `wp run` (builds, then serves
+  `site/out/`). For fast-iteration UI work without the content merge,
+  `cd site && npm run dev` runs the Next.js dev server directly.
 - `resume_to_pdf.py` requires Chrome, Chromium, Edge, or `CHROME_BIN` pointing to
   a Chromium-based browser.
 - If touching Python code, run the relevant command help or targeted command when
   possible, for example `python3 -m scripts.cli --help`.
+- If touching `site/`, run `cd site && npm run lint && npm run build` to
+  catch TypeScript/ESLint/build errors.
 
 ## Terraform And Deployment Rules
 
-- Use root `wp deploy` as the primary deployment path. It regenerates
-  `app/resume.pdf`, runs Terraform init/plan/apply from the correct
-  directory, and keeps the PDF plus infrastructure workflow together. Use direct
-  Terraform commands only for targeted infrastructure operations, debugging, or
-  when the user explicitly asks for Terraform commands.
+- Use root `wp deploy` as the primary deployment path. It builds the site,
+  regenerates `app/resume.pdf`, runs Terraform init/plan/apply from the
+  correct directory, and keeps the build, PDF, and infrastructure workflow
+  together. Use direct Terraform commands only for targeted infrastructure
+  operations, debugging, or when the user explicitly asks for Terraform
+  commands - run `wp build` first so `site/out/` is current.
 - Terraform lives in root `terraform/` and should be run with that directory as
-  the working directory unless using the `wp` wrapper.
+  the working directory unless using the `wp` wrapper. It uploads from
+  `site/out/` (the merged Next.js build output), not `app/` directly.
 - Do not add Route 53 hosted zones, Route 53 records, or DNS-provider automation
   unless the user explicitly asks for DNS to be managed in Terraform. The
   current domain workflow assumes DNS remains at GoDaddy and Terraform only
@@ -101,19 +126,25 @@ both areas.
   versioning, AES256 server-side encryption, CloudFront Origin Access Control,
   and a CloudFront distribution using either the default CloudFront certificate
   or a supplied ACM certificate ARN for a custom domain.
-- Terraform uploads:
+- Terraform uploads, from `site/out/`:
   - `index.html` as `index.html`
-  - `index.html` as `profile.html`
+  - `profile.html` as `profile.html`
   - `resume.html` as `resume.html`
-  - every file under `app/blog/` as the same path under `blog/`
-  - `resume.pdf` as `resume.pdf` only when `app/resume.pdf` exists
+  - `blog/index.html` as `blog/index.html`
+  - every other file under `blog/` (content merged in from `app/blog/`) as
+    the same path under `blog/`
+  - every file under `_next/` as the same path under `_next/` (the Next.js
+    build's JS/CSS chunks)
+  - `resume.pdf` as `resume.pdf` only when it exists
   - clean `/blog` and `/blog/` requests are rewritten to `/blog/index.html`
     by a CloudFront Function
-- HTML objects and everything under `blog/` use no-cache headers. Other
-  uploaded assets, including PDFs, use long immutable caching by default.
-- Keep `terraform/main.tf` `local.html_files`,
-  `local.optional_files`, `local.blog_files`, `local.content_types`, and
-  cache-control behavior synchronized with any new deployed asset types.
+- HTML objects and everything under `blog/` (except `blog/index.html`, which
+  is covered by `local.html_files`) use no-cache headers. Other uploaded
+  assets, including PDFs and `_next/`, use long immutable caching by default.
+- Keep `terraform/main.tf` `local.html_files`, `local.optional_files`,
+  `local.asset_files`, `local.next_static_files`, `local.blog_files`,
+  `local.content_types`, and cache-control behavior synchronized with any
+  new deployed asset types.
 - Do not commit `terraform/terraform.tfvars`, Terraform state
   files, plan files, AWS credentials, or generated provider directories.
 - For deployment changes, validate with `terraform fmt` and `terraform validate`
@@ -125,11 +156,12 @@ both areas.
 ## Documentation Rules
 
 - Resume/profile content changes may require updates across root `README.md`,
-  `app/README.md`, `app/index.html`,
-  `app/resume.html`, and regenerated `app/resume.pdf`.
-  Keep root `README.md` aligned with profile details from `app`.
+  `app/README.md`, `site/src/app/page.tsx` (and its components),
+  `site/src/app/resume/page.tsx` (and `site/src/lib/resume-data.ts`), and
+  regenerated `app/resume.pdf`. Keep root `README.md` aligned with profile
+  details from `site/`.
 - CLI, PDF workflow, Terraform, or deployment behavior changes may require
-  updates to `app/docs.md` and `terraform/README.md`.
+  updates to `terraform/README.md` and root `README.md`.
 - Keep command examples consistent with the supported entry point in
   `pyproject.toml`: `wp`.
 
@@ -203,10 +235,11 @@ entry point.
 
 ## Verification Checklist
 
-- For profile or resume HTML changes, inspect the affected HTML for broken links,
-  inconsistent visible content, and stale PDF/download references.
-- For resume PDF workflow changes, run PDF generation if a Chromium-based browser
-  is available.
+- For profile or resume changes in `site/`, run `cd site && npm run lint && npm run build`,
+  and inspect the built pages for broken links, inconsistent visible content,
+  and stale PDF/download references.
+- For resume PDF workflow changes, run `wp build` then PDF generation if a
+  Chromium-based browser is available.
 - For CLI changes, run `python3 -m scripts.cli --help` and any affected
   subcommand help.
 - For content workflow changes, run `python3 -m pytest tests/` and confirm

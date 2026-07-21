@@ -4,14 +4,43 @@
 from __future__ import annotations
 
 import argparse
+import functools
+import http.server
 import sys
+import threading
+from contextlib import contextmanager
 from pathlib import Path
+from typing import Iterator
 
 
 ROOT = Path(__file__).resolve().parents[1]
 APP_DIR = ROOT / "app"
-DEFAULT_INPUT = APP_DIR / "resume.html"
+SITE_OUT_DIR = ROOT / "site" / "out"
+DEFAULT_INPUT = SITE_OUT_DIR / "resume.html"
 DEFAULT_OUTPUT = APP_DIR / "resume.pdf"
+
+
+class _QuietHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, format: str, *args: object) -> None:  # noqa: A002 - matches base signature
+        pass
+
+
+@contextmanager
+def _serve_directory(directory: Path) -> Iterator[int]:
+    """Serve `directory` over local HTTP so root-relative asset paths
+    (for example Next.js's /_next/static/... chunks) resolve correctly.
+    A plain file:// URI can't do this: the browser resolves root-relative
+    paths against the filesystem root, not the HTML file's directory."""
+    handler = functools.partial(_QuietHTTPRequestHandler, directory=str(directory))
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+
+    try:
+        yield server.server_address[1]
+    finally:
+        server.shutdown()
+        thread.join()
 
 
 def convert_to_pdf(
@@ -49,21 +78,23 @@ def convert_to_pdf(
             try:
                 page = chromium.new_page()
                 page.emulate_media(media="print")
-                page.goto(
-                    input_html.as_uri(),
-                    wait_until="networkidle",
-                    timeout=timeout_seconds * 1000,
-                )
-                page.evaluate(
-                    "document.fonts ? document.fonts.ready : Promise.resolve()"
-                )
-                page.pdf(
-                    path=str(output_pdf),
-                    format="A4",
-                    print_background=True,
-                    prefer_css_page_size=True,
-                    display_header_footer=False,
-                )
+
+                with _serve_directory(input_html.parent) as port:
+                    page.goto(
+                        f"http://127.0.0.1:{port}/{input_html.name}",
+                        wait_until="networkidle",
+                        timeout=timeout_seconds * 1000,
+                    )
+                    page.evaluate(
+                        "document.fonts ? document.fonts.ready : Promise.resolve()"
+                    )
+                    page.pdf(
+                        path=str(output_pdf),
+                        format="A4",
+                        print_background=True,
+                        prefer_css_page_size=True,
+                        display_header_footer=False,
+                    )
             finally:
                 chromium.close()
     except PlaywrightTimeoutError as error:

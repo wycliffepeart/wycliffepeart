@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from typing import Optional, Sequence, TextIO
 
-from scripts import resume_to_pdf
+from scripts import resume_to_pdf, site_build
 from scripts.codex_json import CodexJsonError, extract_json, select_field
 from scripts.env_utils import load_environment_file
 from scripts.github_publish import add_github_publish_options, run_github_publish_post, run_publish_github
@@ -42,6 +42,7 @@ LOGGER = logging.getLogger(__name__)
 ROOT = Path(__file__).resolve().parents[1]
 APP_DIR = ROOT / "app"
 TERRAFORM_DIR = ROOT / "terraform"
+SITE_OUT_DIR = site_build.OUT_DIR
 DEFAULT_INPUT = resume_to_pdf.DEFAULT_INPUT
 DEFAULT_OUTPUT = resume_to_pdf.DEFAULT_OUTPUT
 
@@ -54,6 +55,11 @@ def run_command(command: Sequence[str], cwd: Path) -> None:
 def generate_resume_pdf(args: argparse.Namespace) -> None:
     resume_to_pdf.convert_to_pdf(args.input, args.output, args.browser, args.timeout)
     print(f"Created {args.output.resolve()}")
+
+
+def build_site(_: argparse.Namespace) -> None:
+    output_dir = site_build.build_site()
+    print(f"Built site at {output_dir}")
 
 
 def terraform_init(_: argparse.Namespace) -> None:
@@ -82,7 +88,14 @@ def terraform_apply(args: argparse.Namespace) -> None:
 
 
 def deploy(args: argparse.Namespace) -> None:
+    site_build.build_next_app()
+    site_build.normalize_html_output()
+    site_build.copy_content_directories()
+
+    # resume.pdf is regenerated from the freshly built resume page, then
+    # copied into the merged output - see resume_to_pdf.DEFAULT_INPUT.
     generate_resume_pdf(args)
+    site_build.copy_resume_pdf()
 
     if args.skip_init:
         print("Skipping terraform init")
@@ -98,6 +111,7 @@ def deploy(args: argparse.Namespace) -> None:
 
 
 def run_app(args: argparse.Namespace) -> None:
+    site_build.build_site()
     run_command(
         [
             sys.executable,
@@ -107,7 +121,7 @@ def run_app(args: argparse.Namespace) -> None:
             "--bind",
             args.host,
             "--directory",
-            str(APP_DIR),
+            str(SITE_OUT_DIR),
         ],
         ROOT,
     )
@@ -220,9 +234,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    pdf_parser = subparsers.add_parser("pdf", help="Generate resume.pdf from resume.html.")
+    pdf_parser = subparsers.add_parser("pdf", help="Generate resume.pdf from the built resume page.")
     add_pdf_arguments(pdf_parser)
     pdf_parser.set_defaults(func=generate_resume_pdf)
+
+    build_parser = subparsers.add_parser(
+        "build",
+        help="Build the Next.js site and merge it with app/'s content directories into site/out.",
+    )
+    build_parser.set_defaults(func=build_site)
 
     init_parser = subparsers.add_parser("init", help="Run terraform init.")
     init_parser.set_defaults(func=terraform_init)
@@ -238,7 +258,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     deploy_parser = subparsers.add_parser(
         "deploy",
-        help="Primary deploy path: generate resume.pdf, then run terraform init, plan, and apply.",
+        help=(
+            "Primary deploy path: build the site, generate resume.pdf, then run "
+            "terraform init, plan, and apply."
+        ),
     )
     add_pdf_arguments(deploy_parser)
     deploy_parser.add_argument("--skip-init", action="store_true", help="Skip terraform init.")
@@ -247,7 +270,7 @@ def build_parser() -> argparse.ArgumentParser:
     deploy_parser.add_argument("plan_file", nargs="?", help="Optional Terraform plan file to apply.")
     deploy_parser.set_defaults(func=deploy)
 
-    run_parser = subparsers.add_parser("run", help="Serve the static app locally.")
+    run_parser = subparsers.add_parser("run", help="Build the site and serve it locally.")
     run_parser.add_argument("--host", default="127.0.0.1", help="Host interface to bind.")
     run_parser.add_argument("--port", type=int, default=8000, help="Port to serve on.")
     run_parser.set_defaults(func=run_app)

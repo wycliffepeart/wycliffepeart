@@ -1,5 +1,11 @@
 locals {
-  source_root = abspath("${path.module}/../app")
+  # site/out is the merged output of `wp build`: the Next.js static export
+  # (index.html, resume.html, blog/index.html, _next/**) plus the content
+  # directories that live in app/ (assets, the LinkedIn draft pipeline, and
+  # the generated SQL/joins post) copied in by scripts/site_build.py. Run
+  # `wp build` (or `wp deploy`, which does this automatically) before
+  # `terraform plan`/`apply`.
+  source_root = abspath("${path.module}/../site/out")
 
   configured_custom_domains = length(var.custom_domain_names) > 0 ? var.custom_domain_names : compact([var.custom_domain_name])
   custom_domain_names       = distinct(local.configured_custom_domains)
@@ -16,9 +22,10 @@ locals {
   }
 
   html_files = {
-    "index.html"   = "${local.source_root}/index.html"
-    "profile.html" = "${local.source_root}/index.html"
-    "resume.html"  = "${local.source_root}/resume.html"
+    "index.html"      = "${local.source_root}/index.html"
+    "profile.html"    = "${local.source_root}/profile.html"
+    "resume.html"     = "${local.source_root}/resume.html"
+    "blog/index.html" = "${local.source_root}/blog/index.html"
   }
 
   optional_files = fileexists("${local.source_root}/resume.pdf") ? {
@@ -30,15 +37,25 @@ locals {
     "assets/${asset_path}" => "${local.source_root}/assets/${asset_path}"
   }
 
+  # The Next.js build's JS/CSS chunks. Filenames are content-hashed by Next,
+  # so these are safe to cache immutably like asset_files below.
+  next_static_files = {
+    for next_path in fileset("${local.source_root}/_next", "**") :
+    "_next/${next_path}" => "${local.source_root}/_next/${next_path}"
+  }
+
   # Blog content, including per-post pages and the LinkedIn draft pipeline
   # material, changes frequently and is served with the same no-cache
   # behavior as html_files rather than the long-lived asset cache below.
+  # (blog/index.html itself is excluded here - it's covered by html_files -
+  # since site/out/blog only contains the passthrough content directories.)
   blog_files = {
     for blog_path in fileset("${local.source_root}/blog", "**") :
     "blog/${blog_path}" => "${local.source_root}/blog/${blog_path}"
+    if blog_path != "index.html"
   }
 
-  site_files = merge(local.html_files, local.optional_files, local.asset_files, local.blog_files)
+  site_files = merge(local.html_files, local.optional_files, local.asset_files, local.next_static_files, local.blog_files)
 
   content_types = {
     html = "text/html; charset=utf-8"

@@ -2,8 +2,13 @@
 
 This Terraform configuration deploys the profile site to a private S3 bucket and serves it through CloudFront over HTTPS.
 
-The static app lives at `app` inside the project. Run `wp` from the project
-root. Run direct Terraform commands from this `terraform` directory.
+The site is a Next.js app (`site/`) built as a static export and merged with
+the content directories in `app/` (assets, the LinkedIn draft pipeline, and
+generated posts) by `wp build`. Terraform uploads from the merged output at
+`site/out/`, so run `wp build` (or `wp deploy`, which does this
+automatically) before `terraform plan`/`apply` when using Terraform directly.
+Run `wp` from the project root. Run direct Terraform commands from this
+`terraform` directory.
 
 ## AWS SSO Setup
 
@@ -47,24 +52,29 @@ wp deploy
 ```
 
 Use direct Terraform commands only for targeted infrastructure operations or
-debugging.
+debugging. Run `wp build` first so `site/out/` is up to date.
 
 ```sh
+wp build
 terraform init
 terraform plan
 terraform apply
 ```
 
-Terraform uploads:
+Terraform uploads, from `site/out/`:
 
 - `index.html` as `index.html`
-- `index.html` as `profile.html`
+- `profile.html` as `profile.html` (legacy duplicate of `index.html`)
 - `resume.html` as `resume.html`
-- `resume.pdf` as `resume.pdf` when `app/resume.pdf` exists, with
-  attachment headers for downloading
+- `blog/index.html` as `blog/index.html`
+- `resume.pdf` as `resume.pdf` when it exists, with attachment headers for
+  downloading
 - every file under `assets/` under the same `/assets/` path
-- every file under `blog/` under the same `/blog/` path, including
-  `blog/index.html` and per-post pages and content, with no-cache headers
+- every file under `_next/` under the same `/_next/` path (the Next.js
+  build's content-hashed JS/CSS chunks), cached immutably like `assets/`
+- every other file under `blog/` (the LinkedIn draft pipeline and generated
+  posts, copied through from `app/blog/`) under the same `/blog/` path, with
+  no-cache headers
 
 A CloudFront Function rewrites `/blog` and `/blog/` to `/blog/index.html` so
 the blog can use a clean public URL while the private S3 origin still stores an
@@ -87,9 +97,10 @@ terraform output site_url
 
 ## Updating The Site
 
-After editing `index.html` or `resume.html`, run:
+After editing the site under `site/src/`, run:
 
 ```sh
+wp build
 terraform apply
 ```
 

@@ -42,6 +42,13 @@ dist/
 build/
 coverage/
 
+# Next.js site (site/)
+site/node_modules/
+site/.next/
+site/out/
+site/next-env.d.ts
+site/*.tsbuildinfo
+
 # Generated LinkedIn carousel output
 output/
 
