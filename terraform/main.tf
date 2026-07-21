@@ -1,5 +1,5 @@
 locals {
-  source_root = abspath("${path.module}/..")
+  source_root = abspath("${path.module}/../app")
 
   configured_custom_domains = length(var.custom_domain_names) > 0 ? var.custom_domain_names : compact([var.custom_domain_name])
   custom_domain_names       = distinct(local.configured_custom_domains)
@@ -16,10 +16,9 @@ locals {
   }
 
   html_files = {
-    "index.html"      = "${local.source_root}/index.html"
-    "profile.html"    = "${local.source_root}/index.html"
-    "resume.html"     = "${local.source_root}/resume.html"
-    "blog/index.html" = "${local.source_root}/blog/index.html"
+    "index.html"   = "${local.source_root}/index.html"
+    "profile.html" = "${local.source_root}/index.html"
+    "resume.html"  = "${local.source_root}/resume.html"
   }
 
   optional_files = fileexists("${local.source_root}/resume.pdf") ? {
@@ -31,13 +30,22 @@ locals {
     "assets/${asset_path}" => "${local.source_root}/assets/${asset_path}"
   }
 
-  site_files = merge(local.html_files, local.optional_files, local.asset_files)
+  # Blog content, including per-post pages and the LinkedIn draft pipeline
+  # material, changes frequently and is served with the same no-cache
+  # behavior as html_files rather than the long-lived asset cache below.
+  blog_files = {
+    for blog_path in fileset("${local.source_root}/blog", "**") :
+    "blog/${blog_path}" => "${local.source_root}/blog/${blog_path}"
+  }
+
+  site_files = merge(local.html_files, local.optional_files, local.asset_files, local.blog_files)
 
   content_types = {
     html = "text/html; charset=utf-8"
     css  = "text/css; charset=utf-8"
     js   = "application/javascript; charset=utf-8"
     json = "application/json; charset=utf-8"
+    md   = "text/markdown; charset=utf-8"
     txt  = "text/plain; charset=utf-8"
     pdf  = "application/pdf"
     png  = "image/png"
@@ -122,7 +130,7 @@ resource "aws_s3_object" "site_files" {
   etag                = filemd5(each.value)
   content_type        = lookup(local.content_types, lower(regex("[^.]+$", each.key)), "application/octet-stream")
   content_disposition = lookup(local.content_dispositions, each.key, null)
-  cache_control = contains(keys(local.html_files), each.key) ? (
+  cache_control = contains(keys(local.html_files), each.key) || contains(keys(local.blog_files), each.key) ? (
     "no-cache, no-store, must-revalidate"
   ) : "public, max-age=31536000, immutable"
 

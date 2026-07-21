@@ -7,10 +7,14 @@ name = "wycliffepeart-profile"
 version = "0.1.0"
 description = "Developer profile website deployment utilities."
 requires-python = ">=3.9"
+dependencies = [
+    "playwright>=1.45",
+    "jinja2>=3.1",
+    "python-dotenv>=1.0",
+]
 
 [project.scripts]
-cliffe = "scripts.cli:main"
-resume-to-pdf = "scripts.cli:resume_to_pdf_main"
+wp = "scripts.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["scripts*"]

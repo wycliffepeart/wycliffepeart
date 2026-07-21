@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SQL JOINs LinkedIn Carousel</title>
+  <style>
+    :root {
+      --page-width: 1080px;
+      --page-height: 1350px;
+      --ink: #f8fafc;
+      --muted: #a7b3c5;
+      --paper: #060a12;
+      --white: #ffffff;
+      --line: rgba(248, 250, 252, 0.08);
+      --accent: #38f2c4;
+      --accent-strong: #7dd3fc;
+      --accent-soft: rgba(56, 242, 196, 0.2);
+      --corner: #f8d95a;
+      --panel: rgba(11, 18, 32, 0.82);
+      --panel-strong: rgba(15, 23, 42, 0.94);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .presentation {
+      display: grid;
+      gap: 32px;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .slide {
+      position: relative;
+      display: grid;
+      width: min(var(--page-width), calc(100vw - 32px));
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      grid-template-rows: auto 1fr auto;
+      align-content: stretch;
+      padding: 78px 78px 70px;
+      border-radius: 8px;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, var(--accent) 0 16px, transparent 16px),
+        radial-gradient(circle at 88% 14%, rgba(125, 211, 252, 0.24), transparent 28%),
+        radial-gradient(circle at 14% 88%, var(--accent-soft), transparent 30%),
+        linear-gradient(145deg, #0f172a 0%, #07111f 52%, #050816 100%),
+        repeating-linear-gradient(0deg, var(--line) 0 1px, transparent 1px 96px),
+        repeating-linear-gradient(90deg, rgba(248, 250, 252, 0.06) 0 1px, transparent 1px 96px),
+        #050816;
+      border: 1px solid rgba(248, 250, 252, 0.14);
+      box-shadow: 0 28px 88px rgba(0, 0, 0, 0.45);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .slide-2 {
+      --accent: #fb7185;
+      --accent-strong: #fda4af;
+      --accent-soft: rgba(251, 113, 133, 0.2);
+      --corner: #38f2c4;
+    }
+
+    .slide-3 {
+      --accent: #60a5fa;
+      --accent-strong: #bfdbfe;
+      --accent-soft: rgba(96, 165, 250, 0.2);
+      --corner: #f8d95a;
+    }
+
+    .slide-4 {
+      --accent: #c084fc;
+      --accent-strong: #e9d5ff;
+      --accent-soft: rgba(192, 132, 252, 0.2);
+      --corner: #34d399;
+    }
+
+    .slide-5 {
+      --accent: #f8d95a;
+      --accent-strong: #fde68a;
+      --accent-soft: rgba(248, 217, 90, 0.18);
+      --corner: #60a5fa;
+    }
+
+    .slide-6 {
+      --accent: #34d399;
+      --accent-strong: #a7f3d0;
+      --accent-soft: rgba(52, 211, 153, 0.2);
+      --corner: #fb7185;
+    }
+
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .slide::before {
+      position: absolute;
+      inset: 24px;
+      border: 1px solid rgba(248, 250, 252, 0.16);
+      border-radius: 8px;
+      content: "";
+      pointer-events: none;
+    }
+
+    .slide::after {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 52%;
+      height: 28%;
+      background:
+        linear-gradient(135deg, transparent 0 34%, var(--accent-soft) 34% 100%),
+        linear-gradient(135deg, transparent 0 56%, rgba(248, 250, 252, 0.14) 56% 58%, transparent 58% 100%);
+      clip-path: polygon(36% 0, 100% 0, 100% 100%, 0 100%);
+      content: "";
+      pointer-events: none;
+    }
+
+    .slide-header,
+    .slide-body,
+    .slide-footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .slide-header,
+    .slide-footer {
+      display: grid;
+      align-items: center;
+      grid-template-columns: minmax(0, 1fr) auto;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+      color: var(--accent-strong);
+      font-size: 20px;
+      font-weight: 850;
+      letter-spacing: 0.13em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      flex: 0 0 62px;
+      width: 62px;
+      height: 14px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 7px 50%, var(--accent) 0 7px, transparent 7px),
+        radial-gradient(circle at 31px 50%, var(--corner) 0 7px, transparent 7px),
+        radial-gradient(circle at 55px 50%, var(--white) 0 7px, transparent 7px);
+      content: "";
+    }
+
+    .slide-number {
+      color: var(--muted);
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .slide-body {
+      display: grid;
+      width: 100%;
+      grid-template-columns: minmax(0, 1.04fr) minmax(300px, 0.86fr);
+      align-items: center;
+      gap: 56px;
+      align-self: center;
+      padding-bottom: 28px;
+    }
+
+    .slide-body.is-full {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .slide-body.is-full .copy {
+      max-width: 760px;
+      justify-self: center;
+    }
+
+    .copy {
+      min-width: 0;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 680px;
+      font-size: 106px;
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 0.95;
+      overflow-wrap: break-word;
+    }
+
+    h2 {
+      margin-top: 24px;
+      color: var(--accent-strong);
+      font-size: 46px;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 1.05;
+    }
+
+    p {
+      margin-top: 34px;
+      max-width: 650px;
+      color: var(--muted);
+      font-size: 34px;
+      font-weight: 500;
+      letter-spacing: 0;
+      line-height: 1.31;
+    }
+
+    .visual {
+      position: relative;
+      display: grid;
+      min-height: 580px;
+      padding: 34px;
+      border: 1px solid rgba(21, 24, 32, 0.12);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.62)),
+        linear-gradient(135deg, var(--accent-soft), transparent 52%);
+      border-color: rgba(248, 250, 252, 0.18);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 20px 70px rgba(0, 0, 0, 0.28);
+    }
+
+    .visual::before {
+      position: absolute;
+      inset: 34px;
+      border: 2px dashed rgba(248, 250, 252, 0.2);
+      border-radius: 8px;
+      content: "";
+    }
+
+    .visual::after {
+      position: absolute;
+      top: 34px;
+      right: 34px;
+      width: 78px;
+      height: 78px;
+      border-top: 14px solid var(--corner);
+      border-right: 14px solid var(--corner);
+      content: "";
+    }
+
+    .visual-title {
+      position: relative;
+      z-index: 1;
+      align-self: start;
+      color: var(--accent-strong);
+      font-size: 22px;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .node-map {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      align-self: center;
+      gap: 18px;
+    }
+
+    .node {
+      display: flex;
+      align-items: center;
+      min-height: 86px;
+      padding: 20px 22px;
+      border: 1px solid rgba(248, 250, 252, 0.16);
+      border-left: 10px solid var(--accent);
+      border-radius: 8px;
+      background: rgba(2, 6, 23, 0.58);
+      color: var(--ink);
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.08;
+    }
+
+    .node.is-primary {
+      min-height: 112px;
+      border-left-color: var(--corner);
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #04111f;
+      font-size: 34px;
+    }
+
+    .connector {
+      justify-self: center;
+      width: 4px;
+      height: 34px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .pill-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-self: end;
+      gap: 10px;
+    }
+
+    .pill-row span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 7px 12px;
+      border: 1px solid rgba(248, 250, 252, 0.14);
+      border-radius: 8px;
+      background: rgba(2, 6, 23, 0.48);
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .visual-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      align-self: center;
+      width: 100%;
+      gap: 24px;
+    }
+
+    .join-tables {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .table-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 16px;
+      border: 1px solid rgba(248, 250, 252, 0.16);
+      border-radius: 8px;
+      background: rgba(2, 6, 23, 0.58);
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .join-glyph {
+      color: var(--accent-strong);
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .join-bar {
+      display: grid;
+      grid-template-columns: 1fr 0.85fr 1fr;
+      gap: 4px;
+      height: 96px;
+    }
+
+    .join-bar .seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      border: 1px solid rgba(248, 250, 252, 0.16);
+      border-radius: 8px;
+      background: rgba(2, 6, 23, 0.48);
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-align: center;
+      text-transform: uppercase;
+      opacity: 0.45;
+    }
+
+    .join-highlight-intersection .seg-mid,
+    .join-highlight-left .seg-left,
+    .join-highlight-left .seg-mid,
+    .join-highlight-right .seg-right,
+    .join-highlight-right .seg-mid,
+    .join-highlight-both .seg {
+      opacity: 1;
+      color: #04111f;
+    }
+
+    .join-highlight-intersection .seg-mid,
+    .join-highlight-left .seg-mid,
+    .join-highlight-right .seg-mid,
+    .join-highlight-both .seg-mid {
+      border-color: var(--corner);
+      background: var(--corner);
+    }
+
+    .join-highlight-left .seg-left,
+    .join-highlight-both .seg-left {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .join-highlight-right .seg-right,
+    .join-highlight-both .seg-right {
+      border-color: var(--accent-strong);
+      background: var(--accent-strong);
+    }
+
+    .cross-diagram {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .cross-op,
+    .cross-eq {
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .cross-result {
+      padding: 10px 18px;
+      border: 1px solid var(--corner);
+      border-radius: 8px;
+      background: rgba(248, 217, 90, 0.14);
+      color: var(--corner);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .sql-code {
+      width: 100%;
+      padding: 18px 20px;
+      border: 1px solid rgba(248, 250, 252, 0.16);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      background: rgba(2, 6, 23, 0.6);
+      color: var(--ink);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .sql-code .kw {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .sql-code .str {
+      color: var(--corner);
+      font-weight: 700;
+    }
+
+    .comparison-list {
+      display: grid;
+      width: 100%;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .comparison-list li {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid rgba(248, 250, 252, 0.16);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      background: rgba(2, 6, 23, 0.48);
+    }
+
+    .comparison-key {
+      color: var(--accent-strong);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .comparison-val {
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .slide-footer {
+      color: var(--muted);
+      font-size: 23px;
+      font-weight: 750;
+      line-height: 1.2;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--ink);
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #050816;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .progress span {
+      width: 26px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(248, 250, 252, 0.2);
+    }
+
+    .progress span.is-active {
+      background: var(--accent);
+    }
+
+    @media (min-width: 1200px) {
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .presentation {
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .slide {
+        width: calc(100vw - 32px);
+        padding: 38px 34px 34px;
+      }
+
+      .slide-header,
+      .slide-footer {
+        align-items: flex-start;
+        grid-template-columns: 1fr;
+      }
+
+      .eyebrow,
+      .slide-number {
+        font-size: 15px;
+      }
+
+      .eyebrow::before {
+        flex-basis: 52px;
+        width: 52px;
+        height: 12px;
+        background:
+          radial-gradient(circle at 6px 50%, var(--accent) 0 6px, transparent 6px),
+          radial-gradient(circle at 26px 50%, var(--corner) 0 6px, transparent 6px),
+          radial-gradient(circle at 46px 50%, var(--ink) 0 6px, transparent 6px);
+      }
+
+      .slide-body {
+        grid-template-columns: 1fr;
+        align-content: center;
+        gap: 24px;
+        padding-bottom: 18px;
+      }
+
+      h1 {
+        max-width: 100%;
+        font-size: 48px;
+      }
+
+      h2 {
+        margin-top: 18px;
+        font-size: 26px;
+      }
+
+      p {
+        margin-top: 22px;
+        font-size: 20px;
+      }
+
+      .visual {
+        min-height: 250px;
+        padding: 22px;
+      }
+
+      .visual::before {
+        inset: 22px;
+      }
+
+      .visual::after {
+        top: 22px;
+        right: 22px;
+        width: 46px;
+        height: 46px;
+        border-width: 9px;
+      }
+
+      .visual-title {
+        font-size: 14px;
+      }
+
+      .node-map {
+        gap: 10px;
+      }
+
+      .node {
+        min-height: 44px;
+        padding: 10px 12px;
+        border-left-width: 6px;
+        font-size: 15px;
+      }
+
+      .node.is-primary {
+        min-height: 54px;
+        font-size: 18px;
+      }
+
+      .connector {
+        height: 18px;
+      }
+
+      .pill-row {
+        gap: 6px;
+      }
+
+      .pill-row span {
+        min-height: 28px;
+        padding: 5px 8px;
+        font-size: 12px;
+      }
+
+      .slide-footer {
+        font-size: 16px;
+      }
+
+      .progress span {
+        width: 16px;
+      }
+
+      .visual-content {
+        gap: 14px;
+      }
+
+      .table-chip {
+        padding: 7px 10px;
+        font-size: 13px;
+      }
+
+      .join-glyph {
+        font-size: 16px;
+      }
+
+      .join-bar {
+        height: 56px;
+      }
+
+      .join-bar .seg {
+        padding: 4px;
+        font-size: 9px;
+      }
+
+      .cross-op,
+      .cross-eq {
+        font-size: 16px;
+      }
+
+      .cross-result {
+        padding: 7px 10px;
+        font-size: 13px;
+      }
+
+      .sql-code {
+        padding: 12px 14px;
+        font-size: 12px;
+      }
+
+      .comparison-list li {
+        padding: 8px 10px;
+      }
+
+      .comparison-key,
+      .comparison-val {
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .slide {
+        padding: 30px 26px 28px;
+      }
+
+      h1 {
+        font-size: 39px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      p {
+        font-size: 17px;
+      }
+
+      .visual {
+        min-height: 225px;
+      }
+    }
+
+    @page {
+      size: 1080px 1350px;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        width: var(--page-width);
+        margin: 0;
+        background: #ffffff;
+      }
+
+      .presentation {
+        display: block;
+        padding: 0;
+      }
+
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="presentation" id="presentation" aria-label="LinkedIn PDF carousel presentation">
+    {% for slide in slides %}
+    <section class="slide slide-{{ ((loop.index0 % 6) + 1) }}" id="slide-{{ loop.index }}" aria-label="Slide {{ loop.index }} of {{ slides|length }}">
+      <header class="slide-header">
+        <div class="eyebrow">{{ slide.category }}</div>
+        <div class="slide-number">{{ "%02d"|format(loop.index) }} / {{ "%02d"|format(slides|length) }}</div>
+      </header>
+
+      <div class="slide-body{{ '' if (slide.diagram or slide.sql or slide.comparison) else ' is-full' }}">
+        <div class="copy">
+          <h1>{{ slide.title }}</h1>
+          {% if slide.subtitle %}<h2>{{ slide.subtitle }}</h2>{% endif %}
+          {% if slide.description %}<p>{{ slide.description }}</p>{% endif %}
+        </div>
+        {% if slide.diagram or slide.sql or slide.comparison %}
+        <aside class="visual" aria-label="{{ slide.title }} diagram">
+          <div class="visual-title">
+            {%- if slide.diagram %}Join Result
+            {%- elif slide.sql %}Query
+            {%- elif slide.comparison %}Quick Reference
+            {%- endif %}
+          </div>
+          <div class="visual-content">
+            {% if slide.diagram %}
+              {% if slide.diagram.highlight %}
+              <div class="join-tables">
+                <span class="table-chip">{{ slide.diagram.left }}</span>
+                <span class="join-glyph">&#8904;</span>
+                <span class="table-chip">{{ slide.diagram.right }}</span>
+              </div>
+              <div class="join-bar join-highlight-{{ slide.diagram.highlight }}">
+                <div class="seg seg-left"><span>{{ slide.diagram.left }}</span></div>
+                <div class="seg seg-mid"><span>Matched</span></div>
+                <div class="seg seg-right"><span>{{ slide.diagram.right }}</span></div>
+              </div>
+              {% elif slide.diagram.result %}
+              <div class="cross-diagram">
+                <span class="table-chip">{{ slide.diagram.left }}</span>
+                <span class="cross-op">&times;</span>
+                <span class="table-chip">{{ slide.diagram.right }}</span>
+                <span class="cross-eq">=</span>
+                <span class="cross-result">{{ slide.diagram.result }}</span>
+              </div>
+              {% endif %}
+            {% endif %}
+
+            {% if slide.sql %}<pre class="sql-code"><code>{{ slide.sql }}</code></pre>{% endif %}
+
+            {% if slide.comparison %}
+            <ul class="comparison-list">
+              {% for item in slide.comparison %}
+              {% set parts = item.split("→") %}
+              <li>
+                <span class="comparison-key">{{ parts[0].strip() }}</span>
+                <span class="comparison-val">{{ parts[1].strip() if parts|length > 1 else "" }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+        </aside>
+        {% endif %}
+      </div>
+
+      <footer class="slide-footer">
+        <div class="brand">
+          <span class="brand-mark">in</span>
+          <span>Wycliffe Peart SQL JOINs</span>
+        </div>
+        <div class="progress" aria-hidden="true">
+          {% set slide_num = loop.index %}
+          {% for n in range(1, slides|length + 1) %}
+          <span class="{{ 'is-active' if n == slide_num else '' }}"></span>
+          {% endfor %}
+        </div>
+      </footer>
+    </section>
+    {% endfor %}
+  </main>
+
+  <script>
+    const highlightSql = (source) => {
+      const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const keywords = /\b(SELECT|FROM|WHERE|INNER|LEFT|RIGHT|FULL|OUTER|CROSS|SELF|JOIN|ON|AS|AND|OR)\b/g;
+      const strings = /'(?:\\.|[^'])*'/g;
+      let escaped = escapeHtml(source);
+      escaped = escaped.replace(strings, (match) => `<span class="str">${match}</span>`);
+      escaped = escaped.replace(keywords, (match) => `<span class="kw">${match}</span>`);
+      return escaped;
+    };
+
+    document.querySelectorAll(".sql-code code").forEach((node) => {
+      node.innerHTML = highlightSql(node.textContent);
+    });
+  </script>
+</body>
+</html>

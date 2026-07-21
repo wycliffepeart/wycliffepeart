@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-21T06:10:48Z",
+  "posts": [
+    {
+      "id": "7f2a0c4b-8d91-4f35-a2e6-1c9b7d0f3a84",
+      "title": "Progress Gets Easier When You Reduce Friction",
+      "slug": "progress-gets-easier-when-you-reduce-friction",
+      "createdAt": "2026-07-21T06:10:48Z",
+      "date": "2026-07-21",
+      "topic": "Reducing friction to make professional progress easier",
+      "excerpt": "A practical reflection on how small reductions in friction can make consistency, execution, and growth more sustainable at work.",
+      "tags": [
+        "professional growth",
+        "productivity",
+        "execution",
+        "work habits",
+        "leadership"
+      ],
+      "status": "pending",
+      "markdown": "app/blog/linkedin/posts/2026/07/2026-07-21-061048-progress-gets-easier-when-you-reduce-friction.md"
+    }
+  ]
+}

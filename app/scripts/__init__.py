@@ -1,1 +1,0 @@
-"""Profile app utility scripts."""

@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SQL JOINs LinkedIn Carousel</title>
+  <style>
+    :root {
+      --page-width: 1080px;
+      --page-height: 1350px;
+      --ink: #f8fafc;
+      --muted: #a6b0bd;
+      --dim: #5e6978;
+      --panel: rgba(14, 21, 31, 0.9);
+      --line: rgba(248, 250, 252, 0.16);
+      --line-strong: rgba(248, 250, 252, 0.34);
+      --bg: #0a0e14;
+      --blue: #39a0ff;
+      --green: #46d68c;
+      --red: #ff5d57;
+      --amber: #f5c451;
+      --violet: #b17cff;
+      --cyan: #39d9d9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: #1b2028;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .presentation {
+      display: grid;
+      gap: 32px;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .slide {
+      --accent: var(--blue);
+      --accent-2: var(--green);
+      --accent-3: var(--amber);
+      position: relative;
+      display: grid;
+      width: min(var(--page-width), calc(100vw - 32px));
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      padding: 58px 64px 52px;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 54px 54px,
+        linear-gradient(0deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 54px 54px,
+        radial-gradient(circle at 84% 18%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 34%),
+        radial-gradient(circle at 16% 78%, color-mix(in srgb, var(--accent-2) 24%, transparent), transparent 30%),
+        linear-gradient(145deg, #101823 0%, #090d13 58%, #12151c 100%);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.44);
+      page-break-after: always;
+      break-after: page;
+      isolation: isolate;
+    }
+
+    .slide::before {
+      position: absolute;
+      inset: 24px;
+      border: 1px solid var(--line);
+      content: "";
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .slide::after {
+      position: absolute;
+      right: 54px;
+      bottom: 48px;
+      width: 256px;
+      height: 256px;
+      background:
+        linear-gradient(90deg, transparent 48%, color-mix(in srgb, var(--accent) 55%, transparent) 49% 51%, transparent 52%),
+        linear-gradient(0deg, transparent 48%, color-mix(in srgb, var(--accent-2) 52%, transparent) 49% 51%, transparent 52%);
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      content: "";
+      opacity: 0.24;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .slide-2 {
+      --accent: var(--green);
+      --accent-2: var(--cyan);
+      --accent-3: var(--red);
+    }
+
+    .slide-3 {
+      --accent: var(--red);
+      --accent-2: var(--blue);
+      --accent-3: var(--green);
+    }
+
+    .slide-4 {
+      --accent: var(--violet);
+      --accent-2: var(--amber);
+      --accent-3: var(--cyan);
+    }
+
+    .slide-5 {
+      --accent: var(--amber);
+      --accent-2: var(--blue);
+      --accent-3: var(--red);
+    }
+
+    .slide-6 {
+      --accent: var(--cyan);
+      --accent-2: var(--violet);
+      --accent-3: var(--green);
+    }
+
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .masthead,
+    .layout,
+    .caption {
+      position: relative;
+      z-index: 1;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: start;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 24px;
+    }
+
+    .series {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-size: 19px;
+      font-weight: 850;
+      letter-spacing: 0.18em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .series-title {
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 720;
+      letter-spacing: 0;
+      line-height: 1.1;
+    }
+
+    .folio {
+      display: grid;
+      width: 112px;
+      height: 112px;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--accent) 26%, transparent), transparent 54%),
+        rgba(255, 255, 255, 0.055);
+      color: var(--ink);
+      font-size: 46px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.98fr) minmax(320px, 0.72fr);
+      gap: 54px;
+      align-items: center;
+      min-height: 0;
+      padding: 56px 0 44px;
+    }
+
+    .copy {
+      min-width: 0;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 650px;
+      font-size: clamp(72px, 9vw, 128px);
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 0.84;
+      text-wrap: balance;
+    }
+
+    .slide-3 h1,
+    .slide-6 h1 {
+      font-size: clamp(62px, 7.2vw, 100px);
+      line-height: 0.9;
+    }
+
+    h2 {
+      width: fit-content;
+      max-width: 100%;
+      margin-top: 32px;
+      border-left: 8px solid var(--accent);
+      padding: 7px 0 8px 18px;
+      color: var(--ink);
+      font-size: 35px;
+      font-weight: 850;
+      letter-spacing: 0;
+      line-height: 1.02;
+      text-transform: uppercase;
+    }
+
+    p {
+      max-width: 610px;
+      margin-top: 30px;
+      color: #d4dae3;
+      font-size: 34px;
+      font-weight: 650;
+      line-height: 1.18;
+      text-wrap: pretty;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 42px;
+    }
+
+    .chips span {
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.052);
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .visual {
+      position: relative;
+      display: grid;
+      min-height: 590px;
+      align-items: center;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent 44%),
+        rgba(255, 255, 255, 0.038);
+      overflow: hidden;
+    }
+
+    .visual::before {
+      position: absolute;
+      inset: 22px;
+      border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+      content: "";
+      pointer-events: none;
+    }
+
+    .visual::after {
+      position: absolute;
+      inset: auto 26px 28px;
+      height: 5px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+      content: "";
+    }
+
+    .node-map {
+      position: relative;
+      width: 100%;
+      height: 560px;
+    }
+
+    .node {
+      position: absolute;
+      display: grid;
+      min-width: 130px;
+      height: 86px;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      background: rgba(10, 14, 20, 0.78);
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .node.primary {
+      top: 210px;
+      left: 50%;
+      min-width: 170px;
+      height: 116px;
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 20%, rgba(10, 14, 20, 0.88));
+      transform: translateX(-50%);
+    }
+
+    .node.a {
+      top: 78px;
+      left: 44px;
+    }
+
+    .node.b {
+      top: 74px;
+      right: 44px;
+    }
+
+    .node.c {
+      bottom: 86px;
+      left: 62px;
+    }
+
+    .node.d {
+      right: 62px;
+      bottom: 90px;
+    }
+
+    .link {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      transform-origin: left center;
+    }
+
+    .link.one {
+      top: 188px;
+      left: 138px;
+      width: 236px;
+      transform: rotate(28deg);
+    }
+
+    .link.two {
+      top: 188px;
+      right: 138px;
+      width: 236px;
+      transform: rotate(152deg);
+    }
+
+    .link.three {
+      left: 148px;
+      bottom: 208px;
+      width: 238px;
+      transform: rotate(-26deg);
+    }
+
+    .link.four {
+      right: 148px;
+      bottom: 208px;
+      width: 238px;
+      transform: rotate(206deg);
+    }
+
+    .caption {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      border-top: 1px solid var(--line);
+      padding-top: 22px;
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 760;
+      line-height: 1.12;
+      text-transform: uppercase;
+    }
+
+    .source {
+      display: grid;
+      gap: 7px;
+    }
+
+    .source strong {
+      color: var(--ink);
+      font-size: 22px;
+      font-weight: 880;
+    }
+
+    .sequence {
+      color: var(--accent);
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 0.9;
+      white-space: nowrap;
+    }
+
+    .layout.single {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* Two-table join diagram */
+    .join-diagram {
+      display: grid;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .join-tables {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .join-tables .table-chip {
+      border: 1px solid var(--line-strong);
+      background: rgba(255, 255, 255, 0.055);
+      padding: 10px 16px;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .join-glyph {
+      color: var(--accent);
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .join-bar {
+      display: grid;
+      grid-template-columns: 1fr 0.82fr 1fr;
+      gap: 4px;
+      height: 108px;
+    }
+
+    .join-bar .seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.032);
+      padding: 0 8px;
+      color: var(--dim);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-align: center;
+      text-transform: uppercase;
+      opacity: 0.42;
+    }
+
+    .join-highlight-intersection .seg-mid,
+    .join-highlight-left .seg-left,
+    .join-highlight-left .seg-mid,
+    .join-highlight-right .seg-right,
+    .join-highlight-right .seg-mid,
+    .join-highlight-both .seg {
+      opacity: 1;
+      color: var(--bg);
+    }
+
+    .join-highlight-intersection .seg-mid {
+      border-color: var(--accent-3);
+      background: var(--accent-3);
+    }
+
+    .join-highlight-left .seg-left {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .join-highlight-left .seg-mid {
+      border-color: var(--accent-3);
+      background: var(--accent-3);
+    }
+
+    .join-highlight-right .seg-right {
+      border-color: var(--accent-2);
+      background: var(--accent-2);
+    }
+
+    .join-highlight-right .seg-mid {
+      border-color: var(--accent-3);
+      background: var(--accent-3);
+    }
+
+    .join-highlight-both .seg-left {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .join-highlight-both .seg-mid {
+      border-color: var(--accent-3);
+      background: var(--accent-3);
+    }
+
+    .join-highlight-both .seg-right {
+      border-color: var(--accent-2);
+      background: var(--accent-2);
+    }
+
+    /* Cross join diagram */
+    .cross-diagram {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .cross-chip {
+      border: 1px solid var(--line-strong);
+      background: rgba(255, 255, 255, 0.055);
+      padding: 14px 20px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .cross-op,
+    .cross-eq {
+      color: var(--dim);
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .cross-result {
+      border: 1px solid var(--accent-3);
+      background: color-mix(in srgb, var(--accent-3) 18%, transparent);
+      padding: 14px 22px;
+      color: var(--accent-3);
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .sql-code {
+      max-width: 820px;
+      margin-top: 30px;
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      background: rgba(5, 8, 12, 0.55);
+      padding: 18px 20px;
+      color: #d4dae3;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 18px;
+      font-weight: 620;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .sql-code .kw {
+      color: var(--cyan);
+      font-weight: 800;
+    }
+
+    .sql-code .str {
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    .comparison-list {
+      display: grid;
+      max-width: 820px;
+      gap: 10px;
+      margin: 30px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .comparison-list li {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      background: rgba(255, 255, 255, 0.045);
+      padding: 14px 16px;
+    }
+
+    .comparison-key {
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .comparison-val {
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    @media (min-width: 1200px) {
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .presentation {
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .slide {
+        width: calc(100vw - 32px);
+        padding: 34px 30px 30px;
+      }
+
+      .slide::before {
+        inset: 14px;
+      }
+
+      .masthead {
+        padding-bottom: 16px;
+      }
+
+      .kicker {
+        font-size: 12px;
+      }
+
+      .series-title {
+        font-size: 15px;
+      }
+
+      .folio {
+        width: 58px;
+        height: 58px;
+        font-size: 25px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        padding: 28px 0 24px;
+      }
+
+      h1,
+      .slide-3 h1,
+      .slide-6 h1 {
+        font-size: clamp(42px, 13vw, 62px);
+        line-height: 0.9;
+      }
+
+      h2 {
+        margin-top: 18px;
+        border-left-width: 5px;
+        padding-left: 12px;
+        font-size: 19px;
+      }
+
+      p {
+        margin-top: 16px;
+        font-size: 18px;
+      }
+
+      .chips {
+        gap: 8px;
+        margin-top: 20px;
+      }
+
+      .chips span {
+        padding: 8px 10px;
+        font-size: 11px;
+      }
+
+      .visual {
+        min-height: 270px;
+      }
+
+      .visual::before {
+        inset: 12px;
+      }
+
+      .visual::after {
+        right: 16px;
+        bottom: 16px;
+        left: 16px;
+        height: 4px;
+      }
+
+      .node-map {
+        height: 250px;
+      }
+
+      .node {
+        min-width: 74px;
+        height: 48px;
+        font-size: 10px;
+      }
+
+      .node.primary {
+        top: 97px;
+        min-width: 92px;
+        height: 56px;
+      }
+
+      .node.a {
+        top: 36px;
+        left: 26px;
+      }
+
+      .node.b {
+        top: 36px;
+        right: 26px;
+      }
+
+      .node.c {
+        bottom: 40px;
+        left: 30px;
+      }
+
+      .node.d {
+        right: 30px;
+        bottom: 40px;
+      }
+
+      .link.one,
+      .link.two,
+      .link.three,
+      .link.four {
+        width: 96px;
+      }
+
+      .link.one {
+        top: 88px;
+        left: 78px;
+      }
+
+      .link.two {
+        top: 88px;
+        right: 78px;
+      }
+
+      .link.three {
+        left: 80px;
+        bottom: 94px;
+      }
+
+      .link.four {
+        right: 80px;
+        bottom: 94px;
+      }
+
+      .join-tables .table-chip,
+      .cross-chip,
+      .cross-result {
+        padding: 8px 10px;
+        font-size: 11px;
+      }
+
+      .join-glyph,
+      .cross-op,
+      .cross-eq {
+        font-size: 14px;
+      }
+
+      .join-bar {
+        height: 64px;
+      }
+
+      .join-bar .seg {
+        font-size: 8px;
+      }
+
+      .sql-code {
+        margin-top: 16px;
+        padding: 10px 12px;
+        font-size: 11px;
+      }
+
+      .comparison-list {
+        margin-top: 16px;
+        gap: 8px;
+      }
+
+      .comparison-list li {
+        grid-template-columns: 100px 1fr;
+        padding: 8px 10px;
+      }
+
+      .comparison-key {
+        font-size: 10px;
+      }
+
+      .comparison-val {
+        font-size: 11px;
+      }
+
+      .caption {
+        gap: 12px;
+        padding-top: 14px;
+        font-size: 11px;
+      }
+
+      .source strong {
+        font-size: 13px;
+      }
+
+      .sequence {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .slide {
+        padding: 28px 24px 24px;
+      }
+
+      .visual {
+        min-height: 230px;
+      }
+
+      .node-map {
+        height: 220px;
+      }
+
+      .node {
+        min-width: 64px;
+        height: 42px;
+        font-size: 9px;
+      }
+
+      .node.primary {
+        top: 84px;
+        min-width: 84px;
+        height: 52px;
+      }
+    }
+
+    @page {
+      size: 1080px 1350px;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        width: var(--page-width);
+        margin: 0;
+        background: #ffffff;
+      }
+
+      .presentation {
+        display: block;
+        padding: 0;
+      }
+
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="presentation" id="presentation" aria-label="SQL JOINs LinkedIn carousel presentation">
+    {% for slide in slides %}
+    {% set accent_n = ((loop.index0 % 6) + 1) %}
+    <section class="slide slide-{{ accent_n }}" id="slide-{{ loop.index }}" aria-label="Slide {{ loop.index }} of {{ slides|length }}">
+      <header class="masthead">
+        <div class="series">
+          <div class="kicker">{{ slide.category }}</div>
+          <div class="series-title">SQL JOIN Field Guide</div>
+        </div>
+        <div class="folio">{{ "%02d"|format(loop.index) }}</div>
+      </header>
+
+      <div class="layout{{ '' if slide.diagram else ' single' }}">
+        <div class="copy">
+          <h1>{{ slide.title }}</h1>
+          {% if slide.subtitle %}<h2>{{ slide.subtitle }}</h2>{% endif %}
+          {% if slide.description %}<p>{{ slide.description }}</p>{% endif %}
+          {% if slide.sql %}<pre class="sql-code"><code>{{ slide.sql }}</code></pre>{% endif %}
+          {% if slide.comparison %}
+          <ul class="comparison-list">
+            {% for item in slide.comparison %}
+            {% set parts = item.split("→") %}
+            <li>
+              <span class="comparison-key">{{ parts[0].strip() }}</span>
+              <span class="comparison-val">{{ parts[1].strip() if parts|length > 1 else "" }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% if slide.diagram %}
+        <div class="visual" aria-hidden="true">
+          {% if slide.diagram.highlight %}
+          <div class="join-diagram">
+            <div class="join-tables">
+              <span class="table-chip">{{ slide.diagram.left }}</span>
+              <span class="join-glyph">⋈</span>
+              <span class="table-chip">{{ slide.diagram.right }}</span>
+            </div>
+            <div class="join-bar join-highlight-{{ slide.diagram.highlight }}">
+              <div class="seg seg-left"><span>Only {{ slide.diagram.left }}</span></div>
+              <div class="seg seg-mid"><span>Matched</span></div>
+              <div class="seg seg-right"><span>Only {{ slide.diagram.right }}</span></div>
+            </div>
+          </div>
+          {% elif slide.diagram.result %}
+          <div class="cross-diagram">
+            <span class="cross-chip">{{ slide.diagram.left }}</span>
+            <span class="cross-op">&times;</span>
+            <span class="cross-chip">{{ slide.diagram.right }}</span>
+            <span class="cross-eq">=</span>
+            <span class="cross-result">{{ slide.diagram.result }}</span>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      <footer class="caption">
+        <div class="source"><strong>Wycliffe Peart SQL JOINs</strong><span>{{ slide.category }}</span></div>
+        <div class="sequence">{{ loop.index }} of {{ slides|length }}</div>
+      </footer>
+    </section>
+    {% endfor %}
+  </main>
+
+  <script>
+    const highlightSql = (source) => {
+      const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const keywords = /\b(SELECT|FROM|WHERE|INNER|LEFT|RIGHT|FULL|OUTER|CROSS|SELF|JOIN|ON|AS|AND|OR)\b/g;
+      const strings = /'(?:\\.|[^'])*'/g;
+      let escaped = escapeHtml(source);
+      escaped = escaped.replace(strings, (match) => `<span class="str">${match}</span>`);
+      escaped = escaped.replace(keywords, (match) => `<span class="kw">${match}</span>`);
+      return escaped;
+    };
+
+    document.querySelectorAll(".sql-code code").forEach((node) => {
+      node.innerHTML = highlightSql(node.textContent);
+    });
+  </script>
+</body>
+</html>

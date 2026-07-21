@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Wycliffe Peart">
+  <title>SQL JOINs LinkedIn Carousel</title>
+  <style>
+    :root {
+      --page-width: 1080px;
+      --page-height: 1350px;
+      --ink: #151820;
+      --muted: #57606f;
+      --paper: #e9edf0;
+      --white: #ffffff;
+      --line: rgba(21, 24, 32, 0.1);
+      --accent: #0f9f8f;
+      --accent-strong: #08756d;
+      --accent-soft: rgba(15, 159, 143, 0.14);
+      --corner: #ffb000;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .presentation {
+      display: grid;
+      gap: 32px;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .slide {
+      position: relative;
+      display: grid;
+      width: min(var(--page-width), calc(100vw - 32px));
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      grid-template-rows: auto 1fr auto;
+      align-content: stretch;
+      padding: 78px 78px 70px;
+      border-radius: 8px;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, var(--accent) 0 16px, transparent 16px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 248, 250, 0.95)),
+        repeating-linear-gradient(0deg, var(--line) 0 1px, transparent 1px 96px),
+        repeating-linear-gradient(90deg, rgba(21, 24, 32, 0.06) 0 1px, transparent 1px 96px),
+        #f8fafc;
+      border: 1px solid rgba(21, 24, 32, 0.08);
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.18);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .slide-2 {
+      --accent: #f97316;
+      --accent-strong: #c2410c;
+      --accent-soft: rgba(249, 115, 22, 0.14);
+      --corner: #0ea5e9;
+    }
+
+    .slide-3 {
+      --accent: #2563eb;
+      --accent-strong: #1d4ed8;
+      --accent-soft: rgba(37, 99, 235, 0.14);
+      --corner: #e11d48;
+    }
+
+    .slide-4 {
+      --accent: #7c3aed;
+      --accent-strong: #6d28d9;
+      --accent-soft: rgba(124, 58, 237, 0.13);
+      --corner: #22c55e;
+    }
+
+    .slide-5 {
+      --accent: #e11d48;
+      --accent-strong: #be123c;
+      --accent-soft: rgba(225, 29, 72, 0.12);
+      --corner: #14b8a6;
+    }
+
+    .slide-6 {
+      --accent: #0ea5e9;
+      --accent-strong: #0369a1;
+      --accent-soft: rgba(14, 165, 233, 0.14);
+      --corner: #f59e0b;
+    }
+
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .slide::before {
+      position: absolute;
+      inset: 24px;
+      border: 1px solid rgba(21, 24, 32, 0.12);
+      border-radius: 8px;
+      content: "";
+      pointer-events: none;
+    }
+
+    .slide::after {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 52%;
+      height: 28%;
+      background:
+        linear-gradient(135deg, transparent 0 34%, var(--accent-soft) 34% 100%),
+        linear-gradient(135deg, transparent 0 56%, rgba(21, 24, 32, 0.08) 56% 58%, transparent 58% 100%);
+      clip-path: polygon(36% 0, 100% 0, 100% 100%, 0 100%);
+      content: "";
+      pointer-events: none;
+    }
+
+    .slide-header,
+    .slide-body,
+    .slide-footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .slide-header,
+    .slide-footer {
+      display: grid;
+      align-items: center;
+      grid-template-columns: minmax(0, 1fr) auto;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+      color: var(--accent-strong);
+      font-size: 20px;
+      font-weight: 850;
+      letter-spacing: 0.13em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      flex: 0 0 62px;
+      width: 62px;
+      height: 14px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 7px 50%, var(--accent) 0 7px, transparent 7px),
+        radial-gradient(circle at 31px 50%, var(--corner) 0 7px, transparent 7px),
+        radial-gradient(circle at 55px 50%, var(--ink) 0 7px, transparent 7px);
+      content: "";
+    }
+
+    .slide-number {
+      color: var(--muted);
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .slide-body {
+      display: grid;
+      width: 100%;
+      grid-template-columns: minmax(0, 1.04fr) minmax(300px, 0.86fr);
+      align-items: center;
+      gap: 56px;
+      align-self: center;
+      padding-bottom: 28px;
+    }
+
+    .slide-body.is-solo {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .slide-body > .sql-code {
+      grid-column: 1 / -1;
+    }
+
+    .copy {
+      min-width: 0;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 680px;
+      font-size: 106px;
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 0.95;
+      overflow-wrap: break-word;
+    }
+
+    h2 {
+      margin-top: 24px;
+      color: var(--accent-strong);
+      font-size: 46px;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 1.05;
+    }
+
+    p {
+      margin-top: 34px;
+      max-width: 650px;
+      color: var(--muted);
+      font-size: 34px;
+      font-weight: 500;
+      letter-spacing: 0;
+      line-height: 1.31;
+    }
+
+    .visual {
+      position: relative;
+      display: grid;
+      min-height: 580px;
+      padding: 34px;
+      border: 1px solid rgba(21, 24, 32, 0.12);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56)),
+        linear-gradient(135deg, var(--accent-soft), transparent 52%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+    }
+
+    .visual::before {
+      position: absolute;
+      inset: 34px;
+      border: 2px dashed rgba(21, 24, 32, 0.16);
+      border-radius: 8px;
+      content: "";
+    }
+
+    .visual::after {
+      position: absolute;
+      top: 34px;
+      right: 34px;
+      width: 78px;
+      height: 78px;
+      border-top: 14px solid var(--corner);
+      border-right: 14px solid var(--corner);
+      content: "";
+    }
+
+    .visual-title {
+      position: relative;
+      z-index: 1;
+      align-self: start;
+      color: var(--accent-strong);
+      font-size: 22px;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .node-map {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      align-self: center;
+      gap: 18px;
+    }
+
+    .node {
+      display: flex;
+      align-items: center;
+      min-height: 86px;
+      padding: 20px 22px;
+      border: 1px solid rgba(21, 24, 32, 0.14);
+      border-left: 10px solid var(--accent);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--ink);
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.08;
+    }
+
+    .node.is-primary {
+      min-height: 112px;
+      border-left-color: var(--corner);
+      background: var(--ink);
+      color: var(--white);
+      font-size: 34px;
+    }
+
+    .connector {
+      justify-self: center;
+      width: 4px;
+      height: 34px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .pill-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-self: end;
+      gap: 10px;
+    }
+
+    .pill-row span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 7px 12px;
+      border: 1px solid rgba(21, 24, 32, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .join-bar {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      align-self: center;
+      grid-template-columns: 1fr 0.82fr 1fr;
+      gap: 6px;
+      margin-top: 22px;
+    }
+
+    .join-seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 72px;
+      padding: 10px;
+      border: 1px solid rgba(21, 24, 32, 0.14);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.15;
+      text-align: center;
+      opacity: 0.45;
+    }
+
+    .join-highlight-intersection .join-seg-mid,
+    .join-highlight-left .join-seg-left,
+    .join-highlight-left .join-seg-mid,
+    .join-highlight-right .join-seg-right,
+    .join-highlight-right .join-seg-mid,
+    .join-highlight-both .join-seg-left,
+    .join-highlight-both .join-seg-mid,
+    .join-highlight-both .join-seg-right {
+      opacity: 1;
+    }
+
+    .join-highlight-intersection .join-seg-mid,
+    .join-highlight-left .join-seg-mid,
+    .join-highlight-right .join-seg-mid {
+      border-color: var(--accent-strong);
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .join-highlight-left .join-seg-left,
+    .join-highlight-right .join-seg-right,
+    .join-highlight-both .join-seg-left,
+    .join-highlight-both .join-seg-right {
+      border-color: var(--corner);
+      background: var(--corner);
+      color: var(--ink);
+    }
+
+    .join-highlight-both .join-seg-mid {
+      border-color: var(--accent-strong);
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .comparison-list {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      align-self: center;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .comparison-list li {
+      display: grid;
+      grid-template-columns: minmax(0, 160px) 1fr;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 16px;
+      border: 1px solid rgba(21, 24, 32, 0.12);
+      border-left: 6px solid var(--accent);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .comparison-key {
+      color: var(--accent-strong);
+      font-size: 17px;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .comparison-val {
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    .sql-code {
+      margin-top: 8px;
+      padding: 22px 26px;
+      border: 1px solid rgba(21, 24, 32, 0.16);
+      border-left: 8px solid var(--accent);
+      border-radius: 8px;
+      background: var(--ink);
+      color: #e7ebf7;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .sql-code .kw {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .sql-code .str {
+      color: var(--corner);
+      font-weight: 700;
+    }
+
+    .slide-footer {
+      color: var(--muted);
+      font-size: 23px;
+      font-weight: 750;
+      line-height: 1.2;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--ink);
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--ink);
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress span {
+      width: 26px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(21, 24, 32, 0.18);
+    }
+
+    .progress span.is-active {
+      background: var(--accent);
+    }
+
+    @media (min-width: 1200px) {
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .presentation {
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .slide {
+        width: calc(100vw - 32px);
+        padding: 38px 34px 34px;
+      }
+
+      .slide-header,
+      .slide-footer {
+        align-items: flex-start;
+        grid-template-columns: 1fr;
+      }
+
+      .eyebrow,
+      .slide-number {
+        font-size: 15px;
+      }
+
+      .eyebrow::before {
+        flex-basis: 52px;
+        width: 52px;
+        height: 12px;
+        background:
+          radial-gradient(circle at 6px 50%, var(--accent) 0 6px, transparent 6px),
+          radial-gradient(circle at 26px 50%, var(--corner) 0 6px, transparent 6px),
+          radial-gradient(circle at 46px 50%, var(--ink) 0 6px, transparent 6px);
+      }
+
+      .slide-body {
+        grid-template-columns: 1fr;
+        align-content: center;
+        gap: 24px;
+        padding-bottom: 18px;
+      }
+
+      h1 {
+        max-width: 100%;
+        font-size: 48px;
+      }
+
+      h2 {
+        margin-top: 18px;
+        font-size: 26px;
+      }
+
+      p {
+        margin-top: 22px;
+        font-size: 20px;
+      }
+
+      .visual {
+        min-height: 250px;
+        padding: 22px;
+      }
+
+      .visual::before {
+        inset: 22px;
+      }
+
+      .visual::after {
+        top: 22px;
+        right: 22px;
+        width: 46px;
+        height: 46px;
+        border-width: 9px;
+      }
+
+      .visual-title {
+        font-size: 14px;
+      }
+
+      .node-map {
+        gap: 10px;
+      }
+
+      .node {
+        min-height: 44px;
+        padding: 10px 12px;
+        border-left-width: 6px;
+        font-size: 15px;
+      }
+
+      .node.is-primary {
+        min-height: 54px;
+        font-size: 18px;
+      }
+
+      .connector {
+        height: 18px;
+      }
+
+      .pill-row {
+        gap: 6px;
+      }
+
+      .pill-row span {
+        min-height: 28px;
+        padding: 5px 8px;
+        font-size: 12px;
+      }
+
+      .join-seg {
+        min-height: 40px;
+        padding: 6px;
+        font-size: 10px;
+      }
+
+      .comparison-list li {
+        grid-template-columns: minmax(0, 96px) 1fr;
+        padding: 8px 10px;
+      }
+
+      .comparison-key,
+      .comparison-val {
+        font-size: 12px;
+      }
+
+      .sql-code {
+        padding: 12px 14px;
+        font-size: 13px;
+      }
+
+      .slide-footer {
+        font-size: 16px;
+      }
+
+      .progress span {
+        width: 16px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .slide {
+        padding: 30px 26px 28px;
+      }
+
+      h1 {
+        font-size: 39px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      p {
+        font-size: 17px;
+      }
+
+      .visual {
+        min-height: 225px;
+      }
+    }
+
+    @page {
+      size: 1080px 1350px;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        width: var(--page-width);
+        margin: 0;
+        background: #ffffff;
+      }
+
+      .presentation {
+        display: block;
+        padding: 0;
+      }
+
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="presentation" id="presentation" aria-label="LinkedIn PDF carousel presentation">
+    {% for slide in slides %}
+    {% set color_idx = (loop.index0 % 6) + 1 %}
+    {% set is_solo = not slide.diagram and not slide.comparison %}
+    <section class="slide{% if color_idx > 1 %} slide-{{ color_idx }}{% endif %}" id="slide-{{ loop.index }}" aria-label="Slide {{ loop.index }} of {{ slides|length }}">
+      <header class="slide-header">
+        <div class="eyebrow">{{ slide.category }}</div>
+        <div class="slide-number">{{ "%02d"|format(loop.index) }} / {{ "%02d"|format(slides|length) }}</div>
+      </header>
+
+      <div class="slide-body{% if is_solo %} is-solo{% endif %}">
+        <div class="copy">
+          <h1>{{ slide.title }}</h1>
+          {% if slide.subtitle %}<h2>{{ slide.subtitle }}</h2>{% endif %}
+          {% if slide.description %}<p>{{ slide.description }}</p>{% endif %}
+        </div>
+
+        {% if slide.diagram %}
+        <aside class="visual" aria-label="{{ slide.title }} diagram">
+          {% if slide.diagram.highlight %}
+          <div class="visual-title">Join Result</div>
+          <div class="pill-row">
+            <span>{{ slide.diagram.left }}</span>
+            <span>&#8904;</span>
+            <span>{{ slide.diagram.right }}</span>
+          </div>
+          <div class="join-bar join-highlight-{{ slide.diagram.highlight }}">
+            <div class="join-seg join-seg-left"><span>Only {{ slide.diagram.left }}</span></div>
+            <div class="join-seg join-seg-mid"><span>Matched</span></div>
+            <div class="join-seg join-seg-right"><span>Only {{ slide.diagram.right }}</span></div>
+          </div>
+          {% elif slide.diagram.result %}
+          <div class="visual-title">Cartesian Product</div>
+          <div class="node-map">
+            <div class="node">{{ slide.diagram.left }}</div>
+            <div class="connector"></div>
+            <div class="node is-primary">&times;</div>
+            <div class="connector"></div>
+            <div class="node">{{ slide.diagram.right }}</div>
+          </div>
+          <div class="pill-row">
+            <span>= {{ slide.diagram.result }}</span>
+          </div>
+          {% endif %}
+        </aside>
+        {% elif slide.comparison %}
+        <aside class="visual" aria-label="{{ slide.title }} reference">
+          <div class="visual-title">Quick Reference</div>
+          <ul class="comparison-list">
+            {% for item in slide.comparison %}
+            {% set parts = item.split("→") %}
+            <li>
+              <span class="comparison-key">{{ parts[0].strip() }}</span>
+              <span class="comparison-val">{{ parts[1].strip() if parts|length > 1 else "" }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </aside>
+        {% endif %}
+
+        {% if slide.sql %}<pre class="sql-code"><code>{{ slide.sql }}</code></pre>{% endif %}
+      </div>
+
+      <footer class="slide-footer">
+        <div class="brand">
+          <span class="brand-mark">in</span>
+          <span>Wycliffe Peart SQL JOINs</span>
+        </div>
+        <div class="progress" aria-hidden="true">
+          {% set slide_num = loop.index %}
+          {% for n in range(1, slides|length + 1) %}
+          <span{% if n == slide_num %} class="is-active"{% endif %}></span>
+          {% endfor %}
+        </div>
+      </footer>
+    </section>
+    {% endfor %}
+  </main>
+
+  <script>
+    const highlightSql = (source) => {
+      const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const keywords = /\b(SELECT|FROM|WHERE|INNER|LEFT|RIGHT|FULL|OUTER|CROSS|SELF|JOIN|ON|AS|AND|OR)\b/g;
+      const strings = /'(?:\\.|[^'])*'/g;
+      let escaped = escapeHtml(source);
+      escaped = escaped.replace(strings, (match) => `<span class="str">${match}</span>`);
+      escaped = escaped.replace(keywords, (match) => `<span class="kw">${match}</span>`);
+      return escaped;
+    };
+
+    document.querySelectorAll(".sql-code code").forEach((node) => {
+      node.innerHTML = highlightSql(node.textContent);
+    });
+  </script>
+</body>
+</html>

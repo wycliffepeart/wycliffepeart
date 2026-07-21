@@ -2,8 +2,8 @@
 
 This Terraform configuration deploys the profile site to a private S3 bucket and serves it through CloudFront over HTTPS.
 
-This app lives at `app` inside the project. Run `cliffe` from the project root.
-Run direct Terraform commands from this `app/terraform` directory.
+The static app lives at `app` inside the project. Run `wp` from the project
+root. Run direct Terraform commands from this `terraform` directory.
 
 ## AWS SSO Setup
 
@@ -43,7 +43,7 @@ or Cloudflare, or redirect the apex to `www.wycliffepeart.com`.
 The primary deployment path is the project CLI:
 
 ```sh
-cliffe deploy
+wp deploy
 ```
 
 Use direct Terraform commands only for targeted infrastructure operations or
@@ -60,10 +60,11 @@ Terraform uploads:
 - `index.html` as `index.html`
 - `index.html` as `profile.html`
 - `resume.html` as `resume.html`
-- `blog/index.html` as `blog/index.html`
 - `resume.pdf` as `resume.pdf` when `app/resume.pdf` exists, with
   attachment headers for downloading
 - every file under `assets/` under the same `/assets/` path
+- every file under `blog/` under the same `/blog/` path, including
+  `blog/index.html` and per-post pages and content, with no-cache headers
 
 A CloudFront Function rewrites `/blog` and `/blog/` to `/blog/index.html` so
 the blog can use a clean public URL while the private S3 origin still stores an
@@ -75,7 +76,7 @@ expire after 30 days to keep storage costs bounded.
 Generate the PDF before deployment with:
 
 ```sh
-resume-to-pdf
+wp pdf
 ```
 
 After deployment, use:
@@ -98,5 +99,5 @@ CloudFront may cache responses briefly. The HTML objects are uploaded with no-ca
 
 For a content rollback, revert the bad Git commit or check out the last known
 good version, regenerate `resume.pdf` if resume content changed, and run
-`cliffe deploy` again. S3 object versioning provides a short recovery window for
+`wp deploy` again. S3 object versioning provides a short recovery window for
 individual uploaded objects, but Git remains the source of truth.

@@ -1,44 +1,49 @@
 #!/usr/bin/env python3
-"""Project deployment CLI."""
+"""Project CLI: site deployment plus content/LinkedIn workflow commands."""
 
 from __future__ import annotations
 
 import argparse
-import importlib.util
+import logging
 import subprocess
 import sys
 from pathlib import Path
-from types import ModuleType
-from typing import Sequence
+from typing import Optional, Sequence, TextIO
 
+from scripts import resume_to_pdf
+from scripts.codex_json import CodexJsonError, extract_json, select_field
+from scripts.env_utils import load_environment_file
+from scripts.github_publish import add_github_publish_options, run_github_publish_post, run_publish_github
+from scripts.linkedin_carousel import add_linkedin_carousel_parser, run_linkedin_carousel_generate
+from scripts.logging_utils import (
+    LOG_LEVELS,
+    SpringBootFormatter,
+    configure_logging,
+    summarize_args,
+    write_error,
+    write_value,
+)
+from scripts.posts import (
+    CODEX_POST_RETRIES_ENV,
+    DEFAULT_CODEX_POST_RETRIES,
+    build_codex_prompt,
+    build_codex_retry_prompt,
+    is_retryable_generated_post_error,
+    load_post_metadata,
+    persist_post_response,
+    post_index_entry,
+    resolve_codex_post_retries,
+    run_codex_post_generation,
+    validate_post_response,
+)
+
+LOGGER = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 APP_DIR = ROOT / "app"
-RESUME_TO_PDF_SCRIPT = APP_DIR / "scripts" / "resume_to_pdf.py"
-TERRAFORM_DIR = APP_DIR / "terraform"
-RESUME_TO_PDF = None
-
-
-def load_resume_to_pdf() -> ModuleType:
-    global RESUME_TO_PDF
-
-    if RESUME_TO_PDF is not None:
-        return RESUME_TO_PDF
-
-    spec = importlib.util.spec_from_file_location("wp_profile_resume_to_pdf", RESUME_TO_PDF_SCRIPT)
-
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"Could not load resume PDF script: {RESUME_TO_PDF_SCRIPT}")
-
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    RESUME_TO_PDF = module
-    return module
-
-
-RESUME_TO_PDF_MODULE = load_resume_to_pdf()
-DEFAULT_INPUT = RESUME_TO_PDF_MODULE.DEFAULT_INPUT
-DEFAULT_OUTPUT = RESUME_TO_PDF_MODULE.DEFAULT_OUTPUT
+TERRAFORM_DIR = ROOT / "terraform"
+DEFAULT_INPUT = resume_to_pdf.DEFAULT_INPUT
+DEFAULT_OUTPUT = resume_to_pdf.DEFAULT_OUTPUT
 
 
 def run_command(command: Sequence[str], cwd: Path) -> None:
@@ -47,7 +52,7 @@ def run_command(command: Sequence[str], cwd: Path) -> None:
 
 
 def generate_resume_pdf(args: argparse.Namespace) -> None:
-    load_resume_to_pdf().convert_to_pdf(args.input, args.output, args.browser, args.timeout)
+    resume_to_pdf.convert_to_pdf(args.input, args.output, args.browser, args.timeout)
     print(f"Created {args.output.resolve()}")
 
 
@@ -108,14 +113,114 @@ def run_app(args: argparse.Namespace) -> None:
     )
 
 
+def read_text(path: str, stdin: TextIO) -> str:
+    if path == "-":
+        LOGGER.info("Reading text from stdin")
+        text = stdin.read()
+        LOGGER.info("Read text from stdin: chars=%s", len(text))
+        return text
+
+    file_path = Path(path)
+    LOGGER.info("Reading text file: path=%s", file_path)
+    text = file_path.read_text(encoding="utf-8")
+    LOGGER.info("Read text file: path=%s chars=%s", file_path, len(text))
+    return text
+
+
+def run_codex_json(args: argparse.Namespace, *, stdin: TextIO, stdout: TextIO) -> int:
+    LOGGER.info(
+        "Extracting JSON from Codex transcript: path=%s field=%s first=%s",
+        args.path,
+        args.field,
+        args.first,
+    )
+    text = read_text(args.path, stdin)
+    LOGGER.info("Extracting JSON value from transcript text: chars=%s last=%s", len(text), not args.first)
+    value = extract_json(text, last=not args.first)
+    LOGGER.info("Extracted JSON value from transcript: value=%s", value)
+
+    if args.field:
+        LOGGER.info("Selecting JSON field from extracted value: field=%s", args.field)
+        value = select_field(value, args.field)
+        LOGGER.info("Selected JSON field: field=%s value=%s", args.field, value)
+
+    write_value(value, pretty=args.pretty, stdout=stdout)
+    LOGGER.info("Codex JSON extraction completed")
+    return 0
+
+
+def run_codex_e(args: argparse.Namespace, *, stdout: TextIO) -> int:
+    LOGGER.info("Starting Codex execution flow: args=%s", summarize_args(args))
+    prompt = build_codex_prompt(args.prompt)
+    LOGGER.info(
+        "Codex execution flow prepared prompt: promptChars=%s dryRun=%s noWrite=%s",
+        len(prompt),
+        args.dry_run,
+        args.no_write,
+    )
+
+    if args.dry_run:
+        LOGGER.info("Prepared dry-run Codex command: codex_bin=%s", args.codex_bin)
+        write_value({"command": [args.codex_bin, "e", prompt], "prompt": prompt}, pretty=args.pretty, stdout=stdout)
+        LOGGER.info("Codex dry-run flow completed")
+        return 0
+
+    load_environment_file(getattr(args, "env_file", ".env.local"))
+    retries = resolve_codex_post_retries(args)
+    max_attempts = retries + 1
+    LOGGER.info(
+        "Codex execution retry settings resolved: noWrite=%s retries=%s maxAttempts=%s",
+        args.no_write,
+        retries,
+        max_attempts,
+    )
+
+    output = None
+    attempt_prompt = prompt
+    for attempt in range(1, max_attempts + 1):
+        try:
+            value = run_codex_post_generation(args, attempt_prompt, attempt=attempt, max_attempts=max_attempts)
+            LOGGER.info("Handling Codex post response: noWrite=%s attempt=%s", args.no_write, attempt)
+            if args.no_write:
+                output = post_index_entry(value)
+            else:
+                output = persist_post_response(value)
+            break
+        except CodexJsonError as exc:
+            if attempt >= max_attempts or not is_retryable_generated_post_error(exc):
+                raise
+            LOGGER.warning(
+                "Retrying Codex generation after generated post validation failure: attempt=%s nextAttempt=%s maxAttempts=%s error=%s",
+                attempt,
+                attempt + 1,
+                max_attempts,
+                exc,
+            )
+            attempt_prompt = build_codex_retry_prompt(prompt, str(exc), attempt=attempt + 1, max_attempts=max_attempts)
+
+    if output is None:
+        raise CodexJsonError("Codex command did not produce a post response.")
+
+    LOGGER.info("Codex post response handled: output=%s", output)
+    write_value(output, pretty=args.pretty, stdout=stdout)
+    LOGGER.info("Codex execution flow completed")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="cliffe",
-        description="Manage profile site deployment tasks.",
+        prog="wp",
+        description="Manage profile site deployment and content workflow tasks.",
+    )
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=LOG_LEVELS,
+        help="Minimum log level for stderr logs.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    pdf_parser = subparsers.add_parser("resume-pdf", help="Generate resume.pdf from resume.html.")
+    pdf_parser = subparsers.add_parser("pdf", help="Generate resume.pdf from resume.html.")
     add_pdf_arguments(pdf_parser)
     pdf_parser.set_defaults(func=generate_resume_pdf)
 
@@ -147,6 +252,85 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--port", type=int, default=8000, help="Port to serve on.")
     run_parser.set_defaults(func=run_app)
 
+    codex_json_parser = subparsers.add_parser(
+        "codex-json",
+        help="Extract the assistant JSON payload from Codex transcript text.",
+    )
+    codex_json_parser.add_argument(
+        "path",
+        nargs="?",
+        default="-",
+        help="Transcript file path, or '-' / omitted for stdin.",
+    )
+    codex_json_parser.add_argument(
+        "--field",
+        help="Optional dotted field path to print, for example: post or choices.0.message.content.",
+    )
+    codex_json_parser.add_argument(
+        "--first",
+        action="store_true",
+        help="Return the first JSON value found instead of the last.",
+    )
+    codex_json_parser.add_argument("--pretty", action="store_true", help="Pretty-print JSON output.")
+    codex_json_parser.set_defaults(func=lambda args: run_codex_json(args, stdin=sys.stdin, stdout=sys.stdout))
+
+    codex_parser = subparsers.add_parser("codex", help="Run Codex with repository response rules.")
+    codex_subparsers = codex_parser.add_subparsers(dest="codex_command", required=True)
+    codex_e_parser = codex_subparsers.add_parser(
+        "e",
+        help="Run `codex e` and require a LinkedIn post JSON response.",
+    )
+    codex_e_parser.add_argument("prompt", help="Prompt to send to Codex.")
+    codex_e_parser.add_argument("--codex-bin", default="codex", help="Codex executable to run.")
+    codex_e_parser.add_argument("--pretty", action="store_true", help="Pretty-print JSON output.")
+    codex_e_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the final prompt as JSON without running Codex.",
+    )
+    codex_e_parser.add_argument(
+        "--no-write",
+        action="store_true",
+        help="Validate and print the Codex response without updating content files.",
+    )
+    codex_e_parser.add_argument(
+        "--env-file",
+        default=".env.local",
+        help="Dotenv file to load before reading Codex workflow environment variables.",
+    )
+    codex_e_parser.add_argument(
+        "--retries",
+        type=int,
+        help=(
+            "Number of generated-post validation and persistence retries after the first Codex generation. "
+            f"Defaults to {CODEX_POST_RETRIES_ENV} or {DEFAULT_CODEX_POST_RETRIES}."
+        ),
+    )
+    codex_e_parser.set_defaults(func=lambda args: run_codex_e(args, stdout=sys.stdout))
+
+    linkedin_carousel_generate_parser = add_linkedin_carousel_parser(subparsers)
+    linkedin_carousel_generate_parser.set_defaults(
+        func=lambda args: run_linkedin_carousel_generate(args, stdout=sys.stdout)
+    )
+
+    publish_parser = subparsers.add_parser("publish", help="Publish repository content.")
+    publish_subparsers = publish_parser.add_subparsers(dest="publish_command", required=True)
+    publish_github_parser = publish_subparsers.add_parser(
+        "github",
+        help="Publish all pending LinkedIn posts through GitHub CLI.",
+    )
+    add_github_publish_options(publish_github_parser, include_markdown=False)
+    publish_github_parser.set_defaults(func=lambda args: run_publish_github(args, stdout=sys.stdout))
+
+    github_parser = subparsers.add_parser("github", help="Publish content through GitHub CLI.")
+    github_subparsers = github_parser.add_subparsers(dest="github_command", required=True)
+    github_publish_post_parser = github_subparsers.add_parser(
+        "publish-post",
+        help="Create an issue, branch, PR, and optional project item for a LinkedIn post.",
+    )
+    add_github_publish_options(github_publish_post_parser, include_markdown=True)
+    github_publish_post_parser.set_defaults(func=lambda args: run_github_publish_post(args, stdout=sys.stdout))
+
     return parser
 
 
@@ -155,7 +339,7 @@ def add_pdf_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="PDF output path.")
     parser.add_argument(
         "--browser",
-        help="Path to Chrome/Chromium. Overrides CHROME_BIN and automatic detection.",
+        help="Optional path to a Chrome/Chromium executable. Defaults to Playwright Chromium.",
     )
     parser.add_argument(
         "--timeout",
@@ -168,21 +352,27 @@ def add_pdf_arguments(parser: argparse.ArgumentParser) -> None:
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
+    configure_logging(args.log_level)
+    LOGGER.info("Starting wp command: command=%s args=%s", args.command, summarize_args(args))
 
     try:
-        args.func(args)
+        result = args.func(args)
     except subprocess.CalledProcessError as error:
         print(f"error: command failed with exit code {error.returncode}", file=sys.stderr)
         return error.returncode
+    except (CodexJsonError, OSError) as error:
+        LOGGER.error("wp command failed: command=%s error=%s", args.command, error)
+        write_error(str(error), stderr=sys.stderr)
+        return 1
     except Exception as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
 
-    return 0
+    return result if isinstance(result, int) else 0
 
 
 def resume_to_pdf_main() -> int:
-    return load_resume_to_pdf().main()
+    return resume_to_pdf.main()
 
 
 if __name__ == "__main__":

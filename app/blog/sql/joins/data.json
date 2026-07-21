@@ -1,0 +1,94 @@
+[
+  {
+    "category": "SQL",
+    "title": "SQL JOINs",
+    "subtitle": "The Most Important SQL Concept",
+    "description": "JOINs combine data from multiple tables using related columns. Mastering JOINs is essential for backend development, data engineering, analytics, and database design."
+  },
+  {
+    "category": "INNER JOIN",
+    "title": "INNER JOIN",
+    "subtitle": "Only Matching Rows",
+    "description": "Returns records that exist in both tables. Rows without a matching key are excluded.",
+    "diagram": {
+      "left": "Users",
+      "right": "Orders",
+      "highlight": "intersection"
+    },
+    "sql": "SELECT * FROM Users u INNER JOIN Orders o ON u.id = o.user_id;"
+  },
+  {
+    "category": "LEFT JOIN",
+    "title": "LEFT JOIN",
+    "subtitle": "Everything From the Left Table",
+    "description": "Returns every row from the left table and matching rows from the right table. If no match exists, NULL values are returned.",
+    "diagram": {
+      "left": "Users",
+      "right": "Orders",
+      "highlight": "left"
+    },
+    "sql": "SELECT * FROM Users u LEFT JOIN Orders o ON u.id = o.user_id;"
+  },
+  {
+    "category": "RIGHT JOIN",
+    "title": "RIGHT JOIN",
+    "subtitle": "Everything From the Right Table",
+    "description": "Returns every row from the right table and matching rows from the left table. Missing matches appear as NULL.",
+    "diagram": {
+      "left": "Users",
+      "right": "Orders",
+      "highlight": "right"
+    },
+    "sql": "SELECT * FROM Users u RIGHT JOIN Orders o ON u.id = o.user_id;"
+  },
+  {
+    "category": "FULL OUTER JOIN",
+    "title": "FULL OUTER JOIN",
+    "subtitle": "Everything From Both Tables",
+    "description": "Returns all rows from both tables. Matching rows are merged, while non-matching rows contain NULL values.",
+    "diagram": {
+      "left": "Users",
+      "right": "Orders",
+      "highlight": "both"
+    },
+    "sql": "SELECT * FROM Users u FULL OUTER JOIN Orders o ON u.id = o.user_id;"
+  },
+  {
+    "category": "CROSS JOIN",
+    "title": "CROSS JOIN",
+    "subtitle": "Every Combination",
+    "description": "Produces the Cartesian product of two tables. Every row from the first table is paired with every row from the second table.",
+    "diagram": {
+      "left": "3 Users",
+      "right": "4 Products",
+      "result": "12 Rows"
+    },
+    "sql": "SELECT * FROM Users CROSS JOIN Products;"
+  },
+  {
+    "category": "SELF JOIN",
+    "title": "SELF JOIN",
+    "subtitle": "A Table Joins Itself",
+    "description": "Useful for hierarchical data such as managers, employees, categories, and organizational structures.",
+    "sql": "SELECT e.name, m.name AS manager FROM Employees e LEFT JOIN Employees m ON e.manager_id = m.id;"
+  },
+  {
+    "category": "Comparison",
+    "title": "Which JOIN Should You Use?",
+    "subtitle": "Quick Reference",
+    "comparison": [
+      "INNER → Matching rows only",
+      "LEFT → All left rows",
+      "RIGHT → All right rows",
+      "FULL → Everything",
+      "CROSS → Every combination",
+      "SELF → Same table"
+    ]
+  },
+  {
+    "category": "Best Practices",
+    "title": "SQL JOIN Best Practices",
+    "subtitle": "Write Better Queries",
+    "description": "Always join using indexed keys, select only required columns, avoid SELECT *, use table aliases, understand execution plans, and choose the smallest dataset possible before joining."
+  }
+]

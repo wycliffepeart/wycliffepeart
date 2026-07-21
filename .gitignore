@@ -41,3 +41,9 @@ override.tf.json
 dist/
 build/
 coverage/
+
+# Generated LinkedIn carousel output
+output/
+
+# Test/lint caches
+.pytest_cache/

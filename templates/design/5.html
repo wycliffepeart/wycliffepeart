@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Wycliffe Peart">
+  <title>SQL JOINs LinkedIn Carousel</title>
+  <style>
+    :root {
+      --page-width: 1080px;
+      --page-height: 1350px;
+      --paper: #efe7d3;
+      --ink: #171411;
+      --muted: #6d6254;
+      --rule: rgba(23, 20, 17, 0.18);
+      --cream: #fff8e8;
+      --brand: #171411;
+      --accent: #d6341f;
+      --accent-2: #1d6f82;
+      --accent-3: #e6b23c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: #d8d0bf;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .presentation {
+      display: grid;
+      gap: 32px;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .slide {
+      --accent: #d6341f;
+      --accent-2: #1d6f82;
+      --accent-3: #e6b23c;
+      position: relative;
+      display: grid;
+      width: min(var(--page-width), calc(100vw - 32px));
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      grid-template-rows: auto 1fr auto;
+      padding: 72px 76px 66px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 16px 16px, rgba(23, 20, 17, 0.12) 0 1.2px, transparent 1.3px) 0 0 / 24px 24px,
+        linear-gradient(90deg, rgba(255, 248, 232, 0.94) 0 64%, transparent 64%),
+        linear-gradient(135deg, var(--paper) 0%, #f8f0da 58%, #dfd2b7 100%);
+      border: 0;
+      box-shadow: 0 24px 70px rgba(23, 20, 17, 0.28);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .slide::before {
+      position: absolute;
+      inset: 28px;
+      border-top: 6px solid var(--ink);
+      border-bottom: 6px solid var(--ink);
+      content: "";
+      pointer-events: none;
+    }
+
+    .slide::after {
+      position: absolute;
+      top: -130px;
+      right: -120px;
+      width: 480px;
+      height: 480px;
+      border: 72px solid var(--accent);
+      border-radius: 50%;
+      content: "";
+      opacity: 0.92;
+      pointer-events: none;
+    }
+
+    .slide-2 {
+      --accent: #1d6f82;
+      --accent-2: #d6341f;
+      --accent-3: #df9f22;
+    }
+
+    .slide-3 {
+      --accent: #234b9b;
+      --accent-2: #d6341f;
+      --accent-3: #1d6f82;
+    }
+
+    .slide-4 {
+      --accent: #7b3f94;
+      --accent-2: #d95b2b;
+      --accent-3: #1d6f82;
+    }
+
+    .slide-5 {
+      --accent: #c07b16;
+      --accent-2: #234b9b;
+      --accent-3: #d6341f;
+    }
+
+    .slide-6 {
+      --accent: #2d7658;
+      --accent-2: #7b3f94;
+      --accent-3: #d6341f;
+    }
+
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .masthead,
+    .poster,
+    .caption {
+      position: relative;
+      z-index: 1;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: start;
+      padding-top: 24px;
+      font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+      text-transform: uppercase;
+    }
+
+    .series {
+      max-width: 520px;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      line-height: 0.96;
+    }
+
+    .folio {
+      display: grid;
+      width: 118px;
+      height: 118px;
+      place-items: center;
+      background: var(--ink);
+      color: var(--cream);
+      font-size: 56px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .poster {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 46px;
+      align-items: center;
+      padding: 54px 0 36px;
+    }
+
+    .rail {
+      display: grid;
+      align-content: space-between;
+      min-height: 780px;
+      border-right: 3px solid var(--ink);
+      padding-right: 30px;
+    }
+
+    .tag {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      justify-self: start;
+      color: var(--accent);
+      font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .edition {
+      display: grid;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    .edition span {
+      display: block;
+      width: 54px;
+      height: 10px;
+      background: var(--accent-2);
+    }
+
+    .content {
+      position: relative;
+      min-width: 0;
+      padding: 28px 0 22px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 136px;
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 0.82;
+      overflow-wrap: break-word;
+    }
+
+    h2 {
+      width: fit-content;
+      max-width: 100%;
+      margin-top: 38px;
+      padding: 16px 22px 14px;
+      background: var(--accent);
+      color: var(--cream);
+      font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    p {
+      max-width: 690px;
+      margin-top: 34px;
+      color: var(--muted);
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.22;
+    }
+
+    .artifact {
+      position: relative;
+      display: grid;
+      width: min(520px, 92%);
+      min-height: 236px;
+      margin-top: 56px;
+      padding: 30px 34px;
+      align-items: end;
+      background:
+        linear-gradient(135deg, var(--accent-3) 0 34%, transparent 34%),
+        linear-gradient(90deg, var(--ink) 0 18px, var(--cream) 18px);
+      border: 4px solid var(--ink);
+    }
+
+    .artifact::before,
+    .artifact::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .artifact::before {
+      top: 34px;
+      right: 34px;
+      width: 96px;
+      height: 96px;
+      background: var(--accent);
+    }
+
+    .artifact::after {
+      right: -22px;
+      bottom: -22px;
+      width: 116px;
+      height: 116px;
+      border: 18px solid var(--accent-2);
+    }
+
+    .artifact span {
+      position: relative;
+      z-index: 1;
+      color: var(--ink);
+      font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .join-diagram {
+      display: grid;
+      gap: 18px;
+      width: min(560px, 92%);
+      margin-top: 56px;
+    }
+
+    .join-tables {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+      text-transform: uppercase;
+    }
+
+    .table-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 3px solid var(--ink);
+      background: var(--cream);
+      padding: 10px 18px;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+    }
+
+    .table-chip::before {
+      width: 10px;
+      height: 10px;
+      background: var(--accent-2);
+      content: "";
+    }
+
+    .table-chip-right::before {
+      background: var(--accent-3);
+    }
+
+    .join-glyph {
+      color: var(--accent);
+      font-size: 26px;
+      font-weight: 900;
+    }
+
+    .join-bar {
+      display: grid;
+      grid-template-columns: 1fr 0.8fr 1fr;
+      gap: 4px;
+      height: 84px;
+    }
+
+    .join-bar .seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--ink);
+      background: var(--cream);
+      padding: 4px;
+      color: var(--muted);
+      font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-align: center;
+      text-transform: uppercase;
+      opacity: 0.45;
+    }
+
+    .join-highlight-intersection .seg-mid,
+    .join-highlight-left .seg-left,
+    .join-highlight-left .seg-mid,
+    .join-highlight-right .seg-right,
+    .join-highlight-right .seg-mid,
+    .join-highlight-both .seg {
+      opacity: 1;
+      color: var(--cream);
+    }
+
+    .join-highlight-intersection .seg-mid,
+    .join-highlight-left .seg-mid,
+    .join-highlight-right .seg-mid,
+    .join-highlight-both .seg-mid {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .join-highlight-left .seg-left,
+    .join-highlight-both .seg-left {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+    }
+
+    .join-highlight-right .seg-right,
+    .join-highlight-both .seg-right {
+      background: var(--accent-3);
+      border-color: var(--accent-3);
+    }
+
+    .cross-diagram {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      width: min(560px, 92%);
+      margin-top: 56px;
+      font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+      text-transform: uppercase;
+    }
+
+    .cross-chip {
+      border: 3px solid var(--ink);
+      background: var(--cream);
+      padding: 12px 18px;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .cross-op,
+    .cross-eq {
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .cross-result {
+      border: 3px solid var(--accent);
+      background: var(--accent);
+      padding: 12px 20px;
+      color: var(--cream);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .sql-code {
+      width: min(620px, 92%);
+      margin-top: 56px;
+      border: 4px solid var(--ink);
+      border-left: 10px solid var(--accent);
+      background: var(--ink);
+      padding: 20px 24px;
+      color: var(--cream);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 19px;
+      font-weight: 600;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .sql-code .kw {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .sql-code .str {
+      color: var(--accent-3);
+      font-weight: 700;
+    }
+
+    .comparison-list {
+      display: grid;
+      gap: 10px;
+      width: min(620px, 92%);
+      margin: 56px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .comparison-list li {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      align-items: center;
+      gap: 16px;
+      border: 3px solid var(--ink);
+      border-left: 8px solid var(--accent-2);
+      background: var(--cream);
+      padding: 14px 18px;
+    }
+
+    .comparison-key {
+      color: var(--ink);
+      font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .comparison-val {
+      color: var(--muted);
+      font-size: 19px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .caption {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      border-top: 3px solid var(--ink);
+      padding-top: 22px;
+      color: var(--muted);
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1.15;
+      text-transform: uppercase;
+    }
+
+    .source {
+      color: var(--ink);
+    }
+
+    .sequence {
+      color: var(--accent);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 54px;
+      font-weight: 900;
+      line-height: 0.9;
+      white-space: nowrap;
+    }
+
+    @media (min-width: 1200px) {
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .presentation {
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .slide {
+        width: calc(100vw - 32px);
+        padding: 38px 34px 34px;
+      }
+
+      .slide::before {
+        inset: 16px;
+        border-width: 4px;
+      }
+
+      .slide::after {
+        top: -86px;
+        right: -92px;
+        width: 260px;
+        height: 260px;
+        border-width: 44px;
+      }
+
+      .masthead {
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding-top: 10px;
+      }
+
+      .series {
+        font-size: 17px;
+      }
+
+      .folio {
+        width: 68px;
+        height: 68px;
+        font-size: 32px;
+      }
+
+      .poster {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 28px 0 24px;
+      }
+
+      .rail {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: end;
+        min-height: 0;
+        border-right: 0;
+        border-bottom: 2px solid var(--ink);
+        padding-right: 0;
+        padding-bottom: 14px;
+      }
+
+      .tag {
+        writing-mode: initial;
+        transform: none;
+        font-size: 16px;
+      }
+
+      .edition {
+        justify-items: end;
+        font-size: 12px;
+      }
+
+      .edition span {
+        width: 36px;
+        height: 7px;
+      }
+
+      .content {
+        padding: 0;
+      }
+
+      h1 {
+        max-width: 100%;
+        font-size: 54px;
+        line-height: 0.88;
+      }
+
+      h2 {
+        margin-top: 22px;
+        padding: 10px 12px 9px;
+        font-size: 20px;
+      }
+
+      p {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      .artifact {
+        min-height: 130px;
+        margin-top: 28px;
+        padding: 18px 20px;
+        border-width: 3px;
+      }
+
+      .artifact::before {
+        top: 18px;
+        right: 18px;
+        width: 52px;
+        height: 52px;
+      }
+
+      .artifact::after {
+        right: -13px;
+        bottom: -13px;
+        width: 68px;
+        height: 68px;
+        border-width: 11px;
+      }
+
+      .artifact span {
+        font-size: 15px;
+      }
+
+      .join-diagram,
+      .cross-diagram,
+      .sql-code,
+      .comparison-list {
+        margin-top: 24px;
+      }
+
+      .table-chip,
+      .cross-chip,
+      .cross-result {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+
+      .join-bar {
+        height: 50px;
+      }
+
+      .join-bar .seg {
+        font-size: 9px;
+      }
+
+      .sql-code {
+        padding: 12px 14px;
+        font-size: 12px;
+        border-left-width: 6px;
+      }
+
+      .comparison-list li {
+        grid-template-columns: 110px 1fr;
+        padding: 9px 12px;
+      }
+
+      .comparison-key,
+      .comparison-val {
+        font-size: 12px;
+      }
+
+      .caption {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        border-top-width: 2px;
+        padding-top: 14px;
+        font-size: 13px;
+      }
+
+      .sequence {
+        font-size: 34px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .slide {
+        padding: 30px 26px 28px;
+      }
+
+      h1 {
+        font-size: 44px;
+      }
+
+      h2 {
+        font-size: 17px;
+      }
+
+      p {
+        font-size: 17px;
+      }
+    }
+
+    @page {
+      size: 1080px 1350px;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        width: var(--page-width);
+        margin: 0;
+        background: #ffffff;
+      }
+
+      .presentation {
+        display: block;
+        padding: 0;
+      }
+
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="presentation" id="presentation" aria-label="SQL JOINs LinkedIn carousel presentation">
+    {% for slide in slides %}
+    {% set theme = ((loop.index0 % 6) + 1) %}
+    <section class="slide slide-{{ theme }}" id="slide-{{ loop.index }}" aria-label="Slide {{ loop.index }} of {{ slides|length }}">
+      <header class="masthead">
+        <div class="series">SQL JOIN Field Guide</div>
+        <div class="folio">{{ "%02d"|format(loop.index) }}</div>
+      </header>
+
+      <div class="poster">
+        <aside class="rail">
+          <div class="tag">{{ slide.category }}</div>
+          <div class="edition">
+            <span></span>
+            {%- if slide.diagram %}
+              {%- if slide.diagram.highlight %}{{ slide.diagram.left }}<br>{{ slide.diagram.right }}
+              {%- elif slide.diagram.result %}{{ slide.diagram.left }}<br>{{ slide.diagram.right }}
+              {%- endif %}
+            {%- elif slide.sql %}SQL<br>Query
+            {%- elif slide.comparison %}Quick<br>Reference
+            {%- else %}{{ slide.category.split(" ")[0] }}<br>{{ slide.category.split(" ")[1:]|join(" ") }}
+            {%- endif %}
+          </div>
+        </aside>
+        <div class="content">
+          <h1>{{ slide.title }}</h1>
+          {% if slide.subtitle %}<h2>{{ slide.subtitle }}</h2>{% endif %}
+          {% if slide.description %}<p>{{ slide.description }}</p>{% endif %}
+
+          {% if slide.diagram %}
+            {% if slide.diagram.highlight %}
+            <div class="join-diagram" aria-hidden="true">
+              <div class="join-tables">
+                <span class="table-chip table-chip-left">{{ slide.diagram.left }}</span>
+                <span class="join-glyph">&#8904;</span>
+                <span class="table-chip table-chip-right">{{ slide.diagram.right }}</span>
+              </div>
+              <div class="join-bar join-highlight-{{ slide.diagram.highlight }}">
+                <div class="seg seg-left"><span>Only {{ slide.diagram.left }}</span></div>
+                <div class="seg seg-mid"><span>Matched</span></div>
+                <div class="seg seg-right"><span>Only {{ slide.diagram.right }}</span></div>
+              </div>
+            </div>
+            {% elif slide.diagram.result %}
+            <div class="cross-diagram" aria-hidden="true">
+              <span class="cross-chip">{{ slide.diagram.left }}</span>
+              <span class="cross-op">&times;</span>
+              <span class="cross-chip">{{ slide.diagram.right }}</span>
+              <span class="cross-eq">=</span>
+              <span class="cross-result">{{ slide.diagram.result }}</span>
+            </div>
+            {% endif %}
+          {% endif %}
+
+          {% if slide.sql %}<pre class="sql-code"><code>{{ slide.sql }}</code></pre>{% endif %}
+
+          {% if slide.comparison %}
+          <ul class="comparison-list">
+            {% for item in slide.comparison %}
+            {% set parts = item.split("→") %}
+            <li>
+              <span class="comparison-key">{{ parts[0].strip() }}</span>
+              <span class="comparison-val">{{ parts[1].strip() if parts|length > 1 else "" }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          {% if not slide.diagram and not slide.sql and not slide.comparison %}
+          <div class="artifact" aria-hidden="true"><span>{{ slide.category }}</span></div>
+          {% endif %}
+        </div>
+      </div>
+
+      <footer class="caption">
+        <div class="source">Wycliffe Peart SQL JOINs</div>
+        <div class="sequence">{{ loop.index }} of {{ slides|length }}</div>
+      </footer>
+    </section>
+    {% endfor %}
+  </main>
+
+  <script>
+    const highlightSql = (source) => {
+      const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const keywords = /\b(SELECT|FROM|WHERE|INNER|LEFT|RIGHT|FULL|OUTER|CROSS|SELF|JOIN|ON|AS|AND|OR)\b/g;
+      const strings = /'(?:\\.|[^'])*'/g;
+      let escaped = escapeHtml(source);
+      escaped = escaped.replace(strings, (match) => `<span class="str">${match}</span>`);
+      escaped = escaped.replace(keywords, (match) => `<span class="kw">${match}</span>`);
+      return escaped;
+    };
+
+    document.querySelectorAll(".sql-code code").forEach((node) => {
+      node.innerHTML = highlightSql(node.textContent);
+    });
+  </script>
+</body>
+</html>

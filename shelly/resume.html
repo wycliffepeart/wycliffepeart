@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Shellyan Thompson | Detective Corporal</title>
+
+  <style>
+    :root {
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --heading: #111827;
+      --accent: #1f4e79;
+      --border: #d8dee6;
+      --background: #f3f5f7;
+      --paper: #ffffff;
+      --table-header: #eef3f8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 16px;
+      background: var(--background);
+      color: var(--text);
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .resume {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 48px 54px;
+      background: var(--paper);
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .resume-header {
+      padding-bottom: 24px;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .name {
+      margin: 0;
+      color: var(--heading);
+      font-size: 34px;
+      line-height: 1.15;
+    }
+
+    .professional-title {
+      margin: 8px 0 16px;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .contact-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-style: normal;
+    }
+
+    .contact-details a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .contact-details a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .contact-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section-title {
+      margin: 0 0 15px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 19px;
+      line-height: 1.25;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .section p {
+      margin: 0 0 12px;
+    }
+
+    .section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .competency-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .competency-table th,
+    .competency-table td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .competency-table th {
+      background: var(--table-header);
+      color: var(--heading);
+      font-size: 13px;
+    }
+
+    .competency-table th:first-child,
+    .competency-table td:first-child {
+      width: 30%;
+      font-weight: 700;
+    }
+
+    .experience-item,
+    .education-item,
+    .course-item {
+      margin-bottom: 25px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .experience-item:last-child,
+    .education-item:last-child,
+    .course-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .course-item {
+      margin-bottom: 16px;
+    }
+
+    .experience-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) max-content;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 3px;
+    }
+
+    .experience-header > div:first-child {
+      min-width: 0;
+    }
+
+    .company-name,
+    .course-item h3,
+    .education-item h3 {
+      margin: 0;
+      color: var(--heading);
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .experience-dates {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .role-title {
+      margin: 2px 0 8px;
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 21px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    .print-button {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      padding: 11px 18px;
+      border: 1px solid rgba(29, 29, 31, 0.1);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.5) 48%, rgba(255, 255, 255, 0.78)),
+        rgba(255, 255, 255, 0.74);
+      color: #0b1220;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.96),
+        inset 0 -2px 0 rgba(10, 132, 255, 0.72),
+        0 12px 30px rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(18px) saturate(180%);
+      overflow: hidden;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .print-button:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.98),
+        inset 0 -2px 0 rgba(10, 132, 255, 0.9),
+        0 16px 34px rgba(15, 23, 42, 0.14);
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 0;
+        background: var(--paper);
+      }
+
+      .resume {
+        padding: 28px 22px;
+        box-shadow: none;
+      }
+
+      .name {
+        font-size: 28px;
+      }
+
+      .experience-header {
+        display: block;
+      }
+
+      .experience-dates {
+        display: block;
+        margin-top: 4px;
+        white-space: normal;
+      }
+
+      .competency-table {
+        table-layout: auto;
+      }
+
+      .competency-table th:first-child,
+      .competency-table td:first-child {
+        width: 36%;
+      }
+
+      .print-button {
+        right: 14px;
+        bottom: 14px;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      body {
+        padding: 0;
+        background: #ffffff;
+        color: #000000;
+        font-size: 10.5pt;
+      }
+
+      .resume {
+        max-width: none;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .name {
+        font-size: 25pt;
+      }
+
+      .professional-title {
+        font-size: 10.5pt;
+      }
+
+      .section {
+        margin-top: 20px;
+      }
+
+      .section-title {
+        font-size: 13.5pt;
+      }
+
+      .experience-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) max-content;
+        align-items: flex-start;
+        gap: 24px;
+      }
+
+      .company-name,
+      .course-item h3,
+      .education-item h3 {
+        font-size: 12.5pt;
+      }
+
+      .role-title {
+        font-size: 11pt;
+      }
+
+      .contact-details,
+      .experience-dates {
+        font-size: 9.5pt;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .print-button {
+        display: none;
+      }
+
+      .experience-item,
+      .education-item,
+      .course-item,
+      .competency-table tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<main class="resume">
+  <header class="resume-header">
+    <h1 class="name">Shellyan Thompson</h1>
+
+    <p class="professional-title">
+      Detective Corporal, Jamaica Constabulary Force
+    </p>
+
+    <address class="contact-details">
+      <span class="contact-item">
+        <strong>Email:</strong>
+        <a href="mailto:shellyan.thompson@jcf.gov.jm">
+          shellyan.thompson@jcf.gov.jm
+        </a>
+      </span>
+
+      <span class="contact-item">
+        <strong>Phone:</strong>
+        <a href="tel:+18765457982">
+          1 (876) 545-7982
+        </a>
+      </span>
+
+      <span class="contact-item">
+        <strong>Location:</strong>
+        Jamaica
+      </span>
+    </address>
+  </header>
+
+  <section class="section">
+    <h2 class="section-title">Overview</h2>
+
+    <p>
+      Detective Corporal with 15 years of service in the Jamaica Constabulary
+      Force, with experience across criminal investigations, intelligence
+      operations, organized crime, counter-terrorism, human trafficking, and
+      international police cooperation.
+    </p>
+
+    <p>
+      Recognized for disciplined case management, evidence handling,
+      inter-agency coordination, and mentoring junior officers while upholding
+      JCF standards of integrity, accountability, and public trust.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Experience</h2>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">
+            National Intelligence Bureau - Manchester Divisional Intelligence
+            Unit (DIU)
+          </h3>
+
+          <p class="role-title">Intelligence Analyst</p>
+        </div>
+
+        <div class="experience-dates">May 2026 - Present</div>
+      </div>
+
+      <ul>
+        <li>
+          Collect, review, and assess multi-source information to support
+          intelligence-led decision-making.
+        </li>
+        <li>
+          Identify patterns, trends, risks, and emerging threats through
+          structured intelligence analysis.
+        </li>
+        <li>
+          Prepare intelligence reports, briefings, and summaries for operational
+          and strategic use.
+        </li>
+        <li>
+          Verify information for accuracy, reliability, and relevance before
+          presenting findings to stakeholders.
+        </li>
+        <li>
+          Monitor criminal activity, security concerns, and persons of interest
+          to support active investigations.
+        </li>
+        <li>
+          Use analytical tools and databases to organize sensitive information,
+          develop actionable insights, and share timely intelligence with
+          investigators, field officers, and partner agencies.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">
+            National Intelligence Bureau - Manchester Divisional Intelligence
+            Unit (DIU)
+          </h3>
+
+          <p class="role-title">Field Intelligence Officer</p>
+        </div>
+
+        <div class="experience-dates">January 2024 - May 2026</div>
+      </div>
+
+      <ul>
+        <li>
+          Identified, recruited, and managed contacts and sources to gather
+          reliable intelligence.
+        </li>
+        <li>
+          Recorded, analyzed, and validated intelligence to ensure accuracy and
+          relevance.
+        </li>
+        <li>
+          Generated intelligence and contact reports targeting gangs,
+          firearms, drugs, human trafficking, corruption, and other criminal
+          activities.
+        </li>
+        <li>
+          Prepared intelligence casings and conducted surveillance to support
+          investigations.
+        </li>
+        <li>
+          Processed Information for Action (IFA) requests and managed
+          intelligence distribution through collection booklets.
+        </li>
+        <li>
+          Maintained confidentiality and adhered to the proper chain of custody
+          for sensitive information.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">
+            Security &amp; Intelligence Branch - INTERPOL
+          </h3>
+
+          <p class="role-title">
+            Desk Liaison Officer &amp; Deputy Security Officer
+          </p>
+        </div>
+
+        <div class="experience-dates">January 2022 - January 2024</div>
+      </div>
+
+      <ul>
+        <li>
+          Acted as a central point of contact and conduit for incoming and
+          outgoing international enquiries received via INTERPOL I/24/7 from
+          other National Central Bureaus.
+        </li>
+        <li>
+          Restored and issued INTERPOL I/24/7 access to vetted government
+          agency staff.
+        </li>
+        <li>
+          Created INTERPOL Notices and conducted criminal investigative checks on
+          INTERPOL I/24/7 databases.
+        </li>
+        <li>
+          Liaised with law enforcement agencies, government agencies, foreign
+          embassies, and other local entities regarding international enquiries.
+        </li>
+        <li>
+          Recorded, updated, and conducted criminal history record checks on CIMS
+          and CYCLOPS databases for persons who are missing, wanted, or of
+          interest.
+        </li>
+        <li>
+          Attended operational meetings and briefings and prepared monthly
+          INTERPOL Productivity Reports (IPR).
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">
+            Counter Terrorism &amp; Organised Crime Investigation Branch
+          </h3>
+
+          <p class="role-title">
+            Senior TIP Investigator, Anti-Trafficking in Persons Unit (a-TIP)
+          </p>
+        </div>
+
+        <div class="experience-dates">November 2010 - December 2021</div>
+      </div>
+
+      <ul>
+        <li>
+          Conducted investigations into serious offences, including human
+          trafficking, human smuggling, sexual offences, child exploitation,
+          gang activities, kidnapping, extortion, fraud, and intellectual
+          property breaches.
+        </li>
+        <li>
+          Arrested and charged suspects for breaches of applicable laws.
+        </li>
+        <li>
+          Recorded witness statements, received complaints and reports, and
+          conducted interviews with witnesses, suspects, and other persons of
+          interest.
+        </li>
+        <li>
+          Conducted covert enquiries, surveillance, searches, and operational
+          activities targeting persons and locations linked to criminal
+          activity.
+        </li>
+        <li>
+          Executed warrants for wanted persons and collaborated on joint
+          investigations with local and international law enforcement partners.
+        </li>
+        <li>
+          Supervised and mentored junior investigators, reviewed cases, and
+          provided taskings.
+        </li>
+        <li>
+          Maintained unit records and conducted island-wide lectures and
+          seminars on human trafficking for JCF members and the wider public.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">Digilab Company Limited</h3>
+          <p class="role-title">Sales Representative</p>
+        </div>
+
+        <div class="experience-dates">June 2009 - June 2010</div>
+      </div>
+
+      <ul>
+        <li>Assisted customers with enquiries and purchases.</li>
+        <li>Operated the cash register and supported procurement of goods.</li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">Breadnut Valley Engineering Institute</h3>
+          <p class="role-title">Assistant Secretary</p>
+        </div>
+
+        <div class="experience-dates">November 2007 - November 2008</div>
+      </div>
+
+      <ul>
+        <li>Addressed trainee inquiries thoroughly and quickly.</li>
+        <li>Drafted correspondence and reports.</li>
+        <li>
+          Performed general office duties, including answering and routing
+          telephone calls or messages to appropriate staff, typing,
+          proofreading, filing, and sorting.
+        </li>
+      </ul>
+    </article>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">Denbigh Primary School</h3>
+          <p class="role-title">Assistant Teacher</p>
+        </div>
+
+        <div class="experience-dates">January 2007 - June 2007</div>
+      </div>
+
+      <ul>
+        <li>Prepared class lesson plans for grade 3 students.</li>
+        <li>Assisted with school fundraising activities.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Education</h2>
+
+    <div class="education-item">
+      <div class="experience-header">
+        <h3>University of the West Indies - St. Andrew, Jamaica</h3>
+        <div class="experience-dates">September 2023 - May 2025</div>
+      </div>
+
+      <p>M.Sc. Management Studies (Project Management)</p>
+    </div>
+
+    <div class="education-item">
+      <div class="experience-header">
+        <h3>Vector Technology Institute, Kingston, Jamaica</h3>
+        <div class="experience-dates">March 2021 - October 2022</div>
+      </div>
+
+      <p>Advanced Diploma, Cybersecurity Analyst</p>
+    </div>
+
+    <div class="education-item">
+      <div class="experience-header">
+        <h3>University of the West Indies - St. Andrew, Jamaica</h3>
+        <div class="experience-dates">September 2012 - February 2018</div>
+      </div>
+
+      <p>B.Sc. Public Sector Management</p>
+    </div>
+
+    <div class="education-item">
+      <div class="experience-header">
+        <h3>Clarendon College, Chapelton, Clarendon</h3>
+        <div class="experience-dates">September 2000 - June 2005</div>
+      </div>
+
+      <p>Caribbean Examinations Council (CXC)</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Professional Development</h2>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>Project Management Institute</h3>
+        <div class="experience-dates">April 2023</div>
+      </div>
+
+      <p>Certified Associate in Project Management (CAPM)</p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>National Intelligence Bureau</h3>
+        <div class="experience-dates">January 2023</div>
+      </div>
+
+      <p>Basic Intelligence Course</p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>FIAPP</h3>
+        <div class="experience-dates">February 2022</div>
+      </div>
+
+      <p>INTERPOL NCBs Case Management Course</p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>United States Department of Homeland Security</h3>
+        <div class="experience-dates">September 2021</div>
+      </div>
+
+      <p>International Taskforce Agent Training</p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>Cisco</h3>
+        <div class="experience-dates">February 2021</div>
+      </div>
+
+      <p>Introduction to Cybersecurity</p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>United States Department of State</h3>
+        <div class="experience-dates">November 2017</div>
+      </div>
+
+      <p>
+        International Visitor Leadership Programme on Combating Human
+        Trafficking
+      </p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>National Police College of Jamaica</h3>
+        <div class="experience-dates">June 2013 and July 2016</div>
+      </div>
+
+      <p>Major Investigations Core Skills, Levels I and II</p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>National Taskforce Against Trafficking in Persons</h3>
+        <div class="experience-dates">August 2015</div>
+      </div>
+
+      <p>
+        Certificate of Participation, Border Control Seminar on Trafficking
+        in Persons: First Responders
+      </p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>Jamaica Customs</h3>
+        <div class="experience-dates">April 2015</div>
+      </div>
+
+      <p>Certificate of Participation, Intellectual Property Rights Training</p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>International IP Crime Investigators College</h3>
+        <div class="experience-dates">November 2013</div>
+      </div>
+
+      <p>
+        Certificate of Professional Studies in the Investigation of
+        Transnational and Organized Intellectual Property Crime
+      </p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>United States Department of Homeland Security</h3>
+        <div class="experience-dates">March 2013</div>
+      </div>
+
+      <p>Trafficking in Persons, Child Exploitation, and Forced Labour Training</p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>International Organization for Migration</h3>
+        <div class="experience-dates">February 2012</div>
+      </div>
+
+      <p>
+        Certificate of Participation, Technical Skills Training on Human
+        Trafficking
+      </p>
+    </div>
+
+    <div class="course-item">
+      <div class="experience-header">
+        <h3>Caribbean Regional Drug Law Enforcement Training Centre</h3>
+        <div class="experience-dates">April 2011</div>
+      </div>
+
+      <p>Certificate in Financial Investigations</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Skills &amp; Attributes</h2>
+
+    <table class="competency-table">
+      <thead>
+      <tr>
+        <th scope="col">Technical and Professional</th>
+        <th scope="col">Attributes</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr>
+        <td>Project management</td>
+        <td>Clear communication</td>
+      </tr>
+      <tr>
+        <td>Cybersecurity analysis</td>
+        <td>Critical thinking</td>
+      </tr>
+      <tr>
+        <td>Linux system navigation (Ubuntu)</td>
+        <td>Team collaboration</td>
+      </tr>
+      <tr>
+        <td>Criminal investigations</td>
+        <td>Methodical casework</td>
+      </tr>
+      <tr>
+        <td>Field intelligence</td>
+        <td>Adaptable</td>
+      </tr>
+      <tr>
+        <td>Data entry and analysis</td>
+        <td>Effective leadership</td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Activities</h2>
+
+    <article class="experience-item">
+      <div class="experience-header">
+        <div>
+          <h3 class="company-name">
+            Rotaract Club of Mandeville
+          </h3>
+
+          <p class="role-title">Public Image Chair, 2025-2026</p>
+        </div>
+      </div>
+
+      <ul>
+        <li>
+          Leads the club's public relations and branding initiatives to
+          strengthen visibility and community impact.
+        </li>
+        <li>
+          Develops and manages content for social media and public platforms to
+          highlight service projects and partnerships.
+        </li>
+        <li>
+          Collaborates with club members and partner organizations, including
+          Rotary and Rotaract Clubs locally and internationally, to promote
+          activities and initiatives.
+        </li>
+      </ul>
+    </article>
+  </section>
+</main>
+
+<button
+  class="print-button"
+  type="button"
+  onclick="window.print()"
+>
+  Print / Save as PDF
+</button>
+</body>
+</html>

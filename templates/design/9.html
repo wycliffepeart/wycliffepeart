@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Wycliffe Peart">
+  <title>SQL JOINs LinkedIn Carousel</title>
+  <style>
+    :root {
+      --page-width: 1080px;
+      --page-height: 1350px;
+      --paper: #f5f1ea;
+      --ink: #171512;
+      --muted: #6f685d;
+      --line: #29251f;
+      --rail: #91adc0;
+      --accent: #b5651d;
+      --shadow: rgba(35, 31, 26, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--rail);
+    }
+
+    body {
+      margin: 0;
+      background: var(--rail);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", Times, serif;
+    }
+
+    .presentation {
+      display: grid;
+      gap: 28px;
+      justify-content: center;
+      padding: 44px;
+    }
+
+    .slide {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      width: min(var(--page-width), calc(100vw - 32px));
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      padding: 96px 92px 78px;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.72), transparent 230px),
+        linear-gradient(180deg, #f8f5ef 0%, var(--paper) 100%);
+      box-shadow: 0 24px 70px var(--shadow);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .slide::before {
+      position: absolute;
+      inset: 44px;
+      border: 1px solid rgba(23, 21, 18, 0.1);
+      content: "";
+      pointer-events: none;
+    }
+
+    .brand,
+    .content,
+    .footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 34px;
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .mark {
+      position: relative;
+      width: 18px;
+      height: 23px;
+      transform: skewY(-24deg);
+    }
+
+    .mark::before,
+    .mark::after {
+      position: absolute;
+      left: 0;
+      width: 18px;
+      height: 6px;
+      background: var(--ink);
+      content: "";
+    }
+
+    .mark::before {
+      top: 3px;
+      box-shadow: 0 8px 0 var(--ink);
+    }
+
+    .mark::after {
+      top: 19px;
+      width: 11px;
+    }
+
+    .content {
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 30px;
+      min-height: 0;
+      padding: 52px 0 34px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 800px;
+      color: var(--ink);
+      font-size: 74px;
+      font-weight: 500;
+      letter-spacing: 0;
+      line-height: 1;
+      text-wrap: balance;
+    }
+
+    h1.h1-long {
+      font-size: 50px;
+      line-height: 1.08;
+    }
+
+    h2 {
+      max-width: 650px;
+      color: var(--ink);
+      font-size: 28px;
+      font-style: italic;
+      font-weight: 400;
+      line-height: 1.25;
+      text-wrap: balance;
+    }
+
+    p {
+      max-width: 560px;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.42;
+      text-wrap: pretty;
+    }
+
+    /* Two-table join diagram */
+    .join-diagram {
+      display: grid;
+      gap: 12px;
+      width: min(560px, 100%);
+    }
+
+    .join-tables {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .table-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(23, 21, 18, 0.22);
+      background: rgba(23, 21, 18, 0.04);
+      padding: 8px 14px;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .join-glyph {
+      color: var(--muted);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .join-bar {
+      display: grid;
+      grid-template-columns: 1fr 0.85fr 1fr;
+      gap: 3px;
+      height: 74px;
+    }
+
+    .join-bar .seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(23, 21, 18, 0.18);
+      background: rgba(23, 21, 18, 0.03);
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-align: center;
+      text-transform: uppercase;
+      opacity: 0.4;
+    }
+
+    .seg-left span,
+    .seg-right span {
+      max-width: 90%;
+    }
+
+    .join-highlight-intersection .seg-mid,
+    .join-highlight-left .seg-left,
+    .join-highlight-left .seg-mid,
+    .join-highlight-right .seg-right,
+    .join-highlight-right .seg-mid,
+    .join-highlight-both .seg {
+      opacity: 1;
+      color: var(--paper);
+    }
+
+    .join-highlight-intersection .seg-mid {
+      border-color: var(--rail);
+      background: var(--rail);
+    }
+
+    .join-highlight-left .seg-left {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .join-highlight-left .seg-mid {
+      border-color: var(--rail);
+      background: var(--rail);
+    }
+
+    .join-highlight-right .seg-right {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .join-highlight-right .seg-mid {
+      border-color: var(--rail);
+      background: var(--rail);
+    }
+
+    .join-highlight-both .seg-left {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .join-highlight-both .seg-mid {
+      border-color: var(--rail);
+      background: var(--rail);
+    }
+
+    .join-highlight-both .seg-right {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    /* Cross join diagram */
+    .cross-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: min(560px, 100%);
+      flex-wrap: wrap;
+    }
+
+    .cross-chip {
+      border: 1px solid rgba(23, 21, 18, 0.22);
+      background: rgba(23, 21, 18, 0.04);
+      padding: 12px 18px;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .cross-op,
+    .cross-eq {
+      color: var(--muted);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .cross-result {
+      border: 1px solid var(--rail);
+      background: rgba(145, 173, 192, 0.22);
+      padding: 12px 18px;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .sql-code {
+      width: min(560px, 100%);
+      border: 1px solid rgba(23, 21, 18, 0.2);
+      border-left: 3px solid var(--rail);
+      background: rgba(23, 21, 18, 0.04);
+      padding: 16px 18px;
+      color: var(--ink);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.5;
+      text-align: left;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .sql-code .kw {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .sql-code .str {
+      color: var(--rail);
+      font-weight: 700;
+    }
+
+    .comparison-list {
+      display: grid;
+      gap: 8px;
+      width: min(560px, 100%);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .comparison-list li {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(23, 21, 18, 0.16);
+      border-left: 3px solid var(--rail);
+      background: rgba(23, 21, 18, 0.03);
+      padding: 10px 14px;
+      text-align: left;
+    }
+
+    .comparison-key {
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .comparison-val {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .footer {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      color: #9c9489;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .footer strong {
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", Times, serif;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    @media (min-width: 1200px) {
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .presentation {
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .slide {
+        padding: 48px 38px 38px;
+      }
+
+      .slide::before {
+        inset: 22px;
+      }
+
+      .brand {
+        font-size: 10px;
+      }
+
+      .content {
+        gap: 17px;
+        padding: 28px 0 18px;
+      }
+
+      .eyebrow {
+        font-size: 11px;
+      }
+
+      h1 {
+        font-size: clamp(34px, 10vw, 58px);
+      }
+
+      h1.h1-long {
+        font-size: clamp(26px, 7.5vw, 40px);
+      }
+
+      h2 {
+        font-size: clamp(17px, 4.8vw, 24px);
+      }
+
+      p {
+        font-size: clamp(14px, 3.8vw, 19px);
+      }
+
+      .table-chip,
+      .cross-chip,
+      .cross-result {
+        font-size: 10px;
+        padding: 7px 10px;
+      }
+
+      .join-bar {
+        height: 52px;
+      }
+
+      .join-bar .seg {
+        font-size: 8px;
+      }
+
+      .sql-code {
+        padding: 10px 12px;
+        font-size: 11px;
+      }
+
+      .comparison-list li {
+        grid-template-columns: 96px 1fr;
+        padding: 8px 10px;
+      }
+
+      .comparison-key {
+        font-size: 9px;
+      }
+
+      .comparison-val {
+        font-size: 12px;
+      }
+
+      .footer {
+        font-size: 9px;
+      }
+    }
+
+    @page {
+      size: 1080px 1350px;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        width: var(--page-width);
+        margin: 0;
+        background: #ffffff;
+      }
+
+      .presentation {
+        display: block;
+        padding: 0;
+      }
+
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="presentation" id="presentation" aria-label="LinkedIn PDF carousel presentation">
+    {% for slide in slides %}
+    <section class="slide" id="slide-{{ loop.index }}" aria-label="Slide {{ loop.index }} of {{ slides|length }}">
+      <header class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <span>Wycliffe Peart</span>
+      </header>
+
+      <div class="content">
+        <p class="eyebrow">{{ slide.category }}</p>
+        {% set title_len = slide.title|length %}
+        <h1 class="{{ 'h1-long' if title_len > 20 else '' }}">{{ slide.title }}</h1>
+        {% if slide.subtitle %}<h2>{{ slide.subtitle }}</h2>{% endif %}
+        {% if slide.description %}<p>{{ slide.description }}</p>{% endif %}
+
+        {% if slide.diagram %}
+          {% if slide.diagram.highlight %}
+          <div class="join-diagram">
+            <div class="join-tables">
+              <span class="table-chip">{{ slide.diagram.left }}</span>
+              <span class="join-glyph">&#8904;</span>
+              <span class="table-chip">{{ slide.diagram.right }}</span>
+            </div>
+            <div class="join-bar join-highlight-{{ slide.diagram.highlight }}">
+              <div class="seg seg-left"><span>Only {{ slide.diagram.left }}</span></div>
+              <div class="seg seg-mid"><span>Matched</span></div>
+              <div class="seg seg-right"><span>Only {{ slide.diagram.right }}</span></div>
+            </div>
+          </div>
+          {% elif slide.diagram.result %}
+          <div class="cross-diagram">
+            <span class="cross-chip">{{ slide.diagram.left }}</span>
+            <span class="cross-op">&times;</span>
+            <span class="cross-chip">{{ slide.diagram.right }}</span>
+            <span class="cross-eq">=</span>
+            <span class="cross-result">{{ slide.diagram.result }}</span>
+          </div>
+          {% endif %}
+        {% endif %}
+
+        {% if slide.sql %}<pre class="sql-code"><code>{{ slide.sql }}</code></pre>{% endif %}
+
+        {% if slide.comparison %}
+        <ul class="comparison-list">
+          {% for item in slide.comparison %}
+          {% set parts = item.split("→") %}
+          <li>
+            <span class="comparison-key">{{ parts[0].strip() }}</span>
+            <span class="comparison-val">{{ parts[1].strip() if parts|length > 1 else "" }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <footer class="footer">
+        <strong>Wycliffe Peart SQL JOINs</strong>
+        <span>{{ "%02d"|format(loop.index) }} / {{ "%02d"|format(slides|length) }} - {{ slide.subtitle if slide.subtitle else slide.category }}</span>
+      </footer>
+    </section>
+    {% endfor %}
+  </main>
+
+  <script>
+    const highlightSql = (source) => {
+      const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const keywords = /\b(SELECT|FROM|WHERE|INNER|LEFT|RIGHT|FULL|OUTER|CROSS|SELF|JOIN|ON|AS|AND|OR)\b/g;
+      const strings = /'(?:\\.|[^'])*'/g;
+      let escaped = escapeHtml(source);
+      escaped = escaped.replace(strings, (match) => `<span class="str">${match}</span>`);
+      escaped = escaped.replace(keywords, (match) => `<span class="kw">${match}</span>`);
+      return escaped;
+    };
+
+    document.querySelectorAll(".sql-code code").forEach((node) => {
+      node.innerHTML = highlightSql(node.textContent);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Wycliffe Peart">
+  <title>SQL JOINs LinkedIn Carousel</title>
+  <style>
+    :root {
+      --page-width: 1080px;
+      --page-height: 1350px;
+      --bg: #07090f;
+      --slide: #0c111b;
+      --slide-2: #121a27;
+      --ink: #f8fafc;
+      --muted: #aeb8ca;
+      --quiet: #748097;
+      --accent: #5eead4;
+      --accent-2: #f8c14a;
+      --code: #020617;
+      --line: rgba(255, 255, 255, 0.12);
+      --shadow: rgba(0, 0, 0, 0.42);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .presentation {
+      display: grid;
+      gap: 28px;
+      justify-content: center;
+      padding: 44px;
+    }
+
+    .slide {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      width: min(var(--page-width), calc(100vw - 32px));
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      padding: 70px 76px 58px;
+      background:
+        radial-gradient(circle at 14% 12%, rgba(94, 234, 212, 0.16), transparent 285px),
+        radial-gradient(circle at 90% 86%, rgba(248, 193, 74, 0.13), transparent 330px),
+        linear-gradient(145deg, var(--slide-2) 0%, #080b12 58%, var(--slide) 100%);
+      box-shadow: 0 26px 80px var(--shadow);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .slide::before {
+      position: absolute;
+      inset: 34px;
+      border: 1px solid var(--line);
+      content: "";
+      pointer-events: none;
+    }
+
+    .slide::after {
+      position: absolute;
+      inset: auto 0 0;
+      height: 10px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      content: "";
+    }
+
+    .brand,
+    .content,
+    .footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand,
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      color: var(--quiet);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.13em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .brand-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mark {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--accent);
+    }
+
+    .mark::before {
+      position: absolute;
+      inset: 4px;
+      background: var(--accent);
+      content: "";
+    }
+
+    .content {
+      display: grid;
+      align-content: center;
+      gap: 24px;
+      min-height: 0;
+      padding: 46px 0 32px;
+    }
+
+    .eyebrow,
+    h1,
+    h2,
+    p,
+    pre {
+      margin: 0;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 900px;
+      color: var(--ink);
+      font-size: 70px;
+      font-weight: 880;
+      letter-spacing: 0;
+      line-height: 0.96;
+      text-wrap: balance;
+    }
+
+    h2 {
+      max-width: 850px;
+      color: var(--accent-2);
+      font-size: 30px;
+      font-weight: 760;
+      line-height: 1.16;
+      text-wrap: balance;
+    }
+
+    .body {
+      max-width: 850px;
+      color: var(--muted);
+      font-size: 23px;
+      line-height: 1.38;
+      text-wrap: pretty;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: start;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.045);
+      padding: 15px;
+    }
+
+    .icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(94, 234, 212, 0.32);
+      background: rgba(94, 234, 212, 0.08);
+      color: var(--accent);
+    }
+
+    .icon svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card h3 {
+      margin: 0 0 5px;
+      color: var(--ink);
+      font-size: 19px;
+      font-weight: 850;
+      line-height: 1.08;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 560;
+      line-height: 1.32;
+    }
+
+    .code {
+      width: min(850px, 100%);
+      border: 1px solid rgba(94, 234, 212, 0.22);
+      background: #0b1020;
+      padding: 18px 20px;
+      color: #d6deeb;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 18px;
+      font-weight: 650;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .token-keyword {
+      color: #c792ea;
+    }
+
+    .token-function {
+      color: #82aaff;
+    }
+
+    .token-string {
+      color: #ecc48d;
+    }
+
+    .token-number {
+      color: #f78c6c;
+    }
+
+    .token-comment {
+      color: #637777;
+      font-style: italic;
+    }
+
+    .token-property {
+      color: #addb67;
+    }
+
+    .token-operator {
+      color: #89ddff;
+    }
+
+    .token-punctuation {
+      color: #89ddff;
+    }
+
+    /* Two-table join diagram */
+    .join-diagram {
+      display: grid;
+      gap: 14px;
+      width: min(850px, 100%);
+    }
+
+    .join-tables {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .table-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px 16px;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .table-chip::before {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      content: "";
+    }
+
+    .table-chip-left::before {
+      background: var(--accent);
+    }
+
+    .table-chip-right::before {
+      background: var(--accent-2);
+    }
+
+    .join-glyph {
+      color: var(--quiet);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .join-bar {
+      display: grid;
+      grid-template-columns: 1fr 0.85fr 1fr;
+      gap: 3px;
+      height: 96px;
+    }
+
+    .join-bar .seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--quiet);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-align: center;
+      text-transform: uppercase;
+      opacity: 0.4;
+    }
+
+    .join-bar .seg span {
+      max-width: 90%;
+    }
+
+    .join-bar .seg-left {
+      border-radius: 10px 0 0 10px;
+    }
+
+    .join-bar .seg-right {
+      border-radius: 0 10px 10px 0;
+    }
+
+    .join-highlight-intersection .seg-mid,
+    .join-highlight-left .seg-left,
+    .join-highlight-left .seg-mid,
+    .join-highlight-right .seg-right,
+    .join-highlight-right .seg-mid,
+    .join-highlight-both .seg {
+      opacity: 1;
+      color: var(--code);
+      border-color: transparent;
+    }
+
+    .join-highlight-intersection .seg-mid,
+    .join-highlight-left .seg-mid,
+    .join-highlight-right .seg-mid,
+    .join-highlight-both .seg-mid {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .join-highlight-left .seg-left,
+    .join-highlight-both .seg-left {
+      background: var(--accent);
+    }
+
+    .join-highlight-right .seg-right,
+    .join-highlight-both .seg-right {
+      background: var(--accent-2);
+    }
+
+    /* Cross join diagram */
+    .cross-diagram {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: min(850px, 100%);
+      flex-wrap: wrap;
+    }
+
+    .cross-chip {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 14px 20px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .cross-op,
+    .cross-eq {
+      color: var(--quiet);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .cross-result {
+      border: 1px solid var(--accent-2);
+      background: rgba(248, 193, 74, 0.12);
+      padding: 14px 22px;
+      color: var(--accent-2);
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .list li {
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, 0.08);
+      padding: 13px 15px;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 680;
+      line-height: 1.25;
+    }
+
+    .list li .comparison-key {
+      color: var(--accent-2);
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .list li .comparison-val {
+      color: var(--muted);
+      font-weight: 560;
+    }
+
+    .table-wrap {
+      width: min(850px, 100%);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: rgba(2, 6, 23, 0.58);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 13px 14px;
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    th {
+      background: rgba(94, 234, 212, 0.12);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .takeaway {
+      border-left: 4px solid var(--accent-2);
+      background: rgba(248, 193, 74, 0.1);
+      padding: 16px 18px;
+      color: #fff2c2;
+      font-size: 22px;
+      font-weight: 760;
+      line-height: 1.28;
+    }
+
+    .footer strong {
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 850;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    @media (min-width: 1200px) {
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .presentation {
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .slide {
+        padding: 42px 32px 34px;
+      }
+
+      .slide::before {
+        inset: 18px;
+      }
+
+      .brand,
+      .footer {
+        font-size: 9px;
+      }
+
+      .content {
+        gap: 13px;
+        padding: 24px 0 18px;
+      }
+
+      .eyebrow {
+        font-size: 10px;
+      }
+
+      h1 {
+        font-size: clamp(30px, 8.5vw, 48px);
+      }
+
+      h2,
+      .body,
+      .takeaway {
+        font-size: clamp(14px, 3.5vw, 19px);
+      }
+
+      .table-chip,
+      .cross-chip,
+      .cross-result {
+        font-size: 11px;
+        padding: 7px 10px;
+      }
+
+      .join-bar {
+        height: 60px;
+      }
+
+      .join-bar .seg {
+        font-size: 8px;
+      }
+
+      .code,
+      table,
+      .list li {
+        font-size: 10px;
+      }
+
+      .code {
+        padding: 10px;
+      }
+
+      th,
+      td {
+        padding: 7px 6px;
+      }
+
+      th {
+        font-size: 8px;
+      }
+    }
+
+    @page {
+      size: 1080px 1350px;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        width: var(--page-width);
+        margin: 0;
+        background: #000000;
+      }
+
+      .presentation {
+        display: block;
+        padding: 0;
+      }
+
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="presentation" id="presentation" aria-label="SQL JOINs carousel">
+    {% for slide in slides %}
+    <section class="slide" id="slide-{{ loop.index }}" aria-label="Slide {{ loop.index }} of {{ slides|length }}">
+      <header class="brand">
+        <span class="brand-left">
+          <span class="mark" aria-hidden="true"></span>
+          <span>Wycliffe Peart</span>
+        </span>
+        <span>{{ "%02d"|format(loop.index) }} / {{ "%02d"|format(slides|length) }}</span>
+      </header>
+
+      <div class="content">
+        <p class="eyebrow">{{ slide.category }}</p>
+        <h1>{{ slide.title }}</h1>
+        {% if slide.subtitle %}<h2>{{ slide.subtitle }}</h2>{% endif %}
+        {% if slide.description %}<p class="body">{{ slide.description }}</p>{% endif %}
+
+        {% if slide.diagram %}
+          {% if slide.diagram.highlight %}
+          <div class="join-diagram">
+            <div class="join-tables">
+              <span class="table-chip table-chip-left">{{ slide.diagram.left }}</span>
+              <span class="join-glyph">⋈</span>
+              <span class="table-chip table-chip-right">{{ slide.diagram.right }}</span>
+            </div>
+            <div class="join-bar join-highlight-{{ slide.diagram.highlight }}">
+              <div class="seg seg-left"><span>Only {{ slide.diagram.left }}</span></div>
+              <div class="seg seg-mid"><span>Matched</span></div>
+              <div class="seg seg-right"><span>Only {{ slide.diagram.right }}</span></div>
+            </div>
+          </div>
+          {% elif slide.diagram.result %}
+          <div class="cross-diagram">
+            <span class="cross-chip">{{ slide.diagram.left }}</span>
+            <span class="cross-op">&times;</span>
+            <span class="cross-chip">{{ slide.diagram.right }}</span>
+            <span class="cross-eq">=</span>
+            <span class="cross-result">{{ slide.diagram.result }}</span>
+          </div>
+          {% endif %}
+        {% endif %}
+
+        {% if slide.sql %}<pre class="code"><code>{{ slide.sql }}</code></pre>{% endif %}
+
+        {% if slide.comparison %}
+        <ul class="list">
+          {% for item in slide.comparison %}
+          {% set parts = item.split("→") %}
+          <li>
+            <span class="comparison-key">{{ parts[0].strip() }}</span>
+            {% if parts|length > 1 %} — <span class="comparison-val">{{ parts[1].strip() }}</span>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <footer class="footer">
+        <strong>Wycliffe Peart SQL JOINs</strong>
+        <span>{{ slide.category }}</span>
+      </footer>
+    </section>
+    {% endfor %}
+  </main>
+
+  <script>
+    const highlightSql = (source) => {
+      const escapeHtml = (value) =>
+        value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const keywords = /\b(SELECT|FROM|WHERE|INNER|LEFT|RIGHT|FULL|OUTER|CROSS|SELF|JOIN|ON|AS|AND|OR)\b/g;
+      const strings = /'(?:\\.|[^'])*'/g;
+
+      let escaped = escapeHtml(source);
+      escaped = escaped.replace(strings, (match) => `<span class="token-string">${match}</span>`);
+      escaped = escaped.replace(keywords, (match) => `<span class="token-keyword">${match}</span>`);
+      escaped = escaped.replace(/\*/g, '<span class="token-function">*</span>');
+      return escaped;
+    };
+
+    document.querySelectorAll(".code code").forEach((node) => {
+      node.innerHTML = highlightSql(node.textContent);
+    });
+  </script>
+</body>
+</html>

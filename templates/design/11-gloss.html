@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Wycliffe Peart">
+  <title>SQL JOINs LinkedIn Carousel</title>
+  <style>
+    :root {
+      --page-width: 1080px;
+      --page-height: 1350px;
+      --paper: #eef7ff;
+      --paper-2: #dcecf8;
+      --ink: #07111f;
+      --muted: #405268;
+      --line: #0f2440;
+      --rail: #9eb8cf;
+      --accent: #0077ff;
+      --accent-2: #00a896;
+      --accent-3: #9d4edd;
+      --accent-soft: rgba(0, 119, 255, 0.16);
+      --border: rgba(255, 255, 255, 0.62);
+      --shadow: rgba(6, 18, 35, 0.24);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--rail);
+    }
+
+    body {
+      margin: 0;
+      background: var(--rail);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", Times, serif;
+    }
+
+    .presentation {
+      display: grid;
+      gap: 28px;
+      justify-content: center;
+      padding: 44px;
+    }
+
+    .slide {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      width: min(var(--page-width), calc(100vw - 32px));
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      padding: 96px 92px 78px;
+      background:
+        linear-gradient(105deg, rgba(255, 255, 255, 0.86) 0 12%, transparent 12.4%),
+        radial-gradient(ellipse at 22% 18%, rgba(255, 255, 255, 0.92) 0 90px, rgba(0, 119, 255, 0.18) 210px, transparent 390px),
+        radial-gradient(ellipse at 78% 28%, rgba(0, 168, 150, 0.24), transparent 310px),
+        radial-gradient(ellipse at 68% 82%, rgba(157, 78, 221, 0.18), transparent 340px),
+        linear-gradient(145deg, #ffffff 0%, var(--paper) 46%, var(--paper-2) 100%);
+      box-shadow:
+        0 30px 82px var(--shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.92),
+        inset 0 -1px 0 rgba(0, 119, 255, 0.08);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .slide::before {
+      position: absolute;
+      inset: 44px;
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.34), transparent 34%),
+        linear-gradient(315deg, rgba(0, 119, 255, 0.08), transparent 42%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.82),
+        inset 0 -1px 0 rgba(7, 17, 31, 0.08);
+      content: "";
+      pointer-events: none;
+    }
+
+    .slide::after {
+      position: absolute;
+      right: 48px;
+      bottom: 46px;
+      width: 260px;
+      height: 260px;
+      border-radius: 999px 999px 32px 999px;
+      background:
+        radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.86) 0 18px, transparent 44px),
+        linear-gradient(145deg, rgba(0, 119, 255, 0.14), rgba(0, 168, 150, 0.1) 48%, rgba(157, 78, 221, 0.12));
+      filter: blur(0.2px);
+      content: "";
+      pointer-events: none;
+    }
+
+    .brand,
+    .content,
+    .footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 34px;
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .mark {
+      position: relative;
+      width: 18px;
+      height: 23px;
+      transform: skewY(-24deg);
+    }
+
+    .mark::before,
+    .mark::after {
+      position: absolute;
+      left: 0;
+      width: 18px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 999px;
+      content: "";
+    }
+
+    .mark::before {
+      top: 3px;
+      box-shadow: 0 8px 0 var(--accent);
+    }
+
+    .mark::after {
+      top: 19px;
+      width: 11px;
+    }
+
+    .content {
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 34px;
+      min-height: 0;
+      padding: 52px 0 34px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--accent);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      line-height: 1;
+      text-transform: uppercase;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.86);
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 800px;
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", Times, serif;
+      font-size: 79px;
+      font-weight: 500;
+      letter-spacing: 0;
+      line-height: 0.98;
+      text-wrap: balance;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.88);
+    }
+
+    h1.title-md {
+      font-size: 62px;
+    }
+
+    h1.title-lg {
+      font-size: 50px;
+    }
+
+    h2 {
+      max-width: 650px;
+      color: #18304c;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 27px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 1.25;
+      text-wrap: balance;
+    }
+
+    p {
+      max-width: 560px;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.42;
+      text-wrap: pretty;
+    }
+
+    .illustration {
+      width: 210px;
+      height: 210px;
+      color: var(--line);
+      filter: drop-shadow(0 18px 28px rgba(0, 119, 255, 0.12));
+    }
+
+    .illustration svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 4.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .illustration .fill {
+      fill: rgba(255, 255, 255, 0.38);
+      stroke: currentColor;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      max-width: 620px;
+    }
+
+    .tags span {
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 999px;
+      padding: 8px 11px 7px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.42)),
+        linear-gradient(135deg, rgba(0, 119, 255, 0.1), rgba(0, 168, 150, 0.08));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 8px 22px rgba(0, 119, 255, 0.12);
+      color: #075dbd;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 1;
+      text-transform: none;
+    }
+
+    /* Join diagram (INNER / LEFT / RIGHT / FULL OUTER) */
+    .join-diagram {
+      display: grid;
+      justify-items: center;
+      gap: 14px;
+      width: min(600px, 100%);
+    }
+
+    .join-tables {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .table-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 999px;
+      padding: 8px 16px 7px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.42)),
+        linear-gradient(135deg, rgba(0, 119, 255, 0.1), rgba(0, 168, 150, 0.08));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 8px 22px rgba(0, 119, 255, 0.12);
+      color: #18304c;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .table-chip::before {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      content: "";
+    }
+
+    .table-chip-left::before {
+      background: var(--accent);
+    }
+
+    .table-chip-right::before {
+      background: var(--accent-2);
+    }
+
+    .join-glyph {
+      color: var(--muted);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .join-bar {
+      display: grid;
+      grid-template-columns: 1fr 0.85fr 1fr;
+      gap: 4px;
+      width: 100%;
+      height: 68px;
+    }
+
+    .join-bar .seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.4);
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-align: center;
+      text-transform: uppercase;
+      opacity: 0.45;
+    }
+
+    .join-diagram-intersection .seg-mid,
+    .join-diagram-left .seg-left,
+    .join-diagram-left .seg-mid,
+    .join-diagram-right .seg-right,
+    .join-diagram-right .seg-mid,
+    .join-diagram-both .seg {
+      opacity: 1;
+      color: #ffffff;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+    }
+
+    .join-diagram-intersection .seg-mid,
+    .join-diagram-left .seg-mid,
+    .join-diagram-right .seg-mid,
+    .join-diagram-both .seg-mid {
+      border-color: var(--accent-3);
+      background: var(--accent-3);
+    }
+
+    .join-diagram-left .seg-left,
+    .join-diagram-both .seg-left {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .join-diagram-right .seg-right,
+    .join-diagram-both .seg-right {
+      border-color: var(--accent-2);
+      background: var(--accent-2);
+    }
+
+    /* Cross join diagram */
+    .cross-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      width: min(600px, 100%);
+    }
+
+    .cross-chip {
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.42));
+      box-shadow: 0 8px 22px rgba(0, 119, 255, 0.12);
+      padding: 12px 18px;
+      color: #18304c;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .cross-op,
+    .cross-eq {
+      color: var(--muted);
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .cross-result {
+      border: 1px solid var(--accent-3);
+      border-radius: 12px;
+      background: rgba(157, 78, 221, 0.14);
+      padding: 12px 20px;
+      color: #5a1f9e;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    /* SQL code block */
+    .sql-code {
+      width: min(700px, 100%);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.56);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+      padding: 16px 20px;
+      color: #18304c;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.5;
+      text-align: left;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .sql-code .kw {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .sql-code .str {
+      color: var(--accent-3);
+      font-weight: 700;
+    }
+
+    /* Comparison list */
+    .comparison-list {
+      display: grid;
+      gap: 10px;
+      width: min(650px, 100%);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .comparison-list li {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent-2);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 11px 16px;
+      text-align: left;
+    }
+
+    .comparison-key {
+      color: #18304c;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .comparison-val {
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .footer {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      color: #4f6278;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .footer strong {
+      color: #007f73;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    @media (min-width: 1200px) {
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .presentation {
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .slide {
+        padding: 48px 38px 38px;
+      }
+
+      .slide::before {
+        inset: 22px;
+      }
+
+      .brand {
+        font-size: 10px;
+      }
+
+      .content {
+        gap: 19px;
+        padding: 28px 0 18px;
+      }
+
+      .eyebrow {
+        font-size: 11px;
+      }
+
+      h1,
+      h1.title-md {
+        font-size: clamp(34px, 10vw, 58px);
+      }
+
+      h1.title-lg {
+        font-size: clamp(28px, 8vw, 46px);
+      }
+
+      h2 {
+        font-size: clamp(17px, 4.8vw, 24px);
+      }
+
+      p {
+        font-size: clamp(14px, 3.8vw, 19px);
+      }
+
+      .illustration {
+        width: 34vw;
+        max-width: 168px;
+        min-width: 112px;
+        height: auto;
+        aspect-ratio: 1;
+      }
+
+      .tags {
+        gap: 7px;
+      }
+
+      .tags span {
+        padding: 6px 8px;
+        font-size: 9px;
+      }
+
+      .join-bar {
+        height: 46px;
+      }
+
+      .join-bar .seg {
+        font-size: 8px;
+      }
+
+      .table-chip,
+      .cross-chip,
+      .cross-result {
+        font-size: 11px;
+        padding: 7px 10px;
+      }
+
+      .sql-code {
+        padding: 10px 12px;
+        font-size: 11px;
+      }
+
+      .comparison-list li {
+        grid-template-columns: 96px 1fr;
+        padding: 8px 10px;
+      }
+
+      .comparison-key,
+      .comparison-val {
+        font-size: 10px;
+      }
+
+      .footer {
+        font-size: 9px;
+      }
+    }
+
+    @page {
+      size: 1080px 1350px;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        width: var(--page-width);
+        margin: 0;
+        background: #ffffff;
+      }
+
+      .presentation {
+        display: block;
+        padding: 0;
+      }
+
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="presentation" id="presentation" aria-label="LinkedIn PDF carousel presentation">
+    {% for slide in slides %}
+    {% set title_len = slide.title|length %}
+    <section class="slide slide-{{ loop.index }}" id="slide-{{ loop.index }}" aria-label="Slide {{ loop.index }} of {{ slides|length }}">
+      <header class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <span>Wycliffe Peart</span>
+      </header>
+
+      <div class="content">
+        <p class="eyebrow">{{ slide.category }}</p>
+        <h1{% if title_len > 24 %} class="title-lg"{% elif title_len > 14 %} class="title-md"{% endif %}>{{ slide.title }}</h1>
+        {% if slide.subtitle %}<h2>{{ slide.subtitle }}</h2>{% endif %}
+
+        {% if slide.diagram %}
+          {% if slide.diagram.highlight %}
+          <div class="join-diagram join-diagram-{{ slide.diagram.highlight }}" aria-hidden="true">
+            <div class="join-tables">
+              <span class="table-chip table-chip-left">{{ slide.diagram.left }}</span>
+              <span class="join-glyph">&#8904;</span>
+              <span class="table-chip table-chip-right">{{ slide.diagram.right }}</span>
+            </div>
+            <div class="join-bar">
+              <span class="seg seg-left">Only {{ slide.diagram.left }}</span>
+              <span class="seg seg-mid">Matched</span>
+              <span class="seg seg-right">Only {{ slide.diagram.right }}</span>
+            </div>
+          </div>
+          {% elif slide.diagram.result %}
+          <div class="cross-diagram" aria-hidden="true">
+            <span class="cross-chip">{{ slide.diagram.left }}</span>
+            <span class="cross-op">&times;</span>
+            <span class="cross-chip">{{ slide.diagram.right }}</span>
+            <span class="cross-eq">=</span>
+            <span class="cross-result">{{ slide.diagram.result }}</span>
+          </div>
+          {% endif %}
+        {% elif not slide.sql and not slide.comparison %}
+        <div class="illustration" aria-hidden="true">
+          <svg viewBox="0 0 220 220">
+            <rect x="46" y="52" width="128" height="116" rx="12" class="fill"/>
+            <path d="M46 88h128M46 124h128"/>
+            <path d="M84 52v116M146 52v116"/>
+          </svg>
+        </div>
+        {% endif %}
+
+        {% if slide.description %}<p>{{ slide.description }}</p>{% endif %}
+
+        {% if slide.sql %}
+        <pre class="sql-code"><code>{{ slide.sql }}</code></pre>
+        {% endif %}
+
+        {% if slide.comparison %}
+        <ul class="comparison-list">
+          {% for item in slide.comparison %}
+          {% set parts = item.split("→") %}
+          <li>
+            <span class="comparison-key">{{ parts[0].strip() }}</span>
+            <span class="comparison-val">{{ parts[1].strip() if parts|length > 1 else "" }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <footer class="footer">
+        <strong>Wycliffe Peart SQL JOINs</strong>
+        <span>{{ "%02d"|format(loop.index) }} / {{ "%02d"|format(slides|length) }} - {{ slide.subtitle if slide.subtitle else slide.category }}</span>
+      </footer>
+    </section>
+    {% endfor %}
+  </main>
+
+  <script>
+    const highlightSql = (source) => {
+      const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const keywords = /\b(SELECT|FROM|WHERE|INNER|LEFT|RIGHT|FULL|OUTER|CROSS|SELF|JOIN|ON|AS|AND|OR)\b/g;
+      const strings = /'(?:\\.|[^'])*'/g;
+      let escaped = escapeHtml(source);
+      escaped = escaped.replace(strings, (match) => `<span class="str">${match}</span>`);
+      escaped = escaped.replace(keywords, (match) => `<span class="kw">${match}</span>`);
+      return escaped;
+    };
+
+    document.querySelectorAll(".sql-code code").forEach((node) => {
+      node.innerHTML = highlightSql(node.textContent);
+    });
+  </script>
+</body>
+</html>

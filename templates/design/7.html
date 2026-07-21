@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Wycliffe Peart">
+  <title>SQL JOINs LinkedIn Carousel</title>
+  <style>
+    :root {
+      --page-width: 1080px;
+      --page-height: 1350px;
+      --white: #ffffff;
+      --soft: rgba(255, 255, 255, 0.78);
+      --blue: #00a8ff;
+      --cyan: #19d8ff;
+      --pink: #ff3f86;
+      --orange: #ff8a2b;
+      --green: #58e08f;
+      --violet: #a86dff;
+      --bg: #03060c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: #181b22;
+    }
+
+    body {
+      margin: 0;
+      background: #181b22;
+      color: var(--white);
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Narrow", Arial, sans-serif;
+    }
+
+    .presentation {
+      display: grid;
+      gap: 32px;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .slide {
+      --accent: var(--blue);
+      --accent-2: var(--pink);
+      --accent-3: var(--orange);
+      position: relative;
+      display: grid;
+      width: min(var(--page-width), calc(100vw - 32px));
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      grid-template-rows: auto 1fr auto;
+      padding: 360px 76px 66px;
+      background:
+        linear-gradient(180deg, rgba(2, 5, 12, 0.04) 0%, rgba(2, 5, 12, 0.36) 33%, rgba(0, 0, 0, 0.92) 76%, #000000 100%),
+        radial-gradient(circle at 88% 16%, rgba(255, 220, 117, 0.9) 0 20px, rgba(255, 85, 72, 0.58) 46px, rgba(0, 172, 255, 0.18) 92px, transparent 148px),
+        radial-gradient(circle at 72% 42%, rgba(74, 155, 255, 0.5) 0 16px, rgba(84, 223, 255, 0.24) 54px, transparent 118px),
+        radial-gradient(circle at 2% 25%, rgba(255, 63, 134, 0.5) 0 42px, transparent 96px),
+        radial-gradient(circle at 61% 31%, rgba(255, 138, 43, 0.28) 0 58px, transparent 120px),
+        linear-gradient(138deg, #081424 0%, #11101d 42%, #05070d 100%);
+      box-shadow: 0 30px 84px rgba(0, 0, 0, 0.48);
+      page-break-after: always;
+      break-after: page;
+      isolation: isolate;
+    }
+
+    .slide::before,
+    .slide::after,
+    .network,
+    .network::before,
+    .network::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .slide::before {
+      inset: 0;
+      background:
+        linear-gradient(25deg, transparent 10%, rgba(0, 168, 255, 0.42) 10.2% 10.5%, transparent 10.7%),
+        linear-gradient(156deg, transparent 17%, rgba(255, 138, 43, 0.33) 17.2% 17.5%, transparent 17.7%),
+        linear-gradient(12deg, transparent 32%, rgba(25, 216, 255, 0.34) 32.2% 32.45%, transparent 32.7%),
+        linear-gradient(144deg, transparent 48%, rgba(255, 63, 134, 0.26) 48.2% 48.5%, transparent 48.7%),
+        linear-gradient(171deg, transparent 57%, rgba(25, 216, 255, 0.42) 57.15% 57.4%, transparent 57.65%),
+        linear-gradient(35deg, transparent 71%, rgba(255, 255, 255, 0.28) 71.15% 71.32%, transparent 71.6%);
+      filter: blur(1px);
+      opacity: 0.95;
+      z-index: -2;
+    }
+
+    .slide::after {
+      inset: 0;
+      background:
+        radial-gradient(circle at 23% 17%, rgba(255, 255, 255, 0.42) 0 3px, transparent 4px),
+        radial-gradient(circle at 55% 27%, rgba(255, 255, 255, 0.28) 0 4px, transparent 5px),
+        radial-gradient(circle at 94% 31%, rgba(255, 255, 255, 0.84) 0 7px, rgba(25, 216, 255, 0.22) 21px, transparent 44px),
+        radial-gradient(circle at 74% 10%, rgba(255, 255, 255, 0.34) 0 4px, transparent 5px),
+        radial-gradient(circle at 18% 50%, rgba(255, 138, 43, 0.28) 0 40px, transparent 78px),
+        radial-gradient(circle at 46% 38%, rgba(255, 255, 255, 0.16) 0 44px, transparent 82px);
+      filter: blur(0.4px);
+      mix-blend-mode: screen;
+      opacity: 0.8;
+      z-index: -1;
+    }
+
+    .network {
+      inset: -40px;
+      background:
+        linear-gradient(22deg, transparent 36%, color-mix(in srgb, var(--accent) 52%, transparent) 36.2% 36.55%, transparent 36.8%),
+        linear-gradient(166deg, transparent 43%, color-mix(in srgb, var(--accent-2) 42%, transparent) 43.15% 43.45%, transparent 43.75%),
+        linear-gradient(7deg, transparent 52%, rgba(255, 255, 255, 0.22) 52.1% 52.28%, transparent 52.45%),
+        linear-gradient(139deg, transparent 63%, color-mix(in srgb, var(--accent-3) 44%, transparent) 63.15% 63.45%, transparent 63.75%);
+      filter: blur(3px);
+      opacity: 0.82;
+      transform: rotate(-3deg) scale(1.05);
+      z-index: -1;
+    }
+
+    .network::before {
+      top: 70px;
+      right: 40px;
+      width: 420px;
+      height: 420px;
+      border: 2px solid rgba(25, 216, 255, 0.34);
+      border-radius: 50%;
+      box-shadow:
+        -310px 130px 0 -170px rgba(255, 63, 134, 0.42),
+        -88px 302px 0 -172px rgba(255, 138, 43, 0.35);
+    }
+
+    .network::after {
+      top: 230px;
+      right: -56px;
+      width: 390px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), var(--accent), transparent);
+      box-shadow:
+        -150px 94px 0 rgba(25, 216, 255, 0.42),
+        -520px -36px 0 rgba(255, 138, 43, 0.3),
+        -420px 230px 0 rgba(255, 255, 255, 0.18);
+      transform: rotate(30deg);
+    }
+
+    .slide-2 {
+      --accent: var(--green);
+      --accent-2: var(--cyan);
+      --accent-3: var(--pink);
+    }
+
+    .slide-3 {
+      --accent: var(--pink);
+      --accent-2: var(--blue);
+      --accent-3: var(--green);
+    }
+
+    .slide-4 {
+      --accent: var(--violet);
+      --accent-2: var(--orange);
+      --accent-3: var(--cyan);
+    }
+
+    .slide-5 {
+      --accent: var(--orange);
+      --accent-2: var(--blue);
+      --accent-3: var(--pink);
+    }
+
+    .slide-6 {
+      --accent: var(--cyan);
+      --accent-2: var(--violet);
+      --accent-3: var(--green);
+    }
+
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .brand,
+    .content,
+    .footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      display: grid;
+      gap: 18px;
+      align-self: start;
+      max-width: 790px;
+      margin-top: -66px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--white);
+      font-size: 50px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      line-height: 0.9;
+    }
+
+    .mark {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      border: 10px solid var(--white);
+      border-left-color: transparent;
+      transform: rotate(45deg);
+    }
+
+    .mark::before {
+      position: absolute;
+      right: -11px;
+      bottom: -11px;
+      width: 24px;
+      height: 24px;
+      background: var(--white);
+      content: "";
+    }
+
+    .subtitle {
+      color: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 52px;
+      font-weight: 300;
+      letter-spacing: 0;
+      line-height: 1;
+    }
+
+    .content {
+      align-self: start;
+      max-width: 930px;
+      padding-top: 18px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      color: var(--white);
+      font-size: 112px;
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 0.92;
+      text-transform: uppercase;
+      text-wrap: balance;
+      text-shadow: 0 5px 22px rgba(0, 0, 0, 0.62);
+    }
+
+    .slide-3 h1,
+    .slide-4 h1,
+    .slide-6 h1 {
+      font-size: 92px;
+      line-height: 0.95;
+    }
+
+    h2 {
+      margin-top: 24px;
+      color: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 46px;
+      font-weight: 400;
+      letter-spacing: 0;
+      line-height: 1.02;
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.72);
+    }
+
+    p {
+      max-width: 760px;
+      margin-top: 28px;
+      color: var(--soft);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 31px;
+      font-weight: 700;
+      line-height: 1.18;
+      text-wrap: pretty;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 13px;
+      margin-top: 38px;
+    }
+
+    .tags span {
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      padding: 10px 14px 9px;
+      background: rgba(0, 0, 0, 0.34);
+      color: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .footer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      min-height: 116px;
+    }
+
+    .meta {
+      color: rgba(255, 255, 255, 0.62);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      line-height: 1.15;
+      text-transform: uppercase;
+    }
+
+    .meta strong {
+      display: block;
+      color: var(--white);
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Narrow", Arial, sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 1;
+    }
+
+    .swipe {
+      color: var(--white);
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      line-height: 1;
+      text-transform: uppercase;
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.62);
+      white-space: nowrap;
+    }
+
+    .swipe::after {
+      display: inline-block;
+      margin-left: 16px;
+      content: "\2192";
+      transform: translateY(-1px);
+    }
+
+    @media (min-width: 1200px) {
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .presentation {
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .slide {
+        width: calc(100vw - 32px);
+        padding: 170px 30px 30px;
+      }
+
+      .brand {
+        gap: 10px;
+        margin-top: -30px;
+      }
+
+      .logo {
+        gap: 10px;
+        font-size: 28px;
+      }
+
+      .mark {
+        width: 30px;
+        height: 30px;
+        border-width: 6px;
+      }
+
+      .mark::before {
+        right: -7px;
+        bottom: -7px;
+        width: 14px;
+        height: 14px;
+      }
+
+      .subtitle {
+        font-size: 28px;
+      }
+
+      .content {
+        padding-top: 8px;
+      }
+
+      h1,
+      .slide-3 h1,
+      .slide-4 h1,
+      .slide-6 h1 {
+        font-size: clamp(44px, 15vw, 72px);
+        line-height: 0.95;
+      }
+
+      h2 {
+        margin-top: 14px;
+        font-size: 23px;
+      }
+
+      p {
+        margin-top: 16px;
+        font-size: 17px;
+      }
+
+      .tags {
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .tags span {
+        padding: 7px 9px;
+        font-size: 10px;
+      }
+
+      .footer {
+        min-height: 58px;
+      }
+
+      .meta {
+        font-size: 10px;
+      }
+
+      .meta strong {
+        font-size: 19px;
+      }
+
+      .swipe {
+        font-size: 25px;
+      }
+
+      .swipe::after {
+        margin-left: 8px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .slide {
+        padding: 136px 24px 24px;
+      }
+
+      h1,
+      .slide-3 h1,
+      .slide-4 h1,
+      .slide-6 h1 {
+        font-size: clamp(36px, 14vw, 54px);
+      }
+
+      .subtitle {
+        font-size: 23px;
+      }
+
+      .swipe {
+        font-size: 20px;
+      }
+    }
+
+    .join-diagram {
+      margin-top: 34px;
+    }
+
+    .join-bar {
+      display: flex;
+      height: 64px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-radius: 12px;
+    }
+
+    .join-zone {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.32);
+    }
+
+    .join-zone.is-on {
+      background: var(--accent);
+      box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.25);
+    }
+
+    .join-zone-mid {
+      border-right: 2px solid rgba(255, 255, 255, 0.35);
+      border-left: 2px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .join-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      color: var(--soft);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .cross-diagram {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 13px;
+      margin-top: 34px;
+    }
+
+    .cross-chip {
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      padding: 10px 14px 9px;
+      background: rgba(0, 0, 0, 0.34);
+      color: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .cross-chip-result {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 38%, rgba(0, 0, 0, 0.34));
+    }
+
+    .cross-op {
+      color: var(--soft);
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .sql-block {
+      margin-top: 30px;
+      padding: 22px 26px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.42);
+      overflow-wrap: break-word;
+      color: var(--white);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .sql-block .kw {
+      color: var(--cyan);
+      font-weight: 800;
+    }
+
+    .sql-block .str {
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    .comparison-list {
+      display: grid;
+      gap: 10px;
+      margin: 30px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .comparison-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.28);
+    }
+
+    .comparison-list li strong {
+      min-width: 110px;
+      color: var(--accent);
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Narrow", Arial, sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .comparison-list li span {
+      color: var(--soft);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 760px) {
+      .join-bar {
+        height: 40px;
+      }
+
+      .join-labels {
+        margin-top: 8px;
+        font-size: 13px;
+      }
+
+      .cross-diagram {
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .cross-chip {
+        padding: 7px 9px;
+        font-size: 10px;
+      }
+
+      .cross-op {
+        font-size: 16px;
+      }
+
+      .sql-block {
+        margin-top: 16px;
+        padding: 12px 14px;
+        font-size: 12px;
+      }
+
+      .comparison-list {
+        gap: 6px;
+        margin-top: 16px;
+      }
+
+      .comparison-list li {
+        padding: 8px 10px;
+      }
+
+      .comparison-list li strong {
+        min-width: 74px;
+        font-size: 17px;
+      }
+
+      .comparison-list li span {
+        font-size: 13px;
+      }
+    }
+
+    @page {
+      size: 1080px 1350px;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        width: var(--page-width);
+        margin: 0;
+        background: #ffffff;
+      }
+
+      .presentation {
+        display: block;
+        padding: 0;
+      }
+
+      .slide {
+        width: var(--page-width);
+        height: var(--page-height);
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="presentation" id="presentation" aria-label="LinkedIn PDF carousel presentation">
+    {% for slide in slides %}
+    {% set color_n = ((loop.index0 % 6) + 1) %}
+    <section class="slide slide-{{ color_n }}" id="slide-{{ loop.index }}" aria-label="Slide {{ loop.index }} of {{ slides|length }}">
+      <div class="network" aria-hidden="true"></div>
+      <header class="brand">
+        <div class="logo" aria-label="Author: Wycliffe Peart">Wycliffe Peart <span class="mark" aria-hidden="true"></span></div>
+        <div class="subtitle">SQL JOINs Field Guide</div>
+      </header>
+
+      <div class="content">
+        <h1>{{ slide.title }}</h1>
+        {% if slide.subtitle %}<h2>{{ slide.subtitle }}</h2>{% endif %}
+        {% if slide.description %}<p>{{ slide.description }}</p>{% endif %}
+
+        {% if slide.diagram %}
+          {% if slide.diagram.highlight %}
+          <div class="join-diagram" aria-label="{{ slide.diagram.left }} and {{ slide.diagram.right }} join diagram">
+            <div class="join-bar">
+              <div class="join-zone join-zone-left{% if slide.diagram.highlight in ['left', 'both'] %} is-on{% endif %}"></div>
+              <div class="join-zone join-zone-mid is-on"></div>
+              <div class="join-zone join-zone-right{% if slide.diagram.highlight in ['right', 'both'] %} is-on{% endif %}"></div>
+            </div>
+            <div class="join-labels">
+              <span>{{ slide.diagram.left }}</span>
+              <span>{{ slide.diagram.right }}</span>
+            </div>
+          </div>
+          {% elif slide.diagram.result %}
+          <div class="cross-diagram" aria-label="{{ slide.diagram.left }} cross join {{ slide.diagram.right }} equals {{ slide.diagram.result }}">
+            <span class="cross-chip">{{ slide.diagram.left }}</span>
+            <span class="cross-op">&times;</span>
+            <span class="cross-chip">{{ slide.diagram.right }}</span>
+            <span class="cross-op">=</span>
+            <span class="cross-chip cross-chip-result">{{ slide.diagram.result }}</span>
+          </div>
+          {% endif %}
+        {% endif %}
+
+        {% if slide.sql %}
+        <div class="sql-block"><code>{{ slide.sql }}</code></div>
+        {% endif %}
+
+        {% if slide.comparison %}
+        <ul class="comparison-list" aria-label="JOIN comparison">
+          {% for item in slide.comparison %}
+          {% set parts = item.split("→") %}
+          <li><strong>{{ parts[0].strip() }}</strong><span>{{ parts[1].strip() }}</span></li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <footer class="footer">
+        <div class="meta"><strong>{{ "%02d"|format(loop.index) }} / {{ "%02d"|format(slides|length) }}</strong>{{ slide.category }}</div>
+        <div class="swipe">Swipe</div>
+      </footer>
+    </section>
+    {% endfor %}
+  </main>
+
+  <script>
+    const highlightSql = (source) => {
+      const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const keywords = /\b(SELECT|FROM|WHERE|INNER|LEFT|RIGHT|FULL|OUTER|CROSS|SELF|JOIN|ON|AS|AND|OR)\b/g;
+      const strings = /'(?:\\.|[^'])*'/g;
+      let escaped = escapeHtml(source);
+      escaped = escaped.replace(strings, (match) => `<span class="str">${match}</span>`);
+      escaped = escaped.replace(keywords, (match) => `<span class="kw">${match}</span>`);
+      return escaped;
+    };
+
+    document.querySelectorAll(".sql-block code").forEach((node) => {
+      node.innerHTML = highlightSql(node.textContent);
+    });
+  </script>
+</body>
+</html>
