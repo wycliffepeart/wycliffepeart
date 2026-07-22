@@ -46,14 +46,14 @@ class CliTests(unittest.TestCase):
             ],
             "status": "draft",
             "markdown": (
-                "app/blog/linkedin/posts/2026/07/"
+                "workspace/blog/linkedin/posts/2026/07/"
                 "2026-07-21-020304-focused-reviews-catch-risk-earlier.md"
             ),
             "body": "Good reviews start with the risk in the change.\n\n#SoftwareQuality #CodeReview",
         }
 
     def write_post_markdown(self, root: Path, *, status: str = "draft") -> Path:
-        post_path = root / "app/blog/linkedin/posts/2026/07/2026-07-21-020304-focused-reviews-catch-risk-earlier.md"
+        post_path = root / "workspace/blog/linkedin/posts/2026/07/2026-07-21-020304-focused-reviews-catch-risk-earlier.md"
         post_path.parent.mkdir(parents=True)
         post_path.write_text(
             f"""---
@@ -120,7 +120,7 @@ Good reviews start with the risk in the change.
         return Args(**values)
 
     def write_posts_index(self, root: Path, posts: list[dict]) -> Path:
-        index_path = root / "app/blog/linkedin/posts.json"
+        index_path = root / "workspace/blog/linkedin/posts.json"
         index_path.parent.mkdir(parents=True, exist_ok=True)
         index_path.write_text(
             json.dumps({"version": 1, "updatedAt": "2026-07-21T02:03:04Z", "posts": posts}),
@@ -132,7 +132,7 @@ Good reviews start with the risk in the change.
         prompt = build_codex_prompt("write linkedin post about idempotency, respond in json")
 
         self.assertIn("Respond only with a valid JSON object.", prompt)
-        self.assertIn("- markdown: string, a path under app/blog/linkedin/posts/YYYY/MM/", prompt)
+        self.assertIn("- markdown: string, a path under workspace/blog/linkedin/posts/YYYY/MM/", prompt)
         self.assertIn("- body: string, the complete LinkedIn post body", prompt)
         self.assertIn("- status: string, use pending for new generated posts.", prompt)
         self.assertNotIn('"id": "fcb42734-4061-4c59-9ba4-1dac78106270"', prompt)
@@ -155,7 +155,7 @@ Good reviews start with the risk in the change.
     def test_persist_post_response_writes_markdown_and_updates_index(self):
         with tempfile.TemporaryDirectory() as workspace:
             root = Path(workspace)
-            index_path = root / "app/blog/linkedin/posts.json"
+            index_path = root / "workspace/blog/linkedin/posts.json"
             index_path.parent.mkdir(parents=True)
             index_path.write_text(
                 json.dumps({"version": 1, "updatedAt": "2026-07-21T01:00:00Z", "posts": []}),
@@ -215,7 +215,7 @@ Good reviews start with the risk in the change.
             existing_entry = post_index_entry(duplicate_response)
             existing_entry["id"] = "7a87ef2b-c639-4c37-a783-b48b7b5f0a86"
             existing_entry["markdown"] = (
-                "app/blog/linkedin/posts/2026/07/"
+                "workspace/blog/linkedin/posts/2026/07/"
                 "2026-07-21-015959-focused-reviews-catch-risk-earlier.md"
             )
             index_path = self.write_posts_index(root, [existing_entry])
@@ -232,7 +232,7 @@ Good reviews start with the risk in the change.
                     "excerpt": "Useful defaults make automation easier by reducing repeat decisions while preserving room for human judgment.",
                     "tags": ["workflow-automation", "developer-productivity", "systems-thinking"],
                     "markdown": (
-                        "app/blog/linkedin/posts/2026/07/"
+                        "workspace/blog/linkedin/posts/2026/07/"
                         "2026-07-21-020405-useful-defaults-make-automation-easier.md"
                     ),
                     "body": "Useful defaults make automation easier.\n\n#WorkflowAutomation",
@@ -309,7 +309,7 @@ Good reviews start with the risk in the change.
         with tempfile.TemporaryDirectory() as workspace:
             root = Path(workspace)
             response = self.post_response()
-            index_path = root / "app/blog/linkedin/posts.json"
+            index_path = root / "workspace/blog/linkedin/posts.json"
             index_path.parent.mkdir(parents=True)
             index_path.write_text(
                 json.dumps(

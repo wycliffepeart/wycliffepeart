@@ -1,11 +1,17 @@
 locals {
-  # site/out is the merged output of `wp build`: the Next.js static export
-  # (index.html, resume.html, blog/index.html, _next/**) plus the content
-  # directories that live in app/ (assets, the LinkedIn draft pipeline, and
-  # the generated SQL/joins post) copied in by scripts/site_build.py. Run
+  # out/ is the Next.js static export produced by `wp build` (next.config.ts
+  # sets output: "export", trailingSlash: true). scripts/site_build.py
+  # additionally copies index.html -> profile.html (legacy duplicate key)
+  # and flattens resume/index.html -> resume.html to match the site's own
+  # relative links, and copies workspace/resume.pdf in as resume.pdf. Run
   # `wp build` (or `wp deploy`, which does this automatically) before
   # `terraform plan`/`apply`.
-  source_root = abspath("${path.module}/../site/out")
+  #
+  # Blog posts are native Next.js MDX pages (content/blog/*.mdx), so every
+  # post's out/blog/<slug>/index.html is already part of this export - no
+  # separate content merge step, and no Terraform change needed to deploy a
+  # new post.
+  source_root = abspath("${path.module}/../out")
 
   configured_custom_domains = length(var.custom_domain_names) > 0 ? var.custom_domain_names : compact([var.custom_domain_name])
   custom_domain_names       = distinct(local.configured_custom_domains)
@@ -21,41 +27,41 @@ locals {
     }
   }
 
-  html_files = {
-    "index.html"      = "${local.source_root}/index.html"
-    "profile.html"    = "${local.source_root}/profile.html"
-    "resume.html"     = "${local.source_root}/resume.html"
-    "blog/index.html" = "${local.source_root}/blog/index.html"
+  # `next build` also writes RSC prefetch payload files (*.txt, __next.*)
+  # alongside each route's index.html, plus /404 and /_not-found export
+  # artifacts. This site hard-navigates with plain <a> tags instead of
+  # next/link, so those payloads are never fetched by the browser and are
+  # deliberately excluded here - only HTML documents, the Next.js JS/CSS
+  # chunks, and known top-level files are deployed.
+  all_output_files = fileset(local.source_root, "**")
+
+  deployable_files = toset([
+    for f in local.all_output_files : f
+    if(
+      (
+        endswith(f, ".html") ||
+        startswith(f, "_next/") ||
+        startswith(f, "assets/") ||
+        f == "favicon.ico" ||
+        f == "resume.pdf"
+      ) &&
+      !startswith(f, "404/") &&
+      !startswith(f, "_not-found/")
+    )
+  ])
+
+  site_files = {
+    for f in local.deployable_files : f => "${local.source_root}/${f}"
   }
 
-  optional_files = fileexists("${local.source_root}/resume.pdf") ? {
-    "resume.pdf" = "${local.source_root}/resume.pdf"
-  } : {}
+  # HTML documents change on every deploy and must never be served stale.
+  # Everything else (content-hashed _next/ chunks, images, the resume PDF)
+  # is safe to cache immutably.
+  html_keys = toset([for f in local.deployable_files : f if endswith(f, ".html")])
 
-  asset_files = {
-    for asset_path in fileset("${local.source_root}/assets", "**") :
-    "assets/${asset_path}" => "${local.source_root}/assets/${asset_path}"
+  content_dispositions = {
+    "resume.pdf" = "attachment; filename=\"Wycliffe-Peart-Resume.pdf\""
   }
-
-  # The Next.js build's JS/CSS chunks. Filenames are content-hashed by Next,
-  # so these are safe to cache immutably like asset_files below.
-  next_static_files = {
-    for next_path in fileset("${local.source_root}/_next", "**") :
-    "_next/${next_path}" => "${local.source_root}/_next/${next_path}"
-  }
-
-  # Blog content, including per-post pages and the LinkedIn draft pipeline
-  # material, changes frequently and is served with the same no-cache
-  # behavior as html_files rather than the long-lived asset cache below.
-  # (blog/index.html itself is excluded here - it's covered by html_files -
-  # since site/out/blog only contains the passthrough content directories.)
-  blog_files = {
-    for blog_path in fileset("${local.source_root}/blog", "**") :
-    "blog/${blog_path}" => "${local.source_root}/blog/${blog_path}"
-    if blog_path != "index.html"
-  }
-
-  site_files = merge(local.html_files, local.optional_files, local.asset_files, local.next_static_files, local.blog_files)
 
   content_types = {
     html = "text/html; charset=utf-8"
@@ -71,10 +77,6 @@ locals {
     webp = "image/webp"
     svg  = "image/svg+xml"
     ico  = "image/x-icon"
-  }
-
-  content_dispositions = {
-    "resume.pdf" = "attachment; filename=\"Wycliffe-Peart-Resume.pdf\""
   }
 }
 
@@ -147,7 +149,7 @@ resource "aws_s3_object" "site_files" {
   etag                = filemd5(each.value)
   content_type        = lookup(local.content_types, lower(regex("[^.]+$", each.key)), "application/octet-stream")
   content_disposition = lookup(local.content_dispositions, each.key, null)
-  cache_control = contains(keys(local.html_files), each.key) || contains(keys(local.blog_files), each.key) ? (
+  cache_control = contains(local.html_keys, each.key) ? (
     "no-cache, no-store, must-revalidate"
   ) : "public, max-age=31536000, immutable"
 
@@ -199,17 +201,20 @@ resource "aws_cloudfront_response_headers_policy" "site_security" {
   }
 }
 
-resource "aws_cloudfront_function" "blog_index_rewrite" {
-  name    = "${var.site_bucket_name}-blog-index-rewrite"
+resource "aws_cloudfront_function" "directory_index_rewrite" {
+  name    = "${var.site_bucket_name}-directory-index-rewrite"
   runtime = "cloudfront-js-2.0"
-  comment = "Rewrite clean blog paths to the blog index object"
+  comment = "Append index.html to directory-style requests (every route, including blog posts)"
   publish = true
   code    = <<-EOT
 function handler(event) {
   var request = event.request;
+  var uri = request.uri;
 
-  if (request.uri === "/blog" || request.uri === "/blog/") {
-    request.uri = "/blog/index.html";
+  if (uri.endsWith("/")) {
+    request.uri = uri + "index.html";
+  } else if (!uri.includes(".")) {
+    request.uri = uri + "/index.html";
   }
 
   return request;
@@ -241,7 +246,7 @@ resource "aws_cloudfront_distribution" "site" {
 
     function_association {
       event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.blog_index_rewrite.arn
+      function_arn = aws_cloudfront_function.directory_index_rewrite.arn
     }
 
     forwarded_values {

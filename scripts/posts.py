@@ -35,7 +35,7 @@ POST_RESPONSE_EXAMPLE = {
         "reliability-engineering",
     ],
     "status": "pending",
-    "markdown": "app/blog/linkedin/posts/2026/07/2026-07-21-011946-idempotency-turns-retries-into-safety.md",
+    "markdown": "workspace/blog/linkedin/posts/2026/07/2026-07-21-011946-idempotency-turns-retries-into-safety.md",
     "body": (
         "Retries are only safe when repeating the request does not repeat the damage.\n\n"
         "Backend systems rely on retries everywhere...\n\n"
@@ -45,8 +45,8 @@ POST_RESPONSE_EXAMPLE = {
 
 POST_INDEX_KEYS = tuple(key for key in POST_RESPONSE_EXAMPLE if key != "body")
 POST_RESPONSE_REQUIRED_KEYS = tuple(POST_RESPONSE_EXAMPLE.keys())
-POST_INDEX_PATH = Path("app/blog/linkedin/posts.json")
-POST_MARKDOWN_ROOT = Path("app/blog/linkedin/posts")
+POST_INDEX_PATH = Path("workspace/blog/linkedin/posts.json")
+POST_MARKDOWN_ROOT = Path("workspace/blog/linkedin/posts")
 PENDING_STATUS = "pending"
 PULL_REQUEST_STATUS = "PR"
 CODEX_POST_RETRIES_ENV = "WP_CODEX_POST_RETRIES"
@@ -65,7 +65,7 @@ The JSON object must use exactly these keys and value types:
 - excerpt: string, a concise summary of the generated post.
 - tags: array of strings, generated from the requested post topic.
 - status: string, use pending for new generated posts.
-- markdown: string, a path under app/blog/linkedin/posts/YYYY/MM/ using date, time, and slug.
+- markdown: string, a path under workspace/blog/linkedin/posts/YYYY/MM/ using date, time, and slug.
 - body: string, the complete LinkedIn post body without front matter or title heading.
 
 Generate fresh values for every request. Do not copy sample or placeholder content.
@@ -110,7 +110,7 @@ Regenerate the post for retry attempt {attempt} of {max_attempts}. Use a differe
 topic angle, hook, id, slug, createdAt timestamp, markdown path, body, and hashtags.
 Fix the validation error above. The id must be a canonical UUID v4 string.
 Do not reuse the failed slug, failed markdown path, or any existing slug in
-app/blog/linkedin/posts.json.
+workspace/blog/linkedin/posts.json.
 """
     return f"{prompt.rstrip()}{retry_instructions}"
 
@@ -237,7 +237,7 @@ def validate_markdown_path(value: dict) -> Path:
             expected_parent,
         )
         raise CodexJsonError(
-            "Codex response field 'markdown' must be under app/blog/linkedin/posts/YYYY/MM/."
+            "Codex response field 'markdown' must be under workspace/blog/linkedin/posts/YYYY/MM/."
         )
 
     time_part = value["createdAt"][11:13] + value["createdAt"][14:16] + value["createdAt"][17:19]
@@ -303,10 +303,10 @@ def load_posts_index(path: Path) -> dict:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
         LOGGER.error("Posts index root is invalid: path=%s type=%s", path, type(value).__name__)
-        raise CodexJsonError("app/blog/linkedin/posts.json must contain a JSON object.")
+        raise CodexJsonError("workspace/blog/linkedin/posts.json must contain a JSON object.")
     if not isinstance(value.get("posts"), list):
         LOGGER.error("Posts index posts field is invalid: path=%s type=%s", path, type(value.get("posts")).__name__)
-        raise CodexJsonError("app/blog/linkedin/posts.json must contain a posts array.")
+        raise CodexJsonError("workspace/blog/linkedin/posts.json must contain a posts array.")
     LOGGER.info(
         "Loaded posts index: path=%s version=%s updatedAt=%s postCount=%s",
         path,
@@ -611,7 +611,7 @@ def is_retryable_generated_post_error(error: CodexJsonError) -> bool:
             "Codex response fields 'createdAt' and 'date' must refer to the same date.",
             "Codex response field 'body' must not be empty.",
             "Codex response field 'markdown' must be a safe relative path.",
-            "Codex response field 'markdown' must be under app/blog/linkedin/posts/YYYY/MM/.",
+            "Codex response field 'markdown' must be under workspace/blog/linkedin/posts/YYYY/MM/.",
             "Codex response field 'markdown' must use YYYY-MM-DD-HHMMSS-<slug>.md.",
             "Post id already exists:",
             "Post slug already exists:",

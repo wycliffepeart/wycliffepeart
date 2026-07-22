@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Build the Next.js site and merge it with the content directories that
-live in app/ (assets, the LinkedIn draft pipeline, and generated posts) into
-one deployable static directory at site/out/.
+"""Build the Next.js site (a static export) into out/ and copy in
+workspace/resume.pdf, the one piece of deploy output the Next.js build
+doesn't produce itself.
 
-The Next.js app and the content pipeline are kept in separate directories on
-purpose: scripts/posts.py and scripts/linkedin_carousel.py hardcode paths
-under app/blog/ (including inside LLM-facing validation strings), so that
-content can't move. This module is the one place that knows both halves of
-the site.
+The blog is native Next.js MDX pages (content/blog/*.mdx via src/lib/blog.ts)
+and images live in public/, so both are already part of `next build`'s
+output. workspace/blog/ remains the Python content/LinkedIn draft pipeline's
+storage location - scripts/posts.py and scripts/linkedin_carousel.py hardcode
+paths under it (including inside LLM-facing validation strings) - but it is
+no longer merged into the deployed site.
 """
 
 from __future__ import annotations
@@ -17,13 +18,12 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SITE_DIR = ROOT / "site"
-APP_DIR = ROOT / "app"
-OUT_DIR = SITE_DIR / "out"
+WORKSPACE_DIR = ROOT / "workspace"
+OUT_DIR = ROOT / "out"
 
 
 def build_next_app() -> None:
-    subprocess.run(["npm", "run", "build"], cwd=SITE_DIR, check=True)
+    subprocess.run(["npm", "run", "build"], cwd=ROOT, check=True)
 
 
 def normalize_html_output() -> None:
@@ -45,36 +45,20 @@ def normalize_html_output() -> None:
         shutil.rmtree(resume_dir)
 
 
-def copy_content_directories() -> None:
-    """Copy the content app/ owns (assets, blog content) into the merged
-    output. Excludes resume.pdf, which is handled separately since deploy
-    regenerates it after the resume page is built."""
-    assets_dir = APP_DIR / "assets"
-
-    if assets_dir.exists():
-        shutil.copytree(assets_dir, OUT_DIR / "assets", dirs_exist_ok=True)
-
-    blog_dir = APP_DIR / "blog"
-
-    if blog_dir.exists():
-        shutil.copytree(blog_dir, OUT_DIR / "blog", dirs_exist_ok=True)
-
-
 def copy_resume_pdf() -> None:
-    resume_pdf = APP_DIR / "resume.pdf"
+    resume_pdf = WORKSPACE_DIR / "resume.pdf"
 
     if resume_pdf.exists():
         shutil.copy2(resume_pdf, OUT_DIR / "resume.pdf")
 
 
 def build_site() -> Path:
-    """Full local-preview build: Next.js build, normalize, copy content, and
-    carry over whatever resume.pdf currently exists in app/ (not
-    regenerated here - see deploy() in scripts/cli.py for the deploy-time
-    sequencing that regenerates it from the freshly built resume page)."""
+    """Full local-preview build: Next.js build, normalize, and carry over
+    whatever resume.pdf currently exists in workspace/ (not regenerated here - see
+    deploy() in scripts/cli.py for the deploy-time sequencing that
+    regenerates it from the freshly built resume page)."""
     build_next_app()
     normalize_html_output()
-    copy_content_directories()
     copy_resume_pdf()
     return OUT_DIR
 

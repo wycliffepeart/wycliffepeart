@@ -23,14 +23,14 @@ jobs:
 
       - name: Ensure content directories exist
         run: |
-          mkdir -p app/blog/linkedin/posts
-          if [ ! -f app/blog/linkedin/posts.json ]; then
+          mkdir -p workspace/blog/linkedin/posts
+          if [ ! -f workspace/blog/linkedin/posts.json ]; then
             printf '%s\n' \
               '{' \
               '  "version": 1,' \
               '  "updatedAt": null,' \
               '  "posts": []' \
-              '}' > app/blog/linkedin/posts.json
+              '}' > workspace/blog/linkedin/posts.json
           fi
 
       - name: Load Codex instructions

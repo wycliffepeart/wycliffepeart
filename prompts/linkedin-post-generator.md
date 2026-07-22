@@ -7,10 +7,10 @@ Repository Structure
 ====================================================================
 
 Index:
-app/blog/linkedin/posts.json
+workspace/blog/linkedin/posts.json
 
 Markdown root:
-app/blog/linkedin/posts/
+workspace/blog/linkedin/posts/
 
 ====================================================================
 Existing Content
@@ -18,7 +18,7 @@ Existing Content
 
 Before generating anything:
 
-1. Read app/blog/linkedin/posts.json.
+1. Read workspace/blog/linkedin/posts.json.
 2. Inspect previous posts.
 3. Avoid duplicate:
    - topics
@@ -105,7 +105,7 @@ Markdown
 
 Create:
 
-app/blog/linkedin/posts/YYYY/MM/YYYY-MM-DD-HHMMSS-<slug>.md
+workspace/blog/linkedin/posts/YYYY/MM/YYYY-MM-DD-HHMMSS-<slug>.md
 
 Format:
 
@@ -128,7 +128,7 @@ tags:
 JSON
 ====================================================================
 
-Append ONE object to app/blog/linkedin/posts.json:
+Append ONE object to workspace/blog/linkedin/posts.json:
 
 {
   "id":"",
@@ -140,7 +140,7 @@ Append ONE object to app/blog/linkedin/posts.json:
   "excerpt":"",
   "tags":[],
   "status":"draft",
-  "markdown":"app/blog/linkedin/posts/YYYY/MM/file.md"
+  "markdown":"workspace/blog/linkedin/posts/YYYY/MM/file.md"
 }
 
 Update updatedAt.

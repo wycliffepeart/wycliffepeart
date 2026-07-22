@@ -2,13 +2,12 @@
 
 This Terraform configuration deploys the profile site to a private S3 bucket and serves it through CloudFront over HTTPS.
 
-The site is a Next.js app (`site/`) built as a static export and merged with
-the content directories in `app/` (assets, the LinkedIn draft pipeline, and
-generated posts) by `wp build`. Terraform uploads from the merged output at
-`site/out/`, so run `wp build` (or `wp deploy`, which does this
-automatically) before `terraform plan`/`apply` when using Terraform directly.
-Run `wp` from the project root. Run direct Terraform commands from this
-`terraform` directory.
+The site is a Next.js app at the project root, built as a static export by
+`wp build` (`next build`, since `next.config.ts` sets `output: "export"`).
+Terraform uploads from the build output at `out/`, so run `wp build` (or
+`wp deploy`, which does this automatically) before `terraform plan`/`apply`
+when using Terraform directly. Run `wp` from the project root. Run direct
+Terraform commands from this `terraform` directory.
 
 ## AWS SSO Setup
 
@@ -52,7 +51,7 @@ wp deploy
 ```
 
 Use direct Terraform commands only for targeted infrastructure operations or
-debugging. Run `wp build` first so `site/out/` is up to date.
+debugging. Run `wp build` first so `out/` is up to date.
 
 ```sh
 wp build
@@ -61,24 +60,23 @@ terraform plan
 terraform apply
 ```
 
-Terraform uploads, from `site/out/`:
+Terraform uploads every HTML document, `_next/` chunk, and `assets/` file from
+`out/`, plus the top-level `favicon.ico` and `resume.pdf` when present. Next's
+RSC prefetch payload files (`*.txt`, `__next.*`) and the `/404` and
+`/_not-found` export artifacts are excluded - this site hard-navigates with
+plain `<a>` tags instead of `next/link`, so the browser never fetches those
+payloads. Because the selection is a filter over the whole export rather than
+a hand-picked file list, adding a new MDX blog post under `content/blog/` and
+running `wp deploy` is enough to publish it - no Terraform changes needed.
 
-- `index.html` as `index.html`
-- `profile.html` as `profile.html` (legacy duplicate of `index.html`)
-- `resume.html` as `resume.html`
-- `blog/index.html` as `blog/index.html`
-- `resume.pdf` as `resume.pdf` when it exists, with attachment headers for
-  downloading
-- every file under `assets/` under the same `/assets/` path
-- every file under `_next/` under the same `/_next/` path (the Next.js
-  build's content-hashed JS/CSS chunks), cached immutably like `assets/`
-- every other file under `blog/` (the LinkedIn draft pipeline and generated
-  posts, copied through from `app/blog/`) under the same `/blog/` path, with
-  no-cache headers
+HTML documents are uploaded with no-cache headers so browsers always
+revalidate them; everything else (content-hashed `_next/` chunks, images, the
+resume PDF) is cached immutably.
 
-A CloudFront Function rewrites `/blog` and `/blog/` to `/blog/index.html` so
-the blog can use a clean public URL while the private S3 origin still stores an
-explicit object key.
+A CloudFront Function rewrites any directory-style request (for example `/`,
+`/blog`, `/blog/`, or `/blog/sql-joins/`) to its `index.html` object, so every
+route - including per-post blog pages - can use a clean public URL while the
+private S3 origin still stores an explicit object key.
 
 The S3 bucket keeps object versions for rollback, and noncurrent object versions
 expire after 30 days to keep storage costs bounded.
@@ -97,7 +95,7 @@ terraform output site_url
 
 ## Updating The Site
 
-After editing the site under `site/src/`, run:
+After editing the site under `src/`, run:
 
 ```sh
 wp build

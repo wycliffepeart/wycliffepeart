@@ -12,6 +12,21 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Non-Next.js parts of this repo (Python CLI/content workflow, IaC,
+    // generated tooling output) that live alongside the site at the
+    // project root and shouldn't be linted as JS/TS.
+    ".venv/**",
+    ".pycache/**",
+    ".pytest_cache/**",
+    "app/**",
+    "content/**",
+    "scripts/**",
+    "shelly/**",
+    "templates/**",
+    "prompts/**",
+    "tests/**",
+    "terraform/**",
+    "wycliffepeart_profile.egg-info/**",
   ]),
 ]);
 

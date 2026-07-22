@@ -40,7 +40,7 @@ from scripts.posts import (
 LOGGER = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
-APP_DIR = ROOT / "app"
+WORKSPACE_DIR = ROOT / "workspace"
 TERRAFORM_DIR = ROOT / "terraform"
 SITE_OUT_DIR = site_build.OUT_DIR
 DEFAULT_INPUT = resume_to_pdf.DEFAULT_INPUT
@@ -90,10 +90,9 @@ def terraform_apply(args: argparse.Namespace) -> None:
 def deploy(args: argparse.Namespace) -> None:
     site_build.build_next_app()
     site_build.normalize_html_output()
-    site_build.copy_content_directories()
 
     # resume.pdf is regenerated from the freshly built resume page, then
-    # copied into the merged output - see resume_to_pdf.DEFAULT_INPUT.
+    # copied into the build output - see resume_to_pdf.DEFAULT_INPUT.
     generate_resume_pdf(args)
     site_build.copy_resume_pdf()
 
@@ -240,7 +239,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     build_parser = subparsers.add_parser(
         "build",
-        help="Build the Next.js site and merge it with app/'s content directories into site/out.",
+        help="Build the Next.js static export into out/.",
     )
     build_parser.set_defaults(func=build_site)
 

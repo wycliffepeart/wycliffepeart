@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/blog.css";
 import SiteFooter from "@/components/shared/SiteFooter";
+import { formatPostDate, getAllPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
   title: "Blog | Wycliffe Otaniel Peart",
@@ -14,6 +15,8 @@ export const metadata: Metadata = {
 };
 
 export default function BlogPage() {
+  const posts = getAllPosts();
+
   return (
     <div className="page">
       <nav className="nav" aria-label="Blog navigation">
@@ -43,26 +46,32 @@ export default function BlogPage() {
           </p>
         </header>
 
-        <article className="post">
-          <p className="post-meta">Sample post | July 17, 2026</p>
-          <h2>Building AI Features That Survive Production</h2>
-          <p>
-            AI features become valuable when they are treated as part of the product system, not as a thin layer
-            around a prompt. The useful work starts with clear user intent, explicit boundaries, stable input and
-            output contracts, and a plan for what should happen when the model is uncertain or unavailable.
-          </p>
-          <p>
-            I like to design these features around measurable behavior. That means structured outputs where
-            possible, narrow tools for external actions, test cases based on realistic examples, and enough logging
-            to understand decisions without exposing sensitive data. The goal is not to make the model seem magical.
-            The goal is to make the system dependable.
-          </p>
-          <p>
-            A production-ready AI workflow should have fallback paths, human review where risk is high, and
-            monitoring that shows whether the feature is actually helping users. When those basics are in place,
-            LLMs can become a practical capability inside the software instead of a fragile demo.
-          </p>
-        </article>
+        <div className="post-list">
+          {posts.map((post) => (
+            <article key={post.slug} className="post post-preview">
+              <a className="post-link" href={`${post.slug}/`}>
+                <p className="post-meta">{formatPostDate(post.date)}</p>
+                <h2>{post.title}</h2>
+              </a>
+              <p>{post.excerpt}</p>
+              {post.tags.length > 0 && (
+                <div className="post-tags">
+                  {post.tags.map((tag) => (
+                    <span key={tag} className="post-tag">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </article>
+          ))}
+
+          {posts.length === 0 && (
+            <article className="post">
+              <p>No posts yet. Check back soon.</p>
+            </article>
+          )}
+        </div>
       </main>
 
       <SiteFooter />

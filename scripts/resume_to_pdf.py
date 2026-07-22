@@ -14,10 +14,10 @@ from typing import Iterator
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP_DIR = ROOT / "app"
-SITE_OUT_DIR = ROOT / "site" / "out"
+WORKSPACE_DIR = ROOT / "workspace"
+SITE_OUT_DIR = ROOT / "out"
 DEFAULT_INPUT = SITE_OUT_DIR / "resume.html"
-DEFAULT_OUTPUT = APP_DIR / "resume.pdf"
+DEFAULT_OUTPUT = WORKSPACE_DIR / "resume.pdf"
 
 
 class _QuietHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
