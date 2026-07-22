@@ -87,6 +87,28 @@ def terraform_apply(args: argparse.Namespace) -> None:
     run_command(command, TERRAFORM_DIR)
 
 
+def invalidate_cloudfront() -> None:
+    """Bust the CloudFront edge cache for every path after a deploy.
+
+    HTML documents are served with Cache-Control: no-cache, no-store, but
+    without an invalidation, edge locations that already cached the previous
+    index.html (referencing now-deleted _next/static chunk hashes) can keep
+    serving it until their existing cached entry naturally revalidates,
+    leaving visitors with a page whose JS 404s and never hydrates."""
+    result = subprocess.run(
+        ["terraform", "output", "-raw", "cloudfront_distribution_id"],
+        cwd=TERRAFORM_DIR,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    distribution_id = result.stdout.strip()
+    run_command(
+        ["aws", "cloudfront", "create-invalidation", "--distribution-id", distribution_id, "--paths", "/*"],
+        TERRAFORM_DIR,
+    )
+
+
 def deploy(args: argparse.Namespace) -> None:
     site_build.build_next_app()
     site_build.normalize_html_output()
@@ -107,6 +129,7 @@ def deploy(args: argparse.Namespace) -> None:
         args.plan_file = args.out
 
     terraform_apply(args)
+    invalidate_cloudfront()
 
 
 def run_app(args: argparse.Namespace) -> None:

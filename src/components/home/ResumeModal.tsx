@@ -117,7 +117,7 @@ export default function ResumeModal() {
                 >
                   Download PDF
                 </a>
-                <a className="resume-action" href="/resume" target="_blank" rel="noopener noreferrer">
+                <a className="resume-action" href="resume.html" target="_blank" rel="noopener noreferrer">
                   Full Resume Page
                 </a>
                 <a className="resume-action" href={`mailto:${CONTACT.email}?subject=Engineering%20Opportunity`}>
